@@ -16,7 +16,7 @@
       <ul class="nav__links">
         <li><a href="how-it-works.html" class="active">How it works</a></li>
         <li>
-          <a href="https://github.com/nicholasjackson/spektacular"
+          <a href="https://github.com/jumppad-labs/spektacular"
              class="nav__github" target="_blank" rel="noopener">
             <svg viewBox="0 0 16 16" aria-hidden="true">
               <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38
@@ -58,13 +58,13 @@
           <div class="step__number">1</div>
           <div class="step__content">
             <h3>Install</h3>
-            <p>Requires Python 3.12+ and the <a href="https://docs.anthropic.com/en/docs/claude-code" target="_blank" rel="noopener">Claude Code CLI</a> installed and configured.</p>
+            <p>Requires Go 1.21+ and the <a href="https://docs.anthropic.com/en/docs/claude-code" target="_blank" rel="noopener">Claude Code CLI</a> installed and configured.</p>
             <div class="code-block">
-              <pre><code># with uv (recommended)
-uv pip install spektacular
+              <pre><code># install with go
+go install github.com/jumppad-labs/spektacular@latest
 
-# or with pip
-pip install spektacular</code></pre>
+# or download a pre-built binary from the releases page
+# https://github.com/jumppad-labs/spektacular/releases</code></pre>
             </div>
           </div>
         </div>
@@ -306,7 +306,7 @@ complexity:
 
       <p style="margin-top: 2rem; font-size: 0.9375rem;">
         Contributions welcome —
-        <a href="https://github.com/nicholasjackson/spektacular" target="_blank" rel="noopener">fork the repo</a>
+        <a href="https://github.com/jumppad-labs/spektacular" target="_blank" rel="noopener">fork the repo</a>
         and open a pull request.
       </p>
     </div>
@@ -320,12 +320,12 @@ complexity:
       <div class="cta-buttons">
         <div class="install-block">
           <span class="install-block__prefix">$</span>
-          <code class="install-block__cmd">pip install spektacular</code>
-          <button class="copy-btn" data-copy="pip install spektacular">Copy</button>
+          <code class="install-block__cmd">go install github.com/jumppad-labs/spektacular@latest</code>
+          <button class="copy-btn" data-copy="go install github.com/jumppad-labs/spektacular@latest">Copy</button>
         </div>
       </div>
       <div class="cta-buttons" style="margin-top: 1.25rem;">
-        <a href="https://github.com/nicholasjackson/spektacular"
+        <a href="https://github.com/jumppad-labs/spektacular"
            class="btn btn--secondary" target="_blank" rel="noopener">View on GitHub →</a>
       </div>
     </div>
@@ -336,12 +336,12 @@ complexity:
     <div class="container footer__inner">
       <span class="footer__copy">
         Spektacular —
-        <a href="https://github.com/nicholasjackson/spektacular/blob/main/LICENSE"
+        <a href="https://github.com/jumppad-labs/spektacular/blob/main/LICENSE"
            target="_blank" rel="noopener">Apache 2.0</a>
       </span>
       <div class="footer__links">
-        <a href="https://github.com/nicholasjackson/spektacular" target="_blank" rel="noopener">GitHub</a>
-        <a href="https://pypi.org/project/spektacular/" target="_blank" rel="noopener">PyPI</a>
+        <a href="https://github.com/jumppad-labs/spektacular" target="_blank" rel="noopener">GitHub</a>
+        <a href="https://github.com/jumppad-labs/spektacular/releases" target="_blank" rel="noopener">Releases</a>
       </div>
     </div>
   </footer>

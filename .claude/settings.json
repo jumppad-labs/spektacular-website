@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(host www.spektacular.dev)",
+      "Bash(getent hosts www.spektacular.dev)"
+    ]
+  }
+}
