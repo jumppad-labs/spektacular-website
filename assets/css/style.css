@@ -517,6 +517,44 @@ p {
   color: var(--text-secondary);
 }
 
+/* ── Pipeline Stages (three-subsection layout) ───────────── */
+.pipeline-stage {
+  margin-top: var(--space-lg);
+  padding-top: var(--space-lg);
+  border-top: 1px solid var(--border-subtle);
+}
+
+.pipeline-stage:first-of-type {
+  margin-top: var(--space-md);
+  padding-top: 0;
+  border-top: none;
+}
+
+.pipeline-stage__title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.pipeline-stage__number {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: var(--accent-subtle);
+  border: 1px solid var(--accent-primary);
+  color: var(--accent-light);
+  font-weight: 700;
+  font-size: 0.8125rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
 /* ============================================================
    Features Grid
    ============================================================ */

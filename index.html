@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spektacular — Spec-driven development with AI</title>
-  <meta name="description" content="Spektacular takes a markdown specification and uses AI coding agents to produce a detailed, actionable implementation plan. Agent-agnostic. Complexity-aware.">
+  <meta name="description" content="Spektacular takes a markdown specification and uses AI coding agents to plan and implement your features. Agent-agnostic. Complexity-aware.">
   <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
@@ -51,8 +51,8 @@
 
       <p class="hero__sub">
         Spektacular takes a markdown specification and uses AI coding agents to
-        produce a detailed, actionable implementation plan. Agent-agnostic.
-        Complexity-aware. Interactive TUI.
+        plan and implement your features. Agent-agnostic. Complexity-aware.
+        Interactive TUI.
       </p>
 
       <div class="hero__install">
@@ -89,8 +89,8 @@
   <section class="section section--alt" id="how-it-works">
     <div class="container">
       <div class="section__header">
-        <h2>From idea to plan</h2>
-        <p>Write a spec. Spektacular scores complexity, routes to the right model, and runs an interactive planning agent in your terminal.</p>
+        <h2>From idea to code</h2>
+        <p>Write a spec. Spektacular plans, then implements — routing each stage to the right model and running interactively in your terminal.</p>
       </div>
 
       <div class="pipeline-diagram">
@@ -123,13 +123,29 @@
           <div class="pipeline-node__label">plan.md</div>
           <div class="pipeline-node__sub">+ research.md<br>+ context.md</div>
         </div>
+
+        <div class="pipeline-connector">→</div>
+
+        <div class="pipeline-node pipeline-node--step">
+          <div class="pipeline-node__name">Implement</div>
+          <div class="pipeline-node__sub">executes plan via<br>coding agent</div>
+          <div class="pipeline-node__detail">validates against<br>acceptance criteria</div>
+        </div>
+
+        <div class="pipeline-connector">→</div>
+
+        <div class="pipeline-node pipeline-node--output">
+          <div class="pipeline-node__icon">✅</div>
+          <div class="pipeline-node__label">code</div>
+          <div class="pipeline-node__sub">working implementation<br>verified by criteria</div>
+        </div>
       </div>
 
       <div class="pipeline-annotations">
         <p>
-          The analyse phase uses a cheap model to score spec complexity.
-          The planning agent uses that score to select a model tier —
-          so simple tasks stay cheap and complex ones get the power they need.
+          Analyse scores complexity. Plan generates a detailed implementation
+          plan scaled to the task. Implement executes the plan via a coding
+          agent and validates the result against your acceptance criteria.
         </p>
       </div>
     </div>

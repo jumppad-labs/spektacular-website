@@ -39,8 +39,8 @@
     <div class="container">
       <h1>How Spektacular Works</h1>
       <p class="page-hero__sub">
-        A deep dive into spec-driven development — from writing your first spec
-        to reviewing a complete implementation plan.
+        A deep dive into spec-driven development — from writing your first
+        spec to shipping working code.
       </p>
     </div>
   </div>
@@ -50,7 +50,7 @@
     <div class="container">
       <div class="section__header">
         <h2>Quick start</h2>
-        <p>Get from zero to your first plan in under five minutes.</p>
+        <p>Zero to code in under 5 minutes.</p>
       </div>
 
       <div class="steps">
@@ -103,6 +103,17 @@ $EDITOR .spektacular/specs/auth-feature.md</code></pre>
             </div>
           </div>
         </div>
+
+        <div class="step">
+          <div class="step__number">5</div>
+          <div class="step__content">
+            <h3>Implement the plan</h3>
+            <p>Hand the plan to a coding agent. Spektacular executes each task, then validates the result against your acceptance criteria.</p>
+            <div class="code-block">
+              <pre><code>spektacular implement .spektacular/plans/auth-feature/plan.md</code></pre>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -143,6 +154,11 @@ providers to the existing Express app.
 
 ## Technical Approach
 Use passport.js for OAuth2 strategy.
+Integrate with existing session middleware.
+
+## Success Metrics
+- OAuth2 login completes in under 2 seconds
+- Zero increase in /api/users error rate
 
 ## Non-Goals
 Social login with Apple or Microsoft.</code></pre>
@@ -151,27 +167,37 @@ Social login with Apple or Microsoft.</code></pre>
         <div class="spec-annotations">
           <div class="spec-annotation">
             <div class="spec-annotation__section">## Overview</div>
-            <p>One or two sentences. What is this and why does it exist? Grounds the agent before it reads anything else.</p>
+            <p>A concise 2–3 sentence summary answering: what is being built, what problem does it solve, and who benefits? Grounds the agent before it reads anything else.</p>
           </div>
 
           <div class="spec-annotation">
             <div class="spec-annotation__section">## Requirements</div>
-            <p>Use a checklist. Each item is a discrete behaviour that must be true when the work is done. The agent uses these as the primary success signal.</p>
+            <p>A checklist of discrete behaviours. Use active voice ("Users can…"). Each item should be independently verifiable and focus on what, not how.</p>
           </div>
 
           <div class="spec-annotation">
             <div class="spec-annotation__section">## Constraints</div>
-            <p>Hard boundaries the agent must respect. Existing APIs, dependency limits, performance budgets. Violations here are plan failures.</p>
+            <p>Non-negotiable boundaries — existing APIs, dependency limits, performance budgets. Violations are plan failures. Leave blank if none.</p>
           </div>
 
           <div class="spec-annotation">
             <div class="spec-annotation__section">## Acceptance Criteria</div>
-            <p>Verifiable conditions — ideally things a test can check. These become the automated verification steps in the output plan.</p>
+            <p>Binary pass/fail conditions, each traceable to a requirement and testable by someone who didn't write the code. These become the verification steps in the output plan.</p>
+          </div>
+
+          <div class="spec-annotation">
+            <div class="spec-annotation__section">## Technical Approach</div>
+            <p>High-level technical direction — key architectural decisions, preferred patterns, integration points, and known risks. Leave blank to let the planner propose an approach.</p>
+          </div>
+
+          <div class="spec-annotation">
+            <div class="spec-annotation__section">## Success Metrics</div>
+            <p>How you'll know it works well after delivery. Quantitative ("p99 latency &lt; 200ms") or behavioural ("users complete the flow without support"). Leave blank if not applicable.</p>
           </div>
 
           <div class="spec-annotation">
             <div class="spec-annotation__section">## Non-Goals</div>
-            <p>Explicitly out of scope. Prevents the agent from over-engineering or solving adjacent problems you didn't ask for.</p>
+            <p>Explicitly out of scope — prevents scope creep and over-engineering. Leave blank if there are no exclusions to call out.</p>
           </div>
         </div>
       </div>
@@ -183,49 +209,149 @@ Social login with Apple or Microsoft.</code></pre>
     <div class="container">
       <div class="section__header">
         <h2>The pipeline</h2>
-        <p>Two stages: a fast cheap analysis pass, then a thorough planning pass scaled to match the task complexity.</p>
+        <p>Three stages: write the spec, generate a plan scaled to complexity, then implement and validate.</p>
       </div>
 
-      <div class="pipeline-diagram">
-        <div class="pipeline-node pipeline-node--file">
-          <div class="pipeline-node__icon">📄</div>
-          <div class="pipeline-node__label">spec.md</div>
-          <div class="pipeline-node__sub">your requirements</div>
+      <!-- ── Stage 1: Specification ──────────────────────── -->
+      <div class="pipeline-stage">
+        <h3 class="pipeline-stage__title">
+          <span class="pipeline-stage__number">1</span>
+          Specification
+        </h3>
+
+        <div class="pipeline-diagram">
+          <div class="pipeline-node pipeline-node--file">
+            <div class="pipeline-node__icon">💡</div>
+            <div class="pipeline-node__label">idea</div>
+            <div class="pipeline-node__sub">requirements,<br>constraints &amp; criteria</div>
+          </div>
+
+          <div class="pipeline-connector">→</div>
+
+          <div class="pipeline-node pipeline-node--step">
+            <div class="pipeline-node__name">Write</div>
+            <div class="pipeline-node__sub">structured markdown<br>spec template</div>
+          </div>
+
+          <div class="pipeline-connector">→</div>
+
+          <div class="pipeline-node pipeline-node--output">
+            <div class="pipeline-node__icon">📄</div>
+            <div class="pipeline-node__label">spec.md</div>
+            <div class="pipeline-node__sub">your requirements<br>in a standard format</div>
+          </div>
         </div>
 
-        <div class="pipeline-connector">→</div>
-
-        <div class="pipeline-node pipeline-node--step">
-          <div class="pipeline-node__name">Analyse</div>
-          <div class="pipeline-node__sub">complexity score<br>0.0 – 1.0</div>
-          <div class="pipeline-node__detail">cheap model<br>(fast &amp; low cost)</div>
-        </div>
-
-        <div class="pipeline-connector">→</div>
-
-        <div class="pipeline-node pipeline-node--step">
-          <div class="pipeline-node__name">Plan</div>
-          <div class="pipeline-node__sub">explores codebase,<br>asks questions</div>
-          <div class="pipeline-node__detail">Haiku · Sonnet · Opus<br>scaled by score</div>
-        </div>
-
-        <div class="pipeline-connector">→</div>
-
-        <div class="pipeline-node pipeline-node--output">
-          <div class="pipeline-node__icon">📋</div>
-          <div class="pipeline-node__label">plan.md</div>
-          <div class="pipeline-node__sub">+ research.md<br>+ context.md</div>
+        <div class="pipeline-annotations" style="margin-top: 1.5rem;">
+          <p style="max-width: 70ch; text-align: left;">
+            Run <code>spektacular new</code> to scaffold a spec from the
+            template, then fill in your requirements, constraints, and
+            acceptance criteria. The spec is plain markdown — no special
+            syntax, just structured sections.
+          </p>
         </div>
       </div>
 
-      <div class="pipeline-annotations" style="margin-top: 2rem;">
-        <p style="max-width: 70ch; text-align: left;">
-          <strong style="color: var(--text-primary);">Analyse</strong> uses a cheap, fast model to score the spec on a 0.0–1.0 complexity scale — examining requirement count, constraint density, technical keywords, and spec length. The score is returned in under a second.
-        </p>
-        <p style="max-width: 70ch; text-align: left; margin-top: 1rem;">
-          <strong style="color: var(--text-primary);">Plan</strong> uses that score to select a model tier. It loads your project knowledge base, explores the codebase, and runs interactively in the TUI — streaming markdown output and surfacing clarifying questions you answer by pressing a key. The result is written to <code>.spektacular/plans/</code>.
-        </p>
+      <!-- ── Stage 2: Generate the Plan ──────────────────── -->
+      <div class="pipeline-stage">
+        <h3 class="pipeline-stage__title">
+          <span class="pipeline-stage__number">2</span>
+          Generate the Plan
+        </h3>
+
+        <div class="pipeline-diagram">
+          <div class="pipeline-node pipeline-node--file">
+            <div class="pipeline-node__icon">📄</div>
+            <div class="pipeline-node__label">spec.md</div>
+            <div class="pipeline-node__sub">your requirements</div>
+          </div>
+
+          <div class="pipeline-connector">→</div>
+
+          <div class="pipeline-node pipeline-node--step">
+            <div class="pipeline-node__name">Analyse</div>
+            <div class="pipeline-node__sub">complexity score<br>0.0 – 1.0</div>
+            <div class="pipeline-node__detail">cheap model<br>(fast &amp; low cost)</div>
+          </div>
+
+          <div class="pipeline-connector">→</div>
+
+          <div class="pipeline-node pipeline-node--step">
+            <div class="pipeline-node__name">Plan</div>
+            <div class="pipeline-node__sub">explores codebase,<br>asks questions</div>
+            <div class="pipeline-node__detail">Haiku · Sonnet · Opus<br>scaled by score</div>
+          </div>
+
+          <div class="pipeline-connector">→</div>
+
+          <div class="pipeline-node pipeline-node--output">
+            <div class="pipeline-node__icon">📋</div>
+            <div class="pipeline-node__label">plan.md</div>
+            <div class="pipeline-node__sub">+ research.md<br>+ context.md</div>
+          </div>
+        </div>
+
+        <div class="pipeline-annotations" style="margin-top: 1.5rem;">
+          <p style="max-width: 70ch; text-align: left;">
+            <strong style="color: var(--text-primary);">Analyse</strong>
+            uses a cheap, fast model to score the spec on a 0.0–1.0
+            complexity scale — examining requirement count, constraint
+            density, technical keywords, and spec length. The score is
+            returned in under a second.
+          </p>
+          <p style="max-width: 70ch; text-align: left; margin-top: 1rem;">
+            <strong style="color: var(--text-primary);">Plan</strong>
+            uses that score to select a model tier. It loads your project
+            knowledge base, explores the codebase, and runs interactively
+            in the TUI — streaming markdown output and surfacing
+            clarifying questions you answer by pressing a key. The result
+            is written to <code>.spektacular/plans/</code>.
+          </p>
+        </div>
       </div>
+
+      <!-- ── Stage 3: Implement the Plan ─────────────────── -->
+      <div class="pipeline-stage">
+        <h3 class="pipeline-stage__title">
+          <span class="pipeline-stage__number">3</span>
+          Implement the Plan
+        </h3>
+
+        <div class="pipeline-diagram">
+          <div class="pipeline-node pipeline-node--file">
+            <div class="pipeline-node__icon">📋</div>
+            <div class="pipeline-node__label">plan.md</div>
+            <div class="pipeline-node__sub">implementation plan<br>+ research + context</div>
+          </div>
+
+          <div class="pipeline-connector">→</div>
+
+          <div class="pipeline-node pipeline-node--step">
+            <div class="pipeline-node__name">Implement</div>
+            <div class="pipeline-node__sub">executes plan via<br>coding agent</div>
+            <div class="pipeline-node__detail">validates against<br>acceptance criteria</div>
+          </div>
+
+          <div class="pipeline-connector">→</div>
+
+          <div class="pipeline-node pipeline-node--output">
+            <div class="pipeline-node__icon">✅</div>
+            <div class="pipeline-node__label">code</div>
+            <div class="pipeline-node__sub">working implementation<br>verified by criteria</div>
+          </div>
+        </div>
+
+        <div class="pipeline-annotations" style="margin-top: 1.5rem;">
+          <p style="max-width: 70ch; text-align: left;">
+            <strong style="color: var(--text-primary);">Implement</strong>
+            hands the plan to a coding agent as a subprocess. The agent
+            executes each task from the plan, and a validation step
+            verifies the output against your acceptance criteria — so you
+            know the implementation matches the spec.
+          </p>
+        </div>
+      </div>
+
     </div>
   </section>
 
