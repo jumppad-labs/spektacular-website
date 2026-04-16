@@ -1,37 +1,4 @@
-api:
-    anthropic_api_key: ${ANTHROPIC_API_KEY}
-    timeout: 60
-models:
-    default: anthropic/claude-3-5-sonnet-20241022
-    tiers:
-        simple: anthropic/claude-3-5-haiku-20241022
-        medium: anthropic/claude-3-5-sonnet-20241022
-        complex: anthropic/claude-3-opus-20240229
-complexity:
-    thresholds:
-        simple: 0.3
-        medium: 0.6
-        complex: 0.8
-output:
-    format: markdown
-    include_metadata: true
-agent:
-    command: claude
-    args:
-        - --output-format
-        - stream-json
-        - --verbose
-    allowed_tools:
-        - Task
-        - Bash
-        - Read
-        - Write
-        - Edit
-        - Glob
-        - Grep
-        - WebFetch
-        - WebSearch
-    dangerously_skip_permissions: false
+command: spektacular
+agent: claude
 debug:
     enabled: false
-    log_dir: .spektacular/debug/logs
