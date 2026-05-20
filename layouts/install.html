@@ -1,0 +1,62 @@
+{{ define "main" }}
+{{- $methodClasses := "py-14 pb-6 border-t border-border-subtle first:border-t-0 first:pt-0" -}}
+<main class="grow">
+  {{/* ── Page Hero ─────────────────────────────────────────── */}}
+  <div class="py-14 pb-10 border-b border-border-subtle">
+    <div class="mx-auto max-w-[1100px] px-md">
+      <h1 class="text-text-primary font-extrabold leading-[1.1] tracking-[-0.02em] mb-3 text-[clamp(1.875rem,4vw,2.75rem)]">{{ .Params.heroHeading }}</h1>
+      <p class="text-[1.0625rem] text-text-secondary max-w-[60ch] m-0">{{ .Params.heroSub }}</p>
+    </div>
+  </div>
+
+  {{/* ── Install Methods ───────────────────────────────────── */}}
+  <section class="pt-12 pb-xl max-sm:pb-lg">
+    <div class="mx-auto max-w-[1100px] px-md">
+      <div class="mb-8">
+        <h2 class="mb-xs text-text-primary font-bold leading-tight tracking-[-0.01em] text-[clamp(1.625rem,3vw,2.25rem)]">Choose your install method</h2>
+        <p class="text-lg text-text-secondary max-w-[65ch]">Pick the method that fits your workflow.</p>
+      </div>
+
+      <div class="flex flex-col">
+        {{/* Homebrew */}}
+        <div class="{{ $methodClasses }}">
+          <h3 class="text-lg font-semibold text-text-primary mb-2">Homebrew</h3>
+          <p class="text-[0.9375rem] text-text-secondary mb-3 max-w-[65ch]">Install via the official Homebrew tap:</p>
+          {{ partial "install-block.html" (dict "command" .Site.Params.installCommand "full" true) }}
+        </div>
+
+        {{/* Debian / Ubuntu */}}
+        <div class="{{ $methodClasses }}">
+          <h3 class="text-lg font-semibold text-text-primary mb-2">Debian / Ubuntu</h3>
+          <p class="text-[0.9375rem] text-text-secondary mb-3 max-w-[65ch]">Add the apt repository and install:</p>
+          {{ partial "code-block.html" (dict "code" "echo \"deb [trusted=yes] https://apt.fury.io/jumppad/ /\" \\\n  | sudo tee /etc/apt/sources.list.d/spektacular.list\nsudo apt update\nsudo apt install spektacular") }}
+        </div>
+
+        {{/* GitHub Releases */}}
+        <div class="{{ $methodClasses }}">
+          <h3 class="text-lg font-semibold text-text-primary mb-2">GitHub Releases</h3>
+          <p class="text-[0.9375rem] text-text-secondary mb-3 max-w-[65ch]">
+            Download the latest release archive from
+            <a href="{{ .Site.Params.releasesURL }}" class="text-link-blue hover:underline" target="_blank" rel="noopener">GitHub Releases</a>,
+            extract the binary, and move it to a directory on your
+            <code class="bg-bg-elevated text-accent-light px-1.5 py-0.5 rounded-sm text-[0.875em] font-mono">$PATH</code>.
+          </p>
+          <div class="grid grid-cols-2 gap-4 mt-1 max-sm:grid-cols-1">
+            {{- range (slice
+                (dict "label" "macOS (Apple Silicon)" "code" "tar -xzf spektacular_Darwin_arm64.tar.gz\nsudo mv spektacular /usr/local/bin/")
+                (dict "label" "macOS (Intel)" "code" "tar -xzf spektacular_Darwin_x86_64.tar.gz\nsudo mv spektacular /usr/local/bin/")
+                (dict "label" "Linux (x86_64)" "code" "tar -xzf spektacular_Linux_x86_64.tar.gz\nsudo mv spektacular /usr/local/bin/")
+                (dict "label" "Linux (ARM64)" "code" "tar -xzf spektacular_Linux_arm64.tar.gz\nsudo mv spektacular /usr/local/bin/")
+            ) }}
+              <div>
+                <p class="text-[0.8125rem] font-semibold text-text-secondary mb-1.5 max-w-none">{{ .label }}</p>
+                {{ partial "code-block.html" (dict "code" .code) }}
+              </div>
+            {{- end }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+{{ end }}

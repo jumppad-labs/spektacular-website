@@ -1,0 +1,262 @@
+{{ define "main" }}
+{{- $stepClasses := "grid grid-cols-[2.5rem_1fr] gap-x-5 gap-y-4 items-start max-sm:grid-cols-[2rem_1fr]" -}}
+{{- $stepNumClasses := "w-10 h-10 rounded-full bg-accent-subtle border border-accent-primary text-accent-light font-bold text-sm flex items-center justify-center shrink-0" -}}
+{{- $stageHeading := "flex items-center gap-3 text-xl font-bold text-text-primary mb-2" -}}
+{{- $stageNumber := "w-8 h-8 rounded-full bg-accent-subtle border border-accent-primary text-accent-light font-bold text-[0.8125rem] inline-flex items-center justify-center shrink-0" -}}
+<main class="grow">
+  {{/* ── Page Hero ─────────────────────────────────────────── */}}
+  <div class="py-14 pb-10 border-b border-border-subtle">
+    <div class="mx-auto max-w-[1100px] px-md">
+      <h1 class="text-text-primary font-extrabold leading-[1.1] tracking-[-0.02em] mb-3 text-[clamp(1.875rem,4vw,2.75rem)]">{{ .Params.heroHeading }}</h1>
+      <p class="text-[1.0625rem] text-text-secondary max-w-[60ch] m-0">{{ .Params.heroSub }}</p>
+    </div>
+  </div>
+
+  {{/* ── Quick Start ───────────────────────────────────────── */}}
+  <section class="py-xl max-sm:py-lg" id="quick-start">
+    <div class="mx-auto max-w-[1100px] px-md">
+      <div class="mb-lg">
+        <h2 class="mb-xs text-text-primary font-bold leading-tight tracking-[-0.01em] text-[clamp(1.625rem,3vw,2.25rem)]">Quick start</h2>
+        <p class="text-lg text-text-secondary max-w-[65ch]">Zero to code in under 5 minutes.</p>
+      </div>
+
+      <div class="flex flex-col gap-6 mt-10">
+        <div class="{{ $stepClasses }}">
+          <div class="{{ $stepNumClasses }}">1</div>
+          <div>
+            <h3 class="text-lg font-semibold text-text-primary mb-1.5">Install</h3>
+            <p class="text-[0.9375rem] text-text-secondary mb-3 max-w-[65ch]">Requires Go 1.21+ and the <a href="https://docs.anthropic.com/en/docs/claude-code" class="text-link-blue hover:underline" target="_blank" rel="noopener">Claude Code CLI</a> installed and configured.</p>
+            {{ partial "code-block.html" (dict "code" "# install with go\ngo install github.com/jumppad-labs/spektacular@latest\n\n# or download a pre-built binary from the releases page\n# https://github.com/jumppad-labs/spektacular/releases") }}
+          </div>
+        </div>
+
+        <div class="{{ $stepClasses }}">
+          <div class="{{ $stepNumClasses }}">2</div>
+          <div>
+            <h3 class="text-lg font-semibold text-text-primary mb-1.5">Initialise your project</h3>
+            <p class="text-[0.9375rem] text-text-secondary mb-3 max-w-[65ch]">Run this from the root of your codebase. Creates a <code class="bg-bg-elevated text-accent-light px-1.5 py-0.5 rounded-sm text-[0.875em] font-mono">.spektacular/</code> directory with config, knowledge base, and template files.</p>
+            {{ partial "code-block.html" (dict "code" "cd my-project\nspektacular init") }}
+          </div>
+        </div>
+
+        <div class="{{ $stepClasses }}">
+          <div class="{{ $stepNumClasses }}">3</div>
+          <div>
+            <h3 class="text-lg font-semibold text-text-primary mb-1.5">Create a spec</h3>
+            <p class="text-[0.9375rem] text-text-secondary mb-3 max-w-[65ch]">Scaffold a new spec file from the template, then fill in your requirements and constraints.</p>
+            {{ partial "code-block.html" (dict "code" "spektacular new auth-feature --title \"User Authentication\"\n$EDITOR .spektacular/specs/auth-feature.md") }}
+          </div>
+        </div>
+
+        <div class="{{ $stepClasses }}">
+          <div class="{{ $stepNumClasses }}">4</div>
+          <div>
+            <h3 class="text-lg font-semibold text-text-primary mb-1.5">Generate a plan</h3>
+            <p class="text-[0.9375rem] text-text-secondary mb-3 max-w-[65ch]">The TUI launches, streams agent output in real time, asks clarifying questions, and writes the plan when done.</p>
+            {{ partial "code-block.html" (dict "code" "spektacular plan .spektacular/specs/auth-feature.md") }}
+          </div>
+        </div>
+
+        <div class="{{ $stepClasses }}">
+          <div class="{{ $stepNumClasses }}">5</div>
+          <div>
+            <h3 class="text-lg font-semibold text-text-primary mb-1.5">Implement the plan</h3>
+            <p class="text-[0.9375rem] text-text-secondary mb-3 max-w-[65ch]">Hand the plan to a coding agent. Spektacular executes each task, then validates the result against your acceptance criteria.</p>
+            {{ partial "code-block.html" (dict "code" "spektacular implement .spektacular/plans/auth-feature/plan.md") }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {{/* ── Spec Format ───────────────────────────────────────── */}}
+  <section class="py-xl bg-bg-surface max-sm:py-lg" id="spec-format">
+    <div class="mx-auto max-w-[1100px] px-md">
+      <div class="mb-lg">
+        <h2 class="mb-xs text-text-primary font-bold leading-tight tracking-[-0.01em] text-[clamp(1.625rem,3vw,2.25rem)]">The spec format</h2>
+        <p class="text-lg text-text-secondary max-w-[65ch]">Specs are plain markdown files. No special syntax — just structured sections that give the planning agent what it needs.</p>
+      </div>
+
+      <div class="grid grid-cols-2 gap-md items-start mt-10 max-md:grid-cols-1">
+        {{ partial "code-block.html" (dict "code" "# Feature: User Authentication\n\n## Overview\nAdd OAuth2 login with Google and GitHub\nproviders to the existing Express app.\n\n## Requirements\n- [ ] Users can sign in with Google OAuth2\n- [ ] Users can sign in with GitHub OAuth2\n- [ ] Session persists across browser refreshes\n- [ ] Logout clears session and redirects\n\n## Constraints\n- Must use existing Express backend\n- No new dependencies over 50KB gzipped\n- Cannot change the /api/users schema\n\n## Acceptance Criteria\n- [ ] Login redirects to provider, returns\n      with valid session\n- [ ] Session cookie is httpOnly, secure,\n      sameSite=strict\n- [ ] Logout flow works end-to-end\n\n## Technical Approach\nUse passport.js for OAuth2 strategy.\nIntegrate with existing session middleware.\n\n## Success Metrics\n- OAuth2 login completes in under 2 seconds\n- Zero increase in /api/users error rate\n\n## Non-Goals\nSocial login with Apple or Microsoft.") }}
+
+        <div class="flex flex-col gap-4">
+          {{- range (slice
+              (dict "section" "## Overview" "body" "A concise 2–3 sentence summary answering: what is being built, what problem does it solve, and who benefits? Grounds the agent before it reads anything else.")
+              (dict "section" "## Requirements" "body" "A checklist of discrete behaviours. Use active voice (\"Users can…\"). Each item should be independently verifiable and focus on what, not how.")
+              (dict "section" "## Constraints" "body" "Non-negotiable boundaries — existing APIs, dependency limits, performance budgets. Violations are plan failures. Leave blank if none.")
+              (dict "section" "## Acceptance Criteria" "body" "Binary pass/fail conditions, each traceable to a requirement and testable by someone who didn't write the code. These become the verification steps in the output plan.")
+              (dict "section" "## Technical Approach" "body" "High-level technical direction — key architectural decisions, preferred patterns, integration points, and known risks. Leave blank to let the planner propose an approach.")
+              (dict "section" "## Success Metrics" "body" "How you'll know it works well after delivery. Quantitative (\"p99 latency &lt; 200ms\") or behavioural (\"users complete the flow without support\"). Leave blank if not applicable.")
+              (dict "section" "## Non-Goals" "body" "Explicitly out of scope — prevents scope creep and over-engineering. Leave blank if there are no exclusions to call out.")
+          ) }}
+            <div class="px-4 py-[0.875rem] bg-bg-surface border border-border-subtle border-l-[3px] border-l-accent-primary rounded-r-md">
+              <div class="font-mono text-xs text-accent-light font-semibold mb-1">{{ .section }}</div>
+              <p class="text-sm text-text-secondary max-w-none m-0">{{ .body | safeHTML }}</p>
+            </div>
+          {{- end }}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {{/* ── The Pipeline ──────────────────────────────────────── */}}
+  <section class="py-xl max-sm:py-lg" id="pipeline">
+    <div class="mx-auto max-w-[1100px] px-md">
+      <div class="mb-lg">
+        <h2 class="mb-xs text-text-primary font-bold leading-tight tracking-[-0.01em] text-[clamp(1.625rem,3vw,2.25rem)]">The pipeline</h2>
+        <p class="text-lg text-text-secondary max-w-[65ch]">Three stages: write the spec, generate a plan scaled to complexity, then implement and validate.</p>
+      </div>
+
+      {{/* ── Stage 1: Specification ── */}}
+      <div class="mt-md pt-0 first-of-type:mt-md first-of-type:pt-0 first-of-type:border-t-0 [&:not(:first-of-type)]:mt-lg [&:not(:first-of-type)]:pt-lg [&:not(:first-of-type)]:border-t [&:not(:first-of-type)]:border-border-subtle">
+        <h3 class="{{ $stageHeading }}">
+          <span class="{{ $stageNumber }}">1</span>
+          Specification
+        </h3>
+        <div class="flex items-center justify-center flex-wrap gap-y-4 mt-10 mb-8 max-sm:flex-col">
+          {{ partial "pipeline-node.html" (dict "kind" "file" "icon" "💡" "label" "idea" "sub" "requirements,<br>constraints &amp; criteria") }}
+          {{ partial "pipeline-connector.html" . }}
+          {{ partial "pipeline-node.html" (dict "kind" "step" "name" "Write" "sub" "structured markdown<br>spec template") }}
+          {{ partial "pipeline-connector.html" . }}
+          {{ partial "pipeline-node.html" (dict "kind" "output" "icon" "📄" "label" "spec.md" "sub" "your requirements<br>in a standard format") }}
+        </div>
+        <div class="mt-6">
+          <p class="max-w-[70ch] text-left text-[0.9375rem] text-text-secondary">
+            Run <code class="bg-bg-elevated text-accent-light px-1.5 py-0.5 rounded-sm text-[0.875em] font-mono">spektacular new</code> to scaffold a spec from the template, then fill in your requirements, constraints, and acceptance criteria. The spec is plain markdown — no special syntax, just structured sections.
+          </p>
+        </div>
+      </div>
+
+      {{/* ── Stage 2: Generate the Plan ── */}}
+      <div class="mt-lg pt-lg border-t border-border-subtle">
+        <h3 class="{{ $stageHeading }}">
+          <span class="{{ $stageNumber }}">2</span>
+          Generate the Plan
+        </h3>
+        <div class="flex items-center justify-center flex-wrap gap-y-4 mt-10 mb-8 max-sm:flex-col">
+          {{ partial "pipeline-node.html" (dict "kind" "file" "icon" "📄" "label" "spec.md" "sub" "your requirements") }}
+          {{ partial "pipeline-connector.html" . }}
+          {{ partial "pipeline-node.html" (dict "kind" "step" "name" "Analyse" "sub" "complexity score<br>0.0 – 1.0" "detail" "cheap model<br>(fast &amp; low cost)") }}
+          {{ partial "pipeline-connector.html" . }}
+          {{ partial "pipeline-node.html" (dict "kind" "step" "name" "Plan" "sub" "explores codebase,<br>asks questions" "detail" "Haiku · Sonnet · Opus<br>scaled by score") }}
+          {{ partial "pipeline-connector.html" . }}
+          {{ partial "pipeline-node.html" (dict "kind" "output" "icon" "📋" "label" "plan.md" "sub" "+ research.md<br>+ context.md") }}
+        </div>
+        <div class="mt-6 space-y-4">
+          <p class="max-w-[70ch] text-left text-[0.9375rem] text-text-secondary">
+            <strong class="text-text-primary">Analyse</strong> uses a cheap, fast model to score the spec on a 0.0–1.0 complexity scale — examining requirement count, constraint density, technical keywords, and spec length. The score is returned in under a second.
+          </p>
+          <p class="max-w-[70ch] text-left text-[0.9375rem] text-text-secondary">
+            <strong class="text-text-primary">Plan</strong> uses that score to select a model tier. It loads your project knowledge base, explores the codebase, and runs interactively in the TUI — streaming markdown output and surfacing clarifying questions you answer by pressing a key. The result is written to <code class="bg-bg-elevated text-accent-light px-1.5 py-0.5 rounded-sm text-[0.875em] font-mono">.spektacular/plans/</code>.
+          </p>
+        </div>
+      </div>
+
+      {{/* ── Stage 3: Implement the Plan ── */}}
+      <div class="mt-lg pt-lg border-t border-border-subtle">
+        <h3 class="{{ $stageHeading }}">
+          <span class="{{ $stageNumber }}">3</span>
+          Implement the Plan
+        </h3>
+        <div class="flex items-center justify-center flex-wrap gap-y-4 mt-10 mb-8 max-sm:flex-col">
+          {{ partial "pipeline-node.html" (dict "kind" "file" "icon" "📋" "label" "plan.md" "sub" "implementation plan<br>+ research + context") }}
+          {{ partial "pipeline-connector.html" . }}
+          {{ partial "pipeline-node.html" (dict "kind" "step" "name" "Implement" "sub" "executes plan via<br>coding agent" "detail" "validates against<br>acceptance criteria") }}
+          {{ partial "pipeline-connector.html" . }}
+          {{ partial "pipeline-node.html" (dict "kind" "output" "icon" "✅" "label" "code" "sub" "working implementation<br>verified by criteria") }}
+        </div>
+        <div class="mt-6">
+          <p class="max-w-[70ch] text-left text-[0.9375rem] text-text-secondary">
+            <strong class="text-text-primary">Implement</strong> hands the plan to a coding agent as a subprocess. The agent executes each task from the plan, and a validation step verifies the output against your acceptance criteria — so you know the implementation matches the spec.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {{/* ── Configuration ─────────────────────────────────────── */}}
+  <section class="py-xl bg-bg-surface max-sm:py-lg" id="configuration">
+    <div class="mx-auto max-w-[1100px] px-md">
+      <div class="mb-lg">
+        <h2 class="mb-xs text-text-primary font-bold leading-tight tracking-[-0.01em] text-[clamp(1.625rem,3vw,2.25rem)]">Configuration</h2>
+        <p class="text-lg text-text-secondary max-w-[65ch]">Model routing and complexity thresholds are controlled by <code class="bg-bg-elevated text-accent-light px-1.5 py-0.5 rounded-sm text-[0.875em] font-mono">.spektacular/config.yaml</code>.</p>
+      </div>
+
+      {{ partial "code-block.html" (dict "code" "models:\n  default: anthropic/claude-3-5-sonnet-20241022\n  tiers:\n    simple:  anthropic/claude-3-5-haiku-20241022    # score 0.0–0.3\n    medium:  anthropic/claude-3-5-sonnet-20241022   # score 0.3–0.6\n    complex: anthropic/claude-3-opus-20240229       # score 0.6+\n\ncomplexity:\n  thresholds:\n    simple:  0.3\n    medium:  0.6\n    complex: 0.8") }}
+
+      <p class="mt-6 text-base text-text-secondary max-w-[65ch]">
+        Model selection is automatic. Raise or lower the thresholds to tune how aggressively Spektacular routes to more capable (and more expensive) models. Environment variables are expanded — set <code class="bg-bg-elevated text-accent-light px-1.5 py-0.5 rounded-sm text-[0.875em] font-mono">ANTHROPIC_API_KEY</code> and the default agent will use it automatically.
+      </p>
+    </div>
+  </section>
+
+  {{/* ── Roadmap ───────────────────────────────────────────── */}}
+  <section class="py-xl max-sm:py-lg" id="roadmap">
+    <div class="mx-auto max-w-[1100px] px-md">
+      <div class="mb-lg">
+        <h2 class="mb-xs text-text-primary font-bold leading-tight tracking-[-0.01em] text-[clamp(1.625rem,3vw,2.25rem)]">Roadmap</h2>
+        <p class="text-lg text-text-secondary max-w-[65ch]">Spektacular is v0.0.1 — early development. The core spec → plan pipeline works. Here's what's coming next.</p>
+      </div>
+
+      <div class="flex flex-col gap-6 mt-10">
+        <div class="grid grid-cols-[6rem_1fr] gap-5 items-start max-sm:grid-cols-1 max-sm:gap-2">
+          <div class="font-mono font-bold text-sm rounded-pill border px-3 py-1 text-center whitespace-nowrap text-terminal-green bg-[#0d2010] border-terminal-green-dim max-sm:w-fit">v0.2</div>
+          <div>
+            <h3 class="text-lg font-semibold text-text-primary mb-2">Automated execution</h3>
+            <ul class="list-none flex flex-col gap-1">
+              <li class="text-[0.9375rem] text-text-secondary pl-4 relative before:content-['·'] before:absolute before:left-0 before:text-text-muted">Execute plans via coding agent subprocess</li>
+              <li class="text-[0.9375rem] text-text-secondary pl-4 relative before:content-['·'] before:absolute before:left-0 before:text-text-muted">Validation agent verifies output against acceptance criteria</li>
+              <li class="text-[0.9375rem] text-text-secondary pl-4 relative before:content-['·'] before:absolute before:left-0 before:text-text-muted">GitHub Issues integration for plan tracking</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-[6rem_1fr] gap-5 items-start max-sm:grid-cols-1 max-sm:gap-2">
+          <div class="font-mono font-bold text-sm rounded-pill border px-3 py-1 text-center whitespace-nowrap text-accent-light bg-accent-subtle border-accent-primary max-sm:w-fit">v0.3</div>
+          <div>
+            <h3 class="text-lg font-semibold text-text-primary mb-2">Multi-agent backends</h3>
+            <ul class="list-none flex flex-col gap-1">
+              <li class="text-[0.9375rem] text-text-secondary pl-4 relative before:content-['·'] before:absolute before:left-0 before:text-text-muted">MCP server integration</li>
+              <li class="text-[0.9375rem] text-text-secondary pl-4 relative before:content-['·'] before:absolute before:left-0 before:text-text-muted">Multiple agent backends — Aider, Cursor, custom</li>
+              <li class="text-[0.9375rem] text-text-secondary pl-4 relative before:content-['·'] before:absolute before:left-0 before:text-text-muted">Cost tracking per plan</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-[6rem_1fr] gap-5 items-start max-sm:grid-cols-1 max-sm:gap-2">
+          <div class="font-mono font-bold text-sm rounded-pill border px-3 py-1 text-center whitespace-nowrap text-accent-light bg-accent-subtle border-accent-primary max-sm:w-fit">v1.0</div>
+          <div>
+            <h3 class="text-lg font-semibold text-text-primary mb-2">Enterprise scale</h3>
+            <ul class="list-none flex flex-col gap-1">
+              <li class="text-[0.9375rem] text-text-secondary pl-4 relative before:content-['·'] before:absolute before:left-0 before:text-text-muted">Parallel task execution</li>
+              <li class="text-[0.9375rem] text-text-secondary pl-4 relative before:content-['·'] before:absolute before:left-0 before:text-text-muted">Plugin system for custom stages</li>
+              <li class="text-[0.9375rem] text-text-secondary pl-4 relative before:content-['·'] before:absolute before:left-0 before:text-text-muted">CI integration</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <p class="mt-8 text-[0.9375rem] text-text-secondary">
+        Contributions welcome —
+        <a href="{{ .Site.Params.githubURL }}" class="text-link-blue hover:underline" target="_blank" rel="noopener">fork the repo</a>
+        and open a pull request.
+      </p>
+    </div>
+  </section>
+
+  {{/* ── CTA Banner ────────────────────────────────────────── */}}
+  <section class="bg-accent-subtle border-y border-accent-primary/30 py-xl max-sm:py-lg text-center">
+    <div class="mx-auto max-w-[700px] px-md">
+      <h2 class="text-text-primary mb-3 font-bold leading-tight tracking-[-0.01em] text-[clamp(1.625rem,3vw,2.25rem)]">Ready to start?</h2>
+      <p class="text-[1.0625rem] text-text-secondary mx-auto mb-8 max-w-[48ch]">Install Spektacular and generate your first plan in minutes.</p>
+      <div class="flex justify-center flex-wrap mb-5">
+        {{ partial "install-block.html" (dict "command" .Site.Params.installCommand) }}
+      </div>
+      <div class="flex gap-4 justify-center flex-wrap max-sm:flex-col max-sm:items-center">
+        {{ partial "button.html" (dict "href" .Site.Params.githubURL "label" "View on GitHub →" "variant" "secondary" "external" true) }}
+      </div>
+    </div>
+  </section>
+</main>
+{{ end }}
