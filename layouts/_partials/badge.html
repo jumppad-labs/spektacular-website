@@ -1,0 +1,15 @@
+{{- $text := .text -}}
+{{- $variant := default "green" .variant -}}
+{{- $dot := default false .dot -}}
+{{- $variantClasses := "" -}}
+{{- if eq $variant "green" -}}
+  {{- $variantClasses = "bg-[#0d2010] text-terminal-green border border-terminal-green-dim" -}}
+{{- else if eq $variant "purple" -}}
+  {{- $variantClasses = "bg-accent-subtle text-accent-light border border-accent-primary" -}}
+{{- end -}}
+<span class="inline-flex items-center gap-1.5 px-3 py-[0.3rem] rounded-pill text-xs font-semibold tracking-wider uppercase {{ $variantClasses }}">
+  {{- if $dot -}}
+    <span class="inline-block w-1.5 h-1.5 rounded-full bg-terminal-green"></span>
+  {{- end -}}
+  {{ $text }}
+</span>

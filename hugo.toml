@@ -1,0 +1,53 @@
+baseURL = "https://spektacular.dev/"
+defaultContentLanguage = "en"
+title = "Spektacular"
+disableKinds = ["taxonomy", "term"]
+
+[languages.en]
+  locale = "en-us"
+  weight = 1
+
+[params]
+  description = "Spektacular takes a markdown specification and uses AI coding agents to plan and implement your features. Agent-agnostic. Complexity-aware."
+  githubURL = "https://github.com/jumppad-labs/spektacular"
+  releasesURL = "https://github.com/jumppad-labs/spektacular/releases"
+  licenseURL = "https://github.com/jumppad-labs/spektacular/blob/main/LICENSE"
+  installCommand = "brew install jumppad-labs/homebrew-repo/spektacular"
+
+[[menu.main]]
+  name = "How it works"
+  url = "/how-it-works/"
+  weight = 10
+
+[[menu.main]]
+  name = "Install"
+  url = "/install/"
+  weight = 20
+
+[build]
+  [build.buildStats]
+    enable = true
+  [[build.cachebusters]]
+    source = 'assets/notwatching/hugo_stats\.json'
+    target = 'css'
+  [[build.cachebusters]]
+    source = '(postcss|tailwind)\.config\.js'
+    target = 'css'
+  [[build.cachebusters]]
+    source = 'assets/.*\.(js|ts|jsx|tsx)'
+    target = 'js'
+  [[build.cachebusters]]
+    source = 'assets/.*\.(css|scss|sass)'
+    target = 'css'
+  [[build.cachebusters]]
+    source = '(layouts|content)/.*\.(html|md)'
+    target = 'css'
+
+[[module.mounts]]
+  source = 'assets'
+  target = 'assets'
+
+[[module.mounts]]
+  disableWatch = true
+  source = 'hugo_stats.json'
+  target = 'assets/notwatching/hugo_stats.json'

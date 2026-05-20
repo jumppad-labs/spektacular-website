@@ -1,11 +1,11 @@
 ---
-description: Execute an approved Plan to implement the feature
-argument-hint: <plan-name>
+name: spek-implement
+description: Execute an approved Plan to implement the feature.
 ---
 
-# What this command does
+# What this skill does
 
-This command drives a **multi-step interactive workflow** that executes an approved plan in `.spektacular/plans/<name>/plan.md`, producing working code, tests, and a changelog. The workflow is owned by the `spektacular` CLI, not by you — the CLI is the state machine and you are the executor.
+This skill drives a **multi-step interactive workflow** that executes an approved plan in `.spektacular/plans/<name>/plan.md`, producing working code, tests, and a changelog. The workflow is owned by the `spektacular` CLI, not by you — the CLI is the state machine and you are the executor.
 
 On each turn, the CLI returns JSON containing an `instruction` field. That instruction describes exactly one step (e.g. analyze, implement a phase, verify, update changelog, …). You must:
 
@@ -15,6 +15,15 @@ On each turn, the CLI returns JSON containing an `instruction` field. That instr
 4. Read the next `instruction` from the new JSON response and repeat.
 
 **This is a loop. Do not stop after the first step.** Keep looping — step → goto → next instruction → step — until a returned instruction tells you the workflow is *finished*. Only then should you report completion to the user.
+
+# Reading and writing plan files
+
+The CLI owns the plan documents — `plan.md`, `context.md`, and `research.md`. **Never read or write them with the `Write`, `Edit`, or `Read` tools** — those bypass Spektacular and the configured plan directory. All plan document access goes through `spektacular plan file`:
+
+- `spektacular plan file read <name>/<doc>.md` — read a plan document from the plan store.
+- `spektacular plan file write <name>/<doc>.md` — write a plan document into the plan store (reads stdin).
+
+This includes the edits the implement workflow makes to `plan.md` — ticking phase checkboxes and appending changelog entries. Read the document with `plan file read`, apply the change, and commit it with `plan file write`. Never edit a plan document in place with the `Edit` tool. Path arguments are plan-directory-relative document paths (e.g. `my-feature/plan.md`).
 
 # How to start
 

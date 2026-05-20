@@ -1,0 +1,15 @@
+{
+  "name": "spektacular-website",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Spektacular marketing site",
+  "scripts": {
+    "build": "hugo --minify",
+    "dev": "hugo server"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.0.0",
+    "@tailwindcss/typography": "^0.5.15",
+    "tailwindcss": "^4.0.0"
+  }
+}

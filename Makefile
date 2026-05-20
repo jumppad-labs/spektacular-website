@@ -1,4 +1,10 @@
-.PHONY: serve
+.PHONY: serve build install
+
+install:
+	npm install
 
 serve:
-	python3 -m http.server 8080
+	hugo server
+
+build:
+	hugo --minify

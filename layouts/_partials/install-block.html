@@ -1,0 +1,13 @@
+{{- $cmd := .command -}}
+{{- $full := default false .full -}}
+{{- $width := "inline-flex" -}}
+{{- if $full -}}
+  {{- $width = "flex w-full" -}}
+{{- end -}}
+<div class="{{ $width }} items-center gap-3 bg-bg-code border border-border-subtle rounded-md px-5 py-3 font-mono text-sm">
+  <span class="text-terminal-green font-bold select-none">$</span>
+  <code class="text-text-primary{{ if $full }} flex-1 overflow-x-auto{{ end }}">{{ $cmd }}</code>
+  <button type="button"
+          class="copy-btn cursor-pointer bg-bg-elevated text-text-secondary border border-border-subtle rounded-sm px-2.5 py-1 text-xs font-sans whitespace-nowrap transition-colors hover:bg-accent-subtle hover:text-accent-light hover:border-accent-primary"
+          data-copy="{{ $cmd }}">Copy</button>
+</div>

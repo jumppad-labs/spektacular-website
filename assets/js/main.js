@@ -43,24 +43,3 @@ document.querySelectorAll('a[href^="#"]').forEach(function(anchor) {
     }
   });
 });
-
-// ── Tab switching ─────────────────────────────────────────
-var tabsEl = document.getElementById('install-tabs');
-if (tabsEl) {
-  tabsEl.addEventListener('click', function(e) {
-    var btn = e.target.closest('.tab-btn');
-    if (!btn) return;
-    var target = btn.dataset.tab;
-    document.querySelectorAll('.tab-btn').forEach(function(b) {
-      b.classList.remove('tab-btn--active');
-    });
-    document.querySelectorAll('.tab-panel').forEach(function(p) {
-      p.classList.remove('tab-panel--active');
-    });
-    btn.classList.add('tab-btn--active');
-    document.getElementById(target).classList.add('tab-panel--active');
-  });
-  // activate first tab on load
-  var firstBtn = tabsEl.querySelector('.tab-btn');
-  if (firstBtn) firstBtn.click();
-}
