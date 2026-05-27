@@ -1,0 +1,86 @@
+---
+layout: ../layouts/Shell.astro
+title: "Spektacular — Spec-driven development with AI"
+description: "Spektacular takes a markdown specification and uses AI coding agents to plan and implement your features. Agent-agnostic. Pluggable."
+---
+import Hero from "../components/sections/Hero.astro";
+import Pipeline from "../components/sections/Pipeline.astro";
+import FeaturesGrid from "../components/sections/FeaturesGrid.astro";
+import CtaBanner from "../components/sections/CtaBanner.astro";
+import Badge from "../components/Badge.astro";
+import Button from "../components/Button.astro";
+import InstallBlock from "../components/InstallBlock.astro";
+import FeatureCard from "../components/FeatureCard.astro";
+import PipelineNode from "../components/PipelineNode.astro";
+import PipelineConnector from "../components/PipelineConnector.astro";
+
+<Hero
+  variant="centered"
+  heading="Write the spec.<br />Ship the software."
+  sub="Spektacular takes a markdown specification and uses AI coding agents to plan and implement your features. Agent-agnostic. Pluggable."
+>
+  <Badge slot="badge" text="v0.3.0 — early development" variant="green" dot />
+  <InstallBlock slot="install" command="brew install jumppad-labs/homebrew-repo/spektacular" />
+  <Button href="/how-it-works/" label="Get Started →" variant="primary" large />
+  <Button href="https://github.com/jumppad-labs/spektacular" label="View on GitHub" variant="secondary" large external />
+</Hero>
+
+<Pipeline
+  heading="From idea to code"
+  sub="Write a spec. Spektacular plans, then implements — driving the coding agent of your choice from a single markdown source of truth."
+  surface
+  body="Plan turns a spec into a detailed implementation plan, exploring the codebase and asking questions as it goes. Implement drives a coding agent through the plan and validates the result against your acceptance criteria."
+>
+  <PipelineNode kind="file" icon="📄" label="spec.md" sub="your requirements,<br>constraints &amp; criteria" />
+  <PipelineConnector />
+  <PipelineNode kind="step" name="Plan" sub="explores codebase,<br>asks questions" />
+  <PipelineConnector />
+  <PipelineNode kind="output" icon="📋" label="plan.md" sub="+ research.md<br>+ context.md" />
+  <PipelineConnector />
+  <PipelineNode kind="step" name="Implement" sub="executes plan via<br>coding agent" detail="validates against<br>acceptance criteria" />
+  <PipelineConnector />
+  <PipelineNode kind="output" icon="✅" label="code" sub="working implementation<br>verified by criteria" />
+</Pipeline>
+
+<FeaturesGrid
+  heading="Built for how developers actually work"
+  sub="Everything you need for structured, AI-assisted planning — without locking you into a single agent, source of truth, or workflow."
+>
+  <FeatureCard icon="📄" title="Spec-driven workflow">
+    Write a markdown spec. Spektacular drives plan and implement from it,
+    keeping intent reviewable at every stage.
+  </FeatureCard>
+
+  <FeatureCard icon="🧩" title="Pluggable architecture">
+    Specs, plans, and knowledge are stored behind a Store interface. The
+    coding agent is behind an Agent interface. Swap either out.
+  </FeatureCard>
+
+  <FeatureCard icon="🧠" title="Multi-source knowledge">
+    Combine project, team, and global knowledge sources. Spektacular searches
+    them in order and tags each result by scope.
+  </FeatureCard>
+
+  <FeatureCard icon="🤖" title="Multi-agent support">
+    Ships with Claude Code, Bob, and Codex agents. Pick the one your team
+    already uses — or register your own.
+  </FeatureCard>
+
+  <FeatureCard icon="⏯️" title="Resumable workflows">
+    Spec, plan, and implement each run as stepwise state machines. Stop,
+    inspect, edit, and resume — no work is lost.
+  </FeatureCard>
+
+  <FeatureCard icon="🔓" title="Open source">
+    Apache 2.0 licensed. Build on it, extend it, run it anywhere. Contributions
+    welcome.
+  </FeatureCard>
+</FeaturesGrid>
+
+<CtaBanner
+  heading="Ready to build smarter?"
+  body="Spektacular is free and open source. Start with a spec, ship with confidence."
+>
+  <Button href="/how-it-works/" label="Get Started →" variant="primary" large />
+  <Button href="https://github.com/jumppad-labs/spektacular" label="Star on GitHub ⭐" variant="secondary" large external />
+</CtaBanner>

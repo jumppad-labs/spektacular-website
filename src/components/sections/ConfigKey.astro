@@ -1,0 +1,23 @@
+---
+interface Props {
+  name: string;
+  type?: string;
+  defaultValue?: string;
+}
+
+const { name, type, defaultValue } = Astro.props;
+---
+<div class="px-4 py-[0.875rem] bg-bg-base border border-border-subtle border-l-[3px] border-l-accent-primary rounded-r-md">
+  <div class="flex items-baseline gap-3 flex-wrap mb-1">
+    <code class="font-mono text-sm text-accent-light font-semibold">{name}</code>
+    {type && (
+      <span class="text-[0.75rem] text-text-muted uppercase tracking-wider">{type}</span>
+    )}
+  </div>
+  {defaultValue && (
+    <div class="spek-body text-[0.8125rem] text-text-muted mb-2">default: <span set:html={defaultValue} /></div>
+  )}
+  <div class="spek-body text-sm text-text-secondary max-w-none m-0">
+    <slot />
+  </div>
+</div>

@@ -1,28 +1,28 @@
 # spektacular-website
 
 The marketing site for [Spektacular](https://github.com/jumppad-labs/spektacular),
-built with [Hugo](https://gohugo.io/) and [Tailwind CSS v4](https://tailwindcss.com/).
+built with [Astro 5](https://astro.build/) (MDX) and
+[Tailwind CSS v4](https://tailwindcss.com/).
 
 ## Prerequisites
 
-- [Hugo Extended](https://gohugo.io/installation/) v0.161.0 or newer
-- [Node.js](https://nodejs.org/) v20 or newer (for the Tailwind CLI)
+- [Node.js](https://nodejs.org/) v22 or newer
 
 ## Local development
 
 ```
-make install   # one-time: installs Tailwind via npm
-make serve     # starts hugo server with live reload
+npm install   # one-time: installs Astro, Tailwind, and MDX
+npm run dev   # starts the Astro dev server with HMR
 ```
 
-Hugo prints the local URL (typically `http://localhost:1313/`).
+Astro prints the local URL (typically `http://localhost:4321/`).
 
 ## Build
 
 ```
-make build
+npm run build
 ```
 
-Outputs the static site to `public/`. The deploy workflow at
+Outputs the static site to `dist/`. The deploy workflow at
 `.github/workflows/deploy.yml` runs the same command in CI and publishes
-`public/` to GitHub Pages on every push to `main`.
+`dist/` to GitHub Pages on every push to `main`.

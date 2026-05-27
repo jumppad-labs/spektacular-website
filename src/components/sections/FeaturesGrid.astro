@@ -1,0 +1,34 @@
+---
+interface Props {
+  heading: string;
+  sub?: string;
+  surface?: boolean;
+  cols?: 2 | 3;
+}
+
+const { heading, sub, surface = false, cols = 3 } = Astro.props;
+
+const gridCols =
+  cols === 2
+    ? "grid grid-cols-2 gap-5 mt-10 max-md:grid-cols-1"
+    : "grid grid-cols-3 gap-5 mt-10 max-md:grid-cols-2 max-sm:grid-cols-1";
+
+const hasSubSlot = Astro.slots.has("sub");
+---
+<section class={`py-xl max-sm:py-lg ${surface ? "bg-bg-surface" : ""}`}>
+  <div class="mx-auto max-w-[1100px] px-md">
+    <div class="mb-lg">
+      <h2 class="mb-xs text-text-primary font-bold leading-tight tracking-[-0.01em] text-[clamp(1.625rem,3vw,2.25rem)]" set:html={heading} />
+      {hasSubSlot ? (
+        <div class="spek-body text-lg text-text-secondary max-w-[65ch]">
+          <slot name="sub" />
+        </div>
+      ) : sub ? (
+        <p class="spek-body text-lg text-text-secondary max-w-[65ch]" set:html={sub} />
+      ) : null}
+    </div>
+    <div class={gridCols}>
+      <slot />
+    </div>
+  </div>
+</section>

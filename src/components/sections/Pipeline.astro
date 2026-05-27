@@ -1,0 +1,50 @@
+---
+interface Props {
+  heading: string;
+  sub?: string;
+  surface?: boolean;
+  body?: string;
+  multi?: boolean;
+}
+
+const { heading, sub, surface = false, body, multi = false } = Astro.props;
+
+const hasSubSlot = Astro.slots.has("sub");
+const hasBodySlot = Astro.slots.has("body");
+---
+<section class={`py-xl max-sm:py-lg ${surface ? "bg-bg-surface" : ""}`}>
+  <div class="mx-auto max-w-[1100px] px-md">
+    <div class="mb-lg">
+      <h2 class="mb-xs text-text-primary font-bold leading-tight tracking-[-0.01em] text-[clamp(1.625rem,3vw,2.25rem)]" set:html={heading} />
+      {hasSubSlot ? (
+        <div class="spek-body text-lg text-text-secondary max-w-[65ch]">
+          <slot name="sub" />
+        </div>
+      ) : sub ? (
+        <p class="spek-body text-lg text-text-secondary max-w-[65ch]" set:html={sub} />
+      ) : null}
+    </div>
+
+    {multi ? (
+      <div>
+        <slot />
+      </div>
+    ) : (
+      <div class="flex items-center justify-center flex-wrap gap-y-4 mt-10 mb-8 max-sm:flex-col">
+        <slot />
+      </div>
+    )}
+
+    {hasBodySlot ? (
+      <div class="text-center">
+        <div class="spek-body max-w-[58ch] mx-auto text-[0.9375rem] text-text-secondary">
+          <slot name="body" />
+        </div>
+      </div>
+    ) : body ? (
+      <div class="text-center">
+        <p class="spek-body max-w-[58ch] mx-auto text-[0.9375rem] text-text-secondary" set:html={body} />
+      </div>
+    ) : null}
+  </div>
+</section>

@@ -1,0 +1,49 @@
+---
+interface Props {
+  shippingHeading: string;
+  shippingSub?: string;
+  plannedHeading: string;
+  plannedSub?: string;
+}
+
+const { shippingHeading, shippingSub, plannedHeading, plannedSub } =
+  Astro.props;
+
+const hasShippingSubSlot = Astro.slots.has("shippingSub");
+const hasPlannedSubSlot = Astro.slots.has("plannedSub");
+---
+<section class="py-xl bg-bg-surface max-sm:py-lg">
+  <div class="mx-auto max-w-[1100px] px-md">
+    <div class="mb-lg">
+      <h2 class="mb-xs text-text-primary font-bold leading-tight tracking-[-0.01em] text-[clamp(1.625rem,3vw,2.25rem)]" set:html={shippingHeading} />
+      {hasShippingSubSlot ? (
+        <div class="spek-body text-lg text-text-secondary max-w-[65ch]">
+          <slot name="shippingSub" />
+        </div>
+      ) : shippingSub ? (
+        <p class="spek-body text-lg text-text-secondary max-w-[65ch]" set:html={shippingSub} />
+      ) : null}
+    </div>
+    <div class="grid grid-cols-3 gap-5 mt-10 max-md:grid-cols-2 max-sm:grid-cols-1">
+      <slot name="shipping" />
+    </div>
+  </div>
+</section>
+
+<section class="py-xl max-sm:py-lg">
+  <div class="mx-auto max-w-[1100px] px-md">
+    <div class="mb-lg">
+      <h2 class="mb-xs text-text-primary font-bold leading-tight tracking-[-0.01em] text-[clamp(1.625rem,3vw,2.25rem)]" set:html={plannedHeading} />
+      {hasPlannedSubSlot ? (
+        <div class="spek-body text-lg text-text-secondary max-w-[65ch]">
+          <slot name="plannedSub" />
+        </div>
+      ) : plannedSub ? (
+        <p class="spek-body text-lg text-text-secondary max-w-[65ch]" set:html={plannedSub} />
+      ) : null}
+    </div>
+    <div class="grid grid-cols-3 gap-5 mt-10 max-md:grid-cols-2 max-sm:grid-cols-1">
+      <slot name="planned" />
+    </div>
+  </div>
+</section>

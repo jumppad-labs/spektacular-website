@@ -1,0 +1,270 @@
+---
+layout: ../layouts/Shell.astro
+title: "How It Works — Spektacular"
+description: "A deep dive into Spektacular's spec-driven development pipeline — from writing your first spec to reviewing a complete implementation plan."
+---
+import Hero from "../components/sections/Hero.astro";
+import QuickStart from "../components/sections/QuickStart.astro";
+import Step from "../components/sections/Step.astro";
+import SpecFormat from "../components/sections/SpecFormat.astro";
+import SpecKey from "../components/sections/SpecKey.astro";
+import Pipeline from "../components/sections/Pipeline.astro";
+import PipelineStage from "../components/sections/PipelineStage.astro";
+import PipelineNode from "../components/PipelineNode.astro";
+import PipelineConnector from "../components/PipelineConnector.astro";
+import CtaBanner from "../components/sections/CtaBanner.astro";
+import CodeBlock from "../components/CodeBlock.astro";
+import InstallBlock from "../components/InstallBlock.astro";
+import Button from "../components/Button.astro";
+
+export const components = { pre: CodeBlock };
+
+<Hero
+  heading="How Spektacular Works"
+  sub="A deep dive into spec-driven development — from writing your first spec to shipping working code."
+/>
+
+<QuickStart
+  heading="Quick start"
+  sub="Zero to code in under 5 minutes."
+>
+
+  <Step number="1" heading="Install">
+
+    Requires Go 1.21+ and a supported coding agent CLI
+    ([Claude Code](https://docs.anthropic.com/en/docs/claude-code), Bob, or
+    Codex) installed and configured.
+
+    ```bash
+    # install with go
+    go install github.com/jumppad-labs/spektacular@latest
+
+    # or download a pre-built binary from the releases page
+    # https://github.com/jumppad-labs/spektacular/releases
+    ```
+
+  </Step>
+
+  <Step number="2" heading="Initialise your project">
+
+    Run this from the root of your codebase, naming the coding agent you want
+    to use (`claude`, `bob`, or `codex`). Creates a `.spektacular/` directory
+    with config, knowledge base, and template files.
+
+    ```bash
+    cd my-project
+    spektacular init claude
+    ```
+
+  </Step>
+
+  <Step number="3" heading="Create a spec">
+
+    Scaffold a new spec by passing a JSON payload with the feature name. The
+    command returns the normalised `spec_name` and `spec_path` — use those
+    for the follow-up steps rather than assuming the filename.
+
+    ```bash
+    spektacular spec new --data '{"name":"auth-feature"}'
+    $EDITOR .spektacular/specs/<returned-spec-name>.md
+    ```
+
+  </Step>
+
+  <Step number="4" heading="Generate a plan">
+
+    Pass the spec name returned by step 3. The plan workflow explores your
+    codebase, asks clarifying questions, and writes the plan to
+    `.spektacular/plans/` when done.
+
+    ```bash
+    spektacular plan new --data '{"name":"<returned-spec-name>"}'
+    ```
+
+  </Step>
+
+  <Step number="5" heading="Implement the plan">
+
+    Pass the plan name returned by step 4. Spektacular drives the coding agent
+    through each phase of the plan and validates the result against your
+    acceptance criteria.
+
+    ```bash
+    spektacular implement new --data '{"name":"<plan-name>"}'
+    ```
+
+  </Step>
+
+</QuickStart>
+
+<SpecFormat
+  heading="The spec format"
+  sub="Specs are plain markdown files. No special syntax — just structured sections that give the planning agent what it needs."
+>
+
+  <Fragment slot="example">
+
+    ```markdown
+    # Feature: User Authentication
+
+    ## Overview
+    Add OAuth2 login with Google and GitHub
+    providers to the existing Express app.
+
+    ## Requirements
+    - [ ] Users can sign in with Google OAuth2
+    - [ ] Users can sign in with GitHub OAuth2
+    - [ ] Session persists across browser refreshes
+    - [ ] Logout clears session and redirects
+
+    ## Constraints
+    - Must use existing Express backend
+    - No new dependencies over 50KB gzipped
+    - Cannot change the /api/users schema
+
+    ## Acceptance Criteria
+    - [ ] Login redirects to provider, returns
+          with valid session
+    - [ ] Session cookie is httpOnly, secure,
+          sameSite=strict
+    - [ ] Logout flow works end-to-end
+
+    ## Technical Approach
+    Use passport.js for OAuth2 strategy.
+    Integrate with existing session middleware.
+
+    ## Success Metrics
+    - OAuth2 login completes in under 2 seconds
+    - Zero increase in /api/users error rate
+
+    ## Non-Goals
+    Social login with Apple or Microsoft.
+    ```
+
+  </Fragment>
+
+  <SpecKey slot="keys" section="## Overview">
+
+    A concise 2–3 sentence summary answering: what is being built, what problem
+    does it solve, and who benefits? Grounds the agent before it reads anything
+    else.
+
+  </SpecKey>
+
+  <SpecKey slot="keys" section="## Requirements">
+
+    A checklist of discrete behaviours. Use active voice ("Users can…"). Each
+    item should be independently verifiable and focus on what, not how.
+
+  </SpecKey>
+
+  <SpecKey slot="keys" section="## Constraints">
+
+    Non-negotiable boundaries — existing APIs, dependency limits, performance
+    budgets. Violations are plan failures. Leave blank if none.
+
+  </SpecKey>
+
+  <SpecKey slot="keys" section="## Acceptance Criteria">
+
+    Binary pass/fail conditions, each traceable to a requirement and testable
+    by someone who didn't write the code. These become the verification steps
+    in the output plan.
+
+  </SpecKey>
+
+  <SpecKey slot="keys" section="## Technical Approach">
+
+    High-level technical direction — key architectural decisions, preferred
+    patterns, integration points, and known risks. Leave blank to let the
+    planner propose an approach.
+
+  </SpecKey>
+
+  <SpecKey slot="keys" section="## Success Metrics">
+
+    How you'll know it works well after delivery. Quantitative ("p99 latency
+    &lt; 200ms") or behavioural ("users complete the flow without support").
+    Leave blank if not applicable.
+
+  </SpecKey>
+
+  <SpecKey slot="keys" section="## Non-Goals">
+
+    Explicitly out of scope — prevents scope creep and over-engineering. Leave
+    blank if there are no exclusions to call out.
+
+  </SpecKey>
+
+</SpecFormat>
+
+<Pipeline
+  multi
+  heading="The pipeline"
+  sub="Three stages: write the spec, generate a plan, then implement and validate."
+>
+
+  <PipelineStage number="1" heading="Specification">
+
+    <PipelineNode kind="file" icon="💡" label="idea" sub="requirements,<br>constraints &amp; criteria" />
+    <PipelineConnector />
+    <PipelineNode kind="step" name="Write" sub="structured markdown<br>spec template" />
+    <PipelineConnector />
+    <PipelineNode kind="output" icon="📄" label="spec.md" sub="your requirements<br>in a standard format" />
+
+    <Fragment slot="body">
+
+      Run `spektacular spec new` to scaffold a spec from the template, then
+      fill in your requirements, constraints, and acceptance criteria. The
+      spec is plain markdown — no special syntax, just structured sections.
+
+    </Fragment>
+
+  </PipelineStage>
+
+  <PipelineStage number="2" heading="Generate the Plan">
+
+    <PipelineNode kind="file" icon="📄" label="spec.md" sub="your requirements" />
+    <PipelineConnector />
+    <PipelineNode kind="step" name="Plan" sub="explores codebase,<br>asks questions" />
+    <PipelineConnector />
+    <PipelineNode kind="output" icon="📋" label="plan.md" sub="+ research.md<br>+ context.md" />
+
+    <Fragment slot="body">
+
+      **Plan** turns the spec into a detailed implementation plan. It loads
+      your project knowledge base, explores the codebase, and surfaces
+      clarifying questions before writing anything. The plan, plus supporting
+      research and context documents, are written to `.spektacular/plans/`.
+
+    </Fragment>
+
+  </PipelineStage>
+
+  <PipelineStage number="3" heading="Implement the Plan">
+
+    <PipelineNode kind="file" icon="📋" label="plan.md" sub="implementation plan<br>+ research + context" />
+    <PipelineConnector />
+    <PipelineNode kind="step" name="Implement" sub="executes plan via<br>coding agent" detail="validates against<br>acceptance criteria" />
+    <PipelineConnector />
+    <PipelineNode kind="output" icon="✅" label="code" sub="working implementation<br>verified by criteria" />
+
+    <Fragment slot="body">
+
+      **Implement** drives the coding agent through each phase of the plan
+      and verifies the output against your acceptance criteria — so you know
+      the implementation matches the spec.
+
+    </Fragment>
+
+  </PipelineStage>
+
+</Pipeline>
+
+<CtaBanner
+  heading="Ready to start?"
+  body="Install Spektacular and generate your first plan in minutes."
+>
+  <InstallBlock slot="install" command="brew install jumppad-labs/homebrew-repo/spektacular" />
+  <Button href="https://github.com/jumppad-labs/spektacular" label="View on GitHub →" variant="secondary" external />
+</CtaBanner>

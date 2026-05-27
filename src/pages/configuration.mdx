@@ -1,0 +1,151 @@
+---
+layout: ../layouts/Shell.astro
+title: "Configuration — Spektacular"
+description: "Configure Spektacular via .spektacular/config.yaml: command, agent, debug, spec, plan, and pluggable knowledge sources."
+---
+import Hero from "../components/sections/Hero.astro";
+import Section from "../components/sections/Section.astro";
+import ConfigurationKeys from "../components/sections/ConfigurationKeys.astro";
+import ConfigKey from "../components/sections/ConfigKey.astro";
+import CtaBanner from "../components/sections/CtaBanner.astro";
+import CodeBlock from "../components/CodeBlock.astro";
+import Button from "../components/Button.astro";
+
+export const components = { pre: CodeBlock };
+
+<Hero
+  heading="Configuration"
+  sub="Spektacular reads everything it needs from .spektacular/config.yaml. Here's what each key does."
+/>
+
+<Section heading="Where configuration lives">
+
+  <Fragment slot="sub">
+
+    All Spektacular configuration lives in `.spektacular/config.yaml` at the
+    root of your project. The file is created by `spektacular init`, missing
+    keys fall back to defaults, and `${VAR}` patterns are expanded from the
+    environment when the file is read.
+
+  </Fragment>
+
+</Section>
+
+<ConfigurationKeys heading="Top-level keys">
+
+  <Fragment slot="sub">
+
+    Six top-level sections control the tool: `command`, `agent`, `debug`,
+    `spec`, `plan`, and `knowledge`.
+
+  </Fragment>
+
+  <ConfigKey name="command" type="string" defaultValue="<code>spektacular</code>">
+
+    The CLI command name used in agent-generated documentation. Almost never
+    needs to change — kept configurable so downstream tooling can refer to a
+    different binary name if your team wraps the tool.
+
+  </ConfigKey>
+
+  <ConfigKey name="agent" type="string" defaultValue="set by <code>spektacular init &lt;agent&gt;</code>">
+
+    Which coding agent to drive during the implement workflow. Supported
+    values: `claude` (Claude Code), `bob`, and `codex`. New agents register
+    via the [Agent plugin interface](/plugins/).
+
+  </ConfigKey>
+
+  <ConfigKey name="debug" type="section" defaultValue="<code>debug.enabled: false</code>">
+
+    Debug logging. Set `debug.enabled: true` to surface verbose internal logs
+    to the console — useful when reporting issues or developing a new plugin.
+
+  </ConfigKey>
+
+  <ConfigKey name="spec" type="section" defaultValue="file provider, timestamp IDs, <code>.spektacular/specs</code>">
+
+    How specs are stored and identified.
+
+    - `spec.provider`: storage backend; only `file` ships today.
+    - `spec.id_method`: spec naming scheme. One of `timestamp` (default),
+      `counter` (sequential numbers), or `external` (the caller supplies an
+      `id` with each spec).
+    - `spec.config.directory`: where the file provider writes specs. Defaults
+      to `.spektacular/specs`.
+
+  </ConfigKey>
+
+  <ConfigKey name="plan" type="section" defaultValue="file provider, <code>.spektacular/plans</code>">
+
+    How plans are stored.
+
+    - `plan.provider`: storage backend; only `file` ships today.
+    - `plan.config.directory`: where the file provider writes plans. Defaults
+      to `.spektacular/plans`.
+
+  </ConfigKey>
+
+  <ConfigKey name="knowledge" type="section" defaultValue="one project source at <code>.spektacular/knowledge</code>">
+
+    Ordered list of knowledge sources, queried in order at plan time and
+    tagged by scope in results.
+
+    - `knowledge.sources[].scope`: a label — `project`, `team`, `global`, or
+      any custom string. Each scope must be unique within the list.
+    - `knowledge.sources[].provider`: storage backend; only `file` ships
+      today.
+    - `knowledge.sources[].config.location`: where the file provider reads
+      knowledge from. Relative paths resolve against the project root.
+
+  </ConfigKey>
+
+</ConfigurationKeys>
+
+<Section heading="Example">
+
+  <Fragment slot="sub">
+
+    A complete `.spektacular/config.yaml` with two knowledge sources — a
+    project-local one and a team-wide one stored elsewhere on disk.
+
+  </Fragment>
+
+  ```yaml
+  command: spektacular
+  agent: claude
+
+  debug:
+    enabled: false
+
+  spec:
+    provider: file
+    id_method: timestamp
+    config:
+      directory: .spektacular/specs
+
+  plan:
+    provider: file
+    config:
+      directory: .spektacular/plans
+
+  knowledge:
+    sources:
+      - scope: project
+        provider: file
+        config:
+          location: .spektacular/knowledge
+      - scope: team
+        provider: file
+        config:
+          location: ${HOME}/work/team-knowledge
+  ```
+
+</Section>
+
+<CtaBanner
+  heading="Pluggable by design"
+  body="Specs, plans, knowledge, and agents are all behind plugin interfaces. See what ships today and what's planned."
+>
+  <Button href="/plugins/" label="Browse plugins →" variant="primary" large />
+</CtaBanner>

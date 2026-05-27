@@ -1,0 +1,13 @@
+---
+interface Props {
+  section: string;
+}
+
+const { section } = Astro.props;
+---
+<div class="px-4 py-[0.875rem] bg-bg-surface border border-border-subtle border-l-[3px] border-l-accent-primary rounded-r-md">
+  <div class="font-mono text-xs text-accent-light font-semibold mb-1">{section}</div>
+  <div class="spek-body text-sm text-text-secondary max-w-none m-0">
+    <slot />
+  </div>
+</div>

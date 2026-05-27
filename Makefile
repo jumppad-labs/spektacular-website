@@ -1,10 +1,19 @@
-.PHONY: serve build install
+.PHONY: install dev build preview check clean
 
 install:
 	npm install
 
-serve:
-	hugo server
+dev:
+	npm run dev
 
 build:
-	hugo --minify
+	npm run build
+
+preview: build
+	npm run preview
+
+check:
+	npx astro check
+
+clean:
+	rm -rf dist .astro

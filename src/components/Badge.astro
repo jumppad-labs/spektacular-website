@@ -1,0 +1,22 @@
+---
+interface Props {
+  text: string;
+  variant?: "green" | "purple";
+  dot?: boolean;
+}
+
+const { text, variant = "green", dot = false } = Astro.props;
+
+const variantClasses =
+  variant === "green"
+    ? "bg-[#0d2010] text-terminal-green border border-terminal-green-dim"
+    : "bg-accent-subtle text-accent-light border border-accent-primary";
+---
+<span
+  class={`inline-flex items-center gap-1.5 px-3 py-[0.3rem] rounded-pill text-xs font-semibold tracking-wider uppercase ${variantClasses}`}
+>
+  {dot && (
+    <span class="inline-block w-1.5 h-1.5 rounded-full bg-terminal-green"></span>
+  )}
+  {text}
+</span>

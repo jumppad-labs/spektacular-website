@@ -1,0 +1,24 @@
+---
+import Badge from "../Badge.astro";
+
+interface Props {
+  name: string;
+  status: "shipping" | "planned";
+  badgeText: string;
+}
+
+const { name, status, badgeText } = Astro.props;
+
+const cardBg = status === "shipping" ? "bg-bg-base" : "bg-bg-surface";
+const dot = status === "shipping";
+const variant = status === "shipping" ? "green" : "purple";
+---
+<div class={`${cardBg} border border-border-subtle rounded-md p-6`}>
+  <div class="flex items-center gap-2 mb-2">
+    <Badge text={badgeText} variant={variant} dot={dot} />
+  </div>
+  <h3 class="text-lg font-semibold text-text-primary mb-2 font-mono">{name}</h3>
+  <div class="spek-body text-[0.9375rem] text-text-secondary m-0 max-w-none">
+    <slot />
+  </div>
+</div>

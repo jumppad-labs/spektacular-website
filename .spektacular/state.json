@@ -2,19 +2,19 @@
   "current_step": "finished",
   "completed_steps": [
     "new",
-    "overview",
-    "requirements",
-    "acceptance_criteria",
-    "constraints",
-    "technical_approach",
-    "success_metrics",
-    "non_goals",
-    "verification",
+    "read_plan",
+    "analyze",
+    "implement",
+    "test",
+    "verify",
+    "update_plan",
+    "update_changelog",
+    "update_repo_changelog",
     "finished"
   ],
-  "created_at": "2026-05-26T08:16:59.795059833Z",
-  "updated_at": "2026-05-26T08:44:52.714307266Z",
+  "created_at": "2026-05-27T12:16:15.706854799Z",
+  "updated_at": "2026-05-27T12:51:09.831225978Z",
   "data": {
-    "name": "000003_update-content"
+    "name": "000004_astro-migration"
   }
 }

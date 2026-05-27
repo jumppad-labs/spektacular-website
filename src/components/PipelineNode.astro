@@ -1,0 +1,30 @@
+---
+interface Props {
+  kind?: "file" | "step" | "output";
+  icon?: string;
+  label?: string;
+  name?: string;
+  sub?: string;
+  detail?: string;
+}
+
+const { kind = "step", icon, label, name, sub, detail } = Astro.props;
+
+const look =
+  kind === "file" || kind === "output"
+    ? "bg-bg-code border border-dashed border-border-default"
+    : "bg-accent-subtle border border-accent-primary";
+---
+<div class={`text-center px-4 py-5 rounded-md min-w-[120px] ${look}`}>
+  {icon && <div class="text-2xl mb-1.5">{icon}</div>}
+  {name && <div class="font-bold text-accent-light text-base mb-1.5">{name}</div>}
+  {label && (
+    <div class="font-mono text-text-primary text-sm font-semibold mb-1.5">{label}</div>
+  )}
+  {sub && (
+    <div class="spek-body text-[0.725rem] text-text-secondary leading-snug" set:html={sub} />
+  )}
+  {detail && (
+    <div class="spek-body text-[0.675rem] text-text-muted leading-snug mt-1.5" set:html={detail} />
+  )}
+</div>
