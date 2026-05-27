@@ -1,0 +1,33 @@
+---
+interface Props {
+  href: string;
+  label: string;
+  variant?: "primary" | "secondary";
+  large?: boolean;
+  external?: boolean;
+}
+
+const {
+  href,
+  label,
+  variant = "primary",
+  large = false,
+  external = false,
+} = Astro.props;
+
+const base =
+  "inline-flex items-center gap-2 rounded-md font-semibold no-underline border whitespace-nowrap transition-colors";
+const size = large
+  ? "px-7 py-3 text-base"
+  : "px-[1.375rem] py-2.5 text-[0.9375rem]";
+const look =
+  variant === "primary"
+    ? "bg-accent-primary text-white border-accent-primary hover:bg-[#6d28d9] hover:border-[#6d28d9] hover:text-white hover:no-underline"
+    : "bg-transparent text-text-primary border-border-default hover:bg-bg-elevated hover:border-text-secondary hover:text-text-primary hover:no-underline";
+---
+<a
+  href={href}
+  class={`${base} ${size} ${look}`}
+  {...(external ? { target: "_blank", rel: "noopener" } : {})}
+  set:html={label}
+/>

@@ -1,0 +1,159 @@
+---
+layout: ../layouts/Shell.astro
+title: "Extending — Spektacular"
+description: "Implement the Store or Agent interface and register it. The shape of each interface, and where backends plug in."
+---
+import Hero from "../components/sections/Hero.astro";
+import Prose from "../components/sections/Prose.astro";
+import CtaBanner from "../components/sections/CtaBanner.astro";
+import CodeBlock from "../components/CodeBlock.astro";
+import Button from "../components/Button.astro";
+
+export const components = { pre: CodeBlock };
+
+<Hero
+  heading="Extending Spektacular"
+  sub="Implement the Store or Agent interface and register it. Here's what each one expects."
+/>
+
+<Prose>
+
+Spektacular is built around two Go interfaces. Implement either one — or both
+— and you have a new backend. The interfaces live in
+`github.com/jumppad-labs/spektacular/internal/store` and
+`github.com/jumppad-labs/spektacular/internal/agent`.
+
+## The Store interface
+
+A `Store` is a uniform read/write surface over a data directory. The same
+interface is used for spec storage, plan storage, and knowledge storage —
+each section of `config.yaml` independently names a Store provider.
+
+```go
+type Store interface {
+    // Root returns the absolute path to the store root directory.
+    Root() string
+    // Read returns the contents of the file at path.
+    Read(path string) ([]byte, error)
+    // Write creates or overwrites the file at path with content.
+    // Parent directories are created automatically.
+    Write(path string, content []byte) error
+    // Delete removes the file at path. Returns nil if the file does not exist.
+    Delete(path string) error
+    // List returns the direct children of the directory at path. Each entry
+    // reports whether it is a directory, so a caller can recurse the tree.
+    List(path string) ([]DirEntry, error)
+    // Exists reports whether a file or directory exists at path.
+    Exists(path string) bool
+    // Search returns hits for a free-form keyword query, scanning only this
+    // store. Hits carry the store's own scope so callers can attribute them.
+    Search(query string) ([]Hit, error)
+}
+```
+
+Two helper types travel with `Store`:
+
+```go
+type DirEntry struct {
+    Name  string // child name, not a full path
+    IsDir bool   // true for a subdirectory — recurse into it via List
+}
+
+type Hit struct {
+    Scope   string  `json:"scope"`   // scope label of the originating store
+    Path    string  `json:"path"`    // locator, relative to the store root
+    Excerpt string  `json:"excerpt"` // compact excerpt, capped at the budget
+    Score   float64 `json:"score"`   // optional relevance score; 0 if absent
+}
+```
+
+Method contracts in brief:
+
+- `Root` returns an absolute path so callers can resolve relative paths
+  themselves when needed.
+- `Read`, `Write`, and `Delete` operate on paths relative to the store root.
+  `Write` creates parent directories; `Delete` is idempotent.
+- `List` returns direct children only — callers recurse explicitly when they
+  need to walk a tree.
+- `Exists` does not distinguish files from directories; callers that need to
+  know use `List` on the parent.
+- `Search` is the only contract with semantics beyond simple file IO: hits
+  must be **compact** (excerpts, not full bodies) and tagged with the store's
+  own **scope** so the caller can attribute results across multiple stores.
+
+## The Agent interface
+
+An `Agent` represents a coding agent Spektacular can drive during the
+implement workflow. The interface is intentionally narrow — the agent
+declares its name and installs the workflow artefacts it needs.
+
+```go
+type Agent interface {
+    Name() string
+    Install(projectPath string, cfg config.Config, out io.Writer) error
+}
+```
+
+- `Name` returns the canonical identifier used on the CLI
+  (`spektacular init <name>`) and persisted to `config.yaml` under the
+  `agent:` key.
+- `Install` writes the agent's skills and (optionally) command wrappers into
+  `projectPath`. It emits one human-readable line per artefact to `out` so
+  the CLI can surface progress.
+
+## Registering a backend
+
+Each plugin lives in its own file under the relevant package and registers
+itself from an `init()` function. The pattern is the same for both
+interfaces.
+
+**Agents** register against the agent package's private registry:
+
+```go
+// internal/agent/claude.go
+type claudeAgent struct{}
+
+func (claudeAgent) Name() string { return "claude" }
+
+func (claudeAgent) Install(projectPath string, cfg config.Config, out io.Writer) error {
+    // ... install workflow artefacts ...
+    return nil
+}
+
+func init() {
+    register(claudeAgent{})
+}
+```
+
+**Store providers** plug into the section that consumes them. For knowledge
+stores, that's the provider switch in
+`internal/knowledge/set.go` — a new arm names the provider and constructs
+the `Store` for each configured source. The shipping `case
+config.ProviderFile:` arm is the worked example.
+
+The `file` provider is the reference implementation for both reading the
+spec/plan/knowledge sections of `config.yaml` and for satisfying the `Store`
+contract end-to-end. Use it as the template for new Store providers.
+
+## Next steps
+
+This page covers the **shape** of a plugin. A full walkthrough of building
+and shipping one — module layout, registration ordering, error handling,
+tests — is intentionally out of scope here; read the Go source under
+`internal/store` and `internal/agent` for the lived-in version.
+
+</Prose>
+
+<CtaBanner heading="Read the source">
+  <Fragment slot="body">
+    The shipping `file` provider and three agents are the worked examples —
+    read them on GitHub.
+  </Fragment>
+  <Button
+    href="https://github.com/jumppad-labs/spektacular"
+    label="View on GitHub →"
+    variant="primary"
+    large
+    external
+  />
+</CtaBanner>

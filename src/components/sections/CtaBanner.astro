@@ -1,0 +1,30 @@
+---
+interface Props {
+  heading: string;
+  body?: string;
+}
+
+const { heading, body } = Astro.props;
+
+const hasBodySlot = Astro.slots.has("body");
+---
+<section class="bg-accent-subtle border-y border-accent-primary/30 py-xl max-sm:py-lg text-center">
+  <div class="mx-auto max-w-[700px] px-md">
+    <h2 class="text-text-primary mb-3 font-bold leading-tight tracking-[-0.01em] text-[clamp(1.625rem,3vw,2.25rem)]" set:html={heading} />
+    {hasBodySlot ? (
+      <div class="spek-body text-[1.0625rem] text-text-secondary mx-auto mb-8 max-w-[48ch]">
+        <slot name="body" />
+      </div>
+    ) : body ? (
+      <p class="spek-body text-[1.0625rem] text-text-secondary mx-auto mb-8 max-w-[48ch]" set:html={body} />
+    ) : null}
+    {Astro.slots.has("install") && (
+      <div class="flex justify-center flex-wrap mb-5">
+        <slot name="install" />
+      </div>
+    )}
+    <div class="flex gap-4 justify-center flex-wrap max-sm:flex-col max-sm:items-center">
+      <slot />
+    </div>
+  </div>
+</section>

@@ -1,0 +1,32 @@
+---
+interface Props {
+  heading: string;
+  sub?: string;
+  surface?: boolean;
+  maxWidth?: string;
+}
+
+const {
+  heading,
+  sub,
+  surface = false,
+  maxWidth = "max-w-[1100px]",
+} = Astro.props;
+
+const hasSubSlot = Astro.slots.has("sub");
+---
+<section class={`py-xl max-sm:py-lg ${surface ? "bg-bg-surface" : ""}`}>
+  <div class={`mx-auto ${maxWidth} px-md`}>
+    <div class="mb-lg">
+      <h2 class="mb-xs text-text-primary font-bold leading-tight tracking-[-0.01em] text-[clamp(1.625rem,3vw,2.25rem)]" set:html={heading} />
+      {hasSubSlot ? (
+        <div class="spek-body text-lg text-text-secondary max-w-[65ch]">
+          <slot name="sub" />
+        </div>
+      ) : sub ? (
+        <p class="spek-body text-lg text-text-secondary max-w-[65ch]" set:html={sub} />
+      ) : null}
+    </div>
+    <slot />
+  </div>
+</section>

@@ -1,0 +1,15 @@
+---
+interface Props {
+  icon?: string;
+  title: string;
+}
+
+const { icon, title } = Astro.props;
+---
+<div class="bg-bg-surface border border-border-subtle rounded-md p-6 transition-colors hover:border-accent-primary">
+  {icon && <div class="text-[1.625rem] mb-3">{icon}</div>}
+  <h3 class="text-lg font-semibold leading-snug text-text-primary mb-2">{title}</h3>
+  <div class="spek-body text-[0.9375rem] text-text-secondary m-0 max-w-none">
+    <slot />
+  </div>
+</div>

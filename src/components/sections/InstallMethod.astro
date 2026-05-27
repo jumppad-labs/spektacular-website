@@ -1,0 +1,13 @@
+---
+interface Props {
+  heading: string;
+}
+
+const { heading } = Astro.props;
+---
+<div class="py-14 pb-6 border-t border-border-subtle first:border-t-0 first:pt-0">
+  <h3 class="text-lg font-semibold text-text-primary mb-2">{heading}</h3>
+  <div class="spek-body text-[0.9375rem] text-text-secondary max-w-[65ch]">
+    <slot />
+  </div>
+</div>

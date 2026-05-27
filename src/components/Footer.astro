@@ -1,0 +1,34 @@
+---
+const githubURL = "https://github.com/jumppad-labs/spektacular";
+const releasesURL = "https://github.com/jumppad-labs/spektacular/releases";
+const licenseURL = "https://github.com/jumppad-labs/spektacular/blob/main/LICENSE";
+---
+<footer class="bg-bg-surface border-t border-border-subtle py-7 mt-auto">
+  <div class="mx-auto max-w-[1100px] px-md">
+    <div class="flex items-center justify-between flex-wrap gap-4 max-sm:flex-col max-sm:items-start">
+      <span class="text-sm text-text-muted">
+        Spektacular —
+        <a
+          href={licenseURL}
+          class="text-text-secondary hover:text-text-primary no-underline"
+          target="_blank"
+          rel="noopener"
+        >Apache 2.0</a>
+      </span>
+      <div class="flex gap-6">
+        <a
+          href={githubURL}
+          class="text-sm text-text-secondary hover:text-text-primary no-underline"
+          target="_blank"
+          rel="noopener"
+        >GitHub</a>
+        <a
+          href={releasesURL}
+          class="text-sm text-text-secondary hover:text-text-primary no-underline"
+          target="_blank"
+          rel="noopener"
+        >Releases</a>
+      </div>
+    </div>
+  </div>
+</footer>

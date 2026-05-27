@@ -1,0 +1,14 @@
+---
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const { title, description } = Astro.props;
+const fallbackDescription =
+  "Spektacular takes a markdown specification and uses AI coding agents to plan and implement your features. Agent-agnostic. Pluggable.";
+---
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>{title}</title>
+<meta name="description" content={description ?? fallbackDescription} />

@@ -1,0 +1,87 @@
+---
+layout: ../layouts/Shell.astro
+title: "Plugins — Spektacular"
+description: "Spektacular is built around a pluggable architecture: Store backends for specs, plans, and knowledge, and Agent backends for coding agents."
+---
+import Hero from "../components/sections/Hero.astro";
+import FeaturesGrid from "../components/sections/FeaturesGrid.astro";
+import FeatureCard from "../components/FeatureCard.astro";
+import PluginInventory from "../components/sections/PluginInventory.astro";
+import Plugin from "../components/sections/Plugin.astro";
+import CtaBanner from "../components/sections/CtaBanner.astro";
+import Button from "../components/Button.astro";
+
+<Hero
+  heading="Plugins"
+  sub="Spektacular's pluggable architecture lets specs, plans, knowledge, and agents come from wherever your team already keeps them."
+/>
+
+<FeaturesGrid
+  heading="What's pluggable"
+  sub="Two plugin points sit at the core of Spektacular. Implement either interface and register your backend to use it."
+  cols={2}
+>
+  <FeatureCard icon="🗄️" title="The Store interface">
+    One interface, three use-cases: where **specs** live, where **plans** live,
+    and where **knowledge** is read from. Each section of `config.yaml`
+    independently names a Store provider, so you can mix and match.
+  </FeatureCard>
+
+  <FeatureCard icon="🤖" title="The Agent interface">
+    The coding agent Spektacular drives during the implement workflow. Each
+    registered agent declares its name and how to install workflow artefacts
+    into a target project.
+  </FeatureCard>
+</FeaturesGrid>
+
+<PluginInventory
+  shippingHeading="What ships today"
+  shippingSub="Plugins registered in the current release."
+  plannedHeading="Planned"
+  plannedSub="Concrete integrations the pluggable architecture is being built toward. Not yet shipping — listed here so teams can plan ahead."
+>
+  <Plugin slot="shipping" name="file" status="shipping" badgeText="Store">
+    The file-system Store provider. Backs `spec`, `plan`, and `knowledge`
+    sections of `config.yaml`. Reads and writes plain markdown under a
+    configurable directory.
+  </Plugin>
+
+  <Plugin slot="shipping" name="claude" status="shipping" badgeText="Agent">
+    Drives [Claude Code](https://docs.anthropic.com/en/docs/claude-code) via
+    its skills and slash-command directory layout. Selected by
+    `spektacular init claude`.
+  </Plugin>
+
+  <Plugin slot="shipping" name="bob" status="shipping" badgeText="Agent">
+    Drives the Bob agent via its `.bob/skills` and `.bob/commands` layout.
+    Selected by `spektacular init bob`.
+  </Plugin>
+
+  <Plugin slot="shipping" name="codex" status="shipping" badgeText="Agent">
+    Drives the Codex agent via its skills directory layout. Selected by
+    `spektacular init codex`.
+  </Plugin>
+
+  <Plugin slot="planned" name="obsidian" status="planned" badgeText="Planned · Store">
+    Knowledge Store backed by an Obsidian vault. Lets teams point Spektacular
+    at the markdown they already curate.
+  </Plugin>
+
+  <Plugin slot="planned" name="notion" status="planned" badgeText="Planned · Store">
+    Knowledge Store backed by a Notion workspace. Surfaces team docs without
+    copying them into the repo.
+  </Plugin>
+
+  <Plugin slot="planned" name="jira" status="planned" badgeText="Planned · Store">
+    Spec Store backed by Jira. Tickets become spec inputs; planned work links
+    back to the ticket they came from.
+  </Plugin>
+</PluginInventory>
+
+<CtaBanner heading="Build your own">
+  <Fragment slot="body">
+    Implement the `Store` or `Agent` interface and register it. The Extending
+    page describes both.
+  </Fragment>
+  <Button href="/extending/" label="Extending →" variant="primary" large />
+</CtaBanner>

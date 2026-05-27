@@ -1,0 +1,24 @@
+---
+interface Props {
+  command: string;
+  full?: boolean;
+}
+
+const { command, full = false } = Astro.props;
+
+const width = full ? "flex w-full" : "inline-flex";
+const codeClass = full
+  ? "text-text-primary flex-1 overflow-x-auto"
+  : "text-text-primary";
+---
+<div
+  class={`${width} items-center gap-3 bg-bg-code border border-border-subtle rounded-md px-5 py-3 font-mono text-sm`}
+>
+  <span class="text-terminal-green font-bold select-none">$</span>
+  <code class={codeClass}>{command}</code>
+  <button
+    type="button"
+    class="copy-btn cursor-pointer bg-bg-elevated text-text-secondary border border-border-subtle rounded-sm px-2.5 py-1 text-xs font-sans whitespace-nowrap transition-colors hover:bg-accent-subtle hover:text-accent-light hover:border-accent-primary"
+    data-copy={command}
+  >Copy</button>
+</div>

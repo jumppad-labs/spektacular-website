@@ -1,0 +1,93 @@
+---
+layout: ../layouts/Shell.astro
+title: "Install — Spektacular"
+description: "Install Spektacular on your machine using Homebrew, Debian/Ubuntu apt, or a direct download from GitHub Releases."
+---
+import Hero from "../components/sections/Hero.astro";
+import InstallMethods from "../components/sections/InstallMethods.astro";
+import InstallMethod from "../components/sections/InstallMethod.astro";
+import ReleaseGrid from "../components/sections/ReleaseGrid.astro";
+import ReleaseArtifact from "../components/sections/ReleaseArtifact.astro";
+import InstallBlock from "../components/InstallBlock.astro";
+import CodeBlock from "../components/CodeBlock.astro";
+
+export const components = { pre: CodeBlock };
+
+<Hero
+  heading="Install Spektacular"
+  sub="Get Spektacular running on your machine in under a minute."
+/>
+
+<InstallMethods
+  heading="Choose your install method"
+  sub="Pick the method that fits your workflow."
+>
+
+  <InstallMethod heading="Homebrew">
+
+    Install via the official Homebrew tap:
+
+    <InstallBlock command="brew install jumppad-labs/homebrew-repo/spektacular" full />
+
+  </InstallMethod>
+
+  <InstallMethod heading="Go install">
+
+    If you have Go 1.21+ installed, fetch and build the latest release directly:
+
+    ```bash
+    go install github.com/jumppad-labs/spektacular@latest
+    ```
+
+  </InstallMethod>
+
+  <InstallMethod heading="GitHub Releases">
+
+    Download the latest release archive from
+    [GitHub Releases](https://github.com/jumppad-labs/spektacular/releases),
+    extract the binary, and move it to a directory on your `$PATH`. Replace
+    `<VERSION>` with the release tag (for example `0.3.0`).
+
+    <ReleaseGrid>
+
+      <ReleaseArtifact label="macOS (Apple Silicon)">
+
+        ```bash
+        unzip spektacular_<VERSION>_darwin_arm64.zip
+        sudo mv spektacular /usr/local/bin/
+        ```
+
+      </ReleaseArtifact>
+
+      <ReleaseArtifact label="macOS (Intel)">
+
+        ```bash
+        unzip spektacular_<VERSION>_darwin_x86_64.zip
+        sudo mv spektacular /usr/local/bin/
+        ```
+
+      </ReleaseArtifact>
+
+      <ReleaseArtifact label="Linux (x86_64)">
+
+        ```bash
+        tar -xzf spektacular_<VERSION>_linux_x86_64.tar.gz
+        sudo mv spektacular /usr/local/bin/
+        ```
+
+      </ReleaseArtifact>
+
+      <ReleaseArtifact label="Linux (ARM64)">
+
+        ```bash
+        tar -xzf spektacular_<VERSION>_linux_arm64.tar.gz
+        sudo mv spektacular /usr/local/bin/
+        ```
+
+      </ReleaseArtifact>
+
+    </ReleaseGrid>
+
+  </InstallMethod>
+
+</InstallMethods>

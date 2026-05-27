@@ -1,0 +1,59 @@
+---
+interface Props {
+  heading: string;
+  sub?: string;
+  variant?: "page" | "centered";
+}
+
+const { heading, sub, variant = "page" } = Astro.props;
+
+const isCentered = variant === "centered";
+const hasSubSlot = Astro.slots.has("sub");
+---
+{isCentered ? (
+  <section class="py-20 pb-16 max-sm:py-12 max-sm:pb-10 text-center">
+    <div class="mx-auto max-w-[1100px] px-md">
+      {Astro.slots.has("badge") && (
+        <div class="mb-6">
+          <slot name="badge" />
+        </div>
+      )}
+      <h1
+        class="mb-5 text-text-primary font-extrabold leading-[1.1] tracking-[-0.02em] text-[clamp(2.25rem,5vw,3.75rem)]"
+        set:html={heading}
+      />
+      {hasSubSlot ? (
+        <div class="spek-body text-lg text-text-secondary max-w-[52ch] mx-auto mb-8">
+          <slot name="sub" />
+        </div>
+      ) : sub ? (
+        <p class="spek-body text-lg text-text-secondary max-w-[52ch] mx-auto mb-8" set:html={sub} />
+      ) : null}
+      {Astro.slots.has("install") && (
+        <div class="flex justify-center mb-8">
+          <slot name="install" />
+        </div>
+      )}
+      <div class="flex gap-4 justify-center flex-wrap max-sm:flex-col max-sm:items-center">
+        <slot />
+      </div>
+    </div>
+  </section>
+) : (
+  <div class="py-14 pb-10 border-b border-border-subtle">
+    <div class="mx-auto max-w-[1100px] px-md">
+      <h1
+        class="text-text-primary font-extrabold leading-[1.1] tracking-[-0.02em] mb-3 text-[clamp(1.875rem,4vw,2.75rem)]"
+        set:html={heading}
+      />
+      {hasSubSlot ? (
+        <div class="spek-body text-[1.0625rem] text-text-secondary max-w-[60ch] m-0">
+          <slot name="sub" />
+        </div>
+      ) : sub ? (
+        <p class="spek-body text-[1.0625rem] text-text-secondary max-w-[60ch] m-0" set:html={sub} />
+      ) : null}
+      <slot />
+    </div>
+  </div>
+)}

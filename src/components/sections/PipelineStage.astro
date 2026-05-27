@@ -1,0 +1,24 @@
+---
+interface Props {
+  number: string;
+  heading: string;
+}
+
+const { number, heading } = Astro.props;
+---
+<div class="mt-md pt-0 first-of-type:mt-md first-of-type:pt-0 first-of-type:border-t-0 [&:not(:first-of-type)]:mt-lg [&:not(:first-of-type)]:pt-lg [&:not(:first-of-type)]:border-t [&:not(:first-of-type)]:border-border-subtle">
+  <h3 class="flex items-center gap-3 text-xl font-bold text-text-primary mb-2">
+    <span class="w-8 h-8 rounded-full bg-accent-subtle border border-accent-primary text-accent-light font-bold text-[0.8125rem] inline-flex items-center justify-center shrink-0">{number}</span>
+    {heading}
+  </h3>
+  <div class="flex items-center justify-center flex-wrap gap-y-4 mt-10 mb-8 max-sm:flex-col">
+    <slot />
+  </div>
+  {Astro.slots.has("body") && (
+    <div class="mt-6">
+      <div class="spek-body max-w-[70ch] text-left text-[0.9375rem] text-text-secondary">
+        <slot name="body" />
+      </div>
+    </div>
+  )}
+</div>

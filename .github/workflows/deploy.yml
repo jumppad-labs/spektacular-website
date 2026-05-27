@@ -18,19 +18,9 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
-    env:
-      HUGO_VERSION: 0.161.0
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Setup Hugo
-        uses: peaceiris/actions-hugo@v3
-        with:
-          hugo-version: ${{ env.HUGO_VERSION }}
-          extended: true
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -45,15 +35,15 @@ jobs:
         id: pages
         uses: actions/configure-pages@v5
 
-      - name: Build with Hugo
+      - name: Build with Astro
         env:
-          HUGO_ENVIRONMENT: production
-        run: hugo --minify --baseURL "${{ steps.pages.outputs.base_url }}/"
+          ASTRO_TELEMETRY_DISABLED: '1'
+        run: npm run build
 
       - name: Upload site
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./public
+          path: ./dist
 
   deploy:
     runs-on: ubuntu-latest

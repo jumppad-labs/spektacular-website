@@ -1,0 +1,91 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+@theme {
+  /* Backgrounds */
+  --color-bg-base:     #0d1117;
+  --color-bg-surface:  #161b22;
+  --color-bg-elevated: #21262d;
+  --color-bg-code:     #1c2128;
+
+  /* Borders */
+  --color-border-subtle:  #30363d;
+  --color-border-default: #3d444d;
+
+  /* Text */
+  --color-text-primary:   #e6edf3;
+  --color-text-secondary: #8b949e;
+  --color-text-muted:     #656d76;
+
+  /* Accent — Purple */
+  --color-accent-primary: #7c3aed;
+  --color-accent-light:   #a78bfa;
+  --color-accent-subtle:  #1a1033;
+
+  /* Terminal green */
+  --color-terminal-green:     #3fb950;
+  --color-terminal-green-dim: #238636;
+
+  /* Link blue */
+  --color-link-blue: #58a6ff;
+
+  /* Spacing scale */
+  --spacing-xs: 0.5rem;
+  --spacing-sm: 1rem;
+  --spacing-md: 2rem;
+  --spacing-lg: 4rem;
+  --spacing-xl: 6rem;
+
+  /* Radius */
+  --radius-sm:   4px;
+  --radius-md:   8px;
+  --radius-lg:   12px;
+  --radius-pill: 9999px;
+}
+
+/* Inline code rendered inside body prose (set:html content). Mirrors
+   the Hugo per-element class string
+   "bg-bg-elevated text-accent-light px-1.5 py-0.5 rounded-sm
+    text-[0.875em] font-mono" so MDX body strings can use plain
+   <code>...</code> without inline class attributes. */
+:not(pre) > code {
+  background-color: var(--color-bg-elevated);
+  color: var(--color-accent-light);
+  padding: 0.125rem 0.375rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.875em;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Cascadia Mono", "Segoe UI Mono", "Roboto Mono", "Oxygen Mono", "Ubuntu Monospace", "Source Code Pro", monospace;
+}
+
+/* Anchors in component-rendered body prose. The Hugo partial bodies
+   carried inline link styling on every <a>; the equivalent here is a
+   scoped rule for anchors inside the `.spek-body` container so MDX
+   body strings can use plain <a href="...">...</a> without classes. */
+.spek-body a {
+  color: var(--color-link-blue);
+  text-decoration: none;
+}
+
+.spek-body a:hover {
+  text-decoration: underline;
+}
+
+.spek-body p + p,
+.spek-body p + ul,
+.spek-body ul + p {
+  margin-top: 0.5rem;
+}
+
+.spek-body ul {
+  list-style: disc;
+  padding-left: 1.25rem;
+}
+
+.spek-body ul > li {
+  margin-top: 0.25rem;
+}
+
+.spek-body strong {
+  color: var(--color-text-primary);
+  font-weight: 600;
+}
