@@ -7,8 +7,8 @@ interface Props {
 const { code, lang } = Astro.props;
 const codeClass = lang ? `text-text-primary language-${lang}` : "text-text-primary";
 ---
-<div class="bg-bg-code border border-border-subtle rounded-md overflow-hidden">
-  <pre class="px-5 py-4 overflow-x-auto text-sm leading-relaxed text-text-primary">{code !== undefined ? (
+<div class="not-prose bg-bg-code border border-border-subtle rounded-md overflow-hidden">
+  <pre class="px-5 py-4 overflow-x-auto font-mono text-[0.8125rem] leading-relaxed text-text-primary">{code !== undefined ? (
     <code class={codeClass}>{code}</code>
   ) : (
     <slot />

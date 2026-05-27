@@ -6,7 +6,8 @@ export default defineConfig({
   site: "https://spektacular.dev",
   integrations: [mdx()],
   markdown: {
-    syntaxHighlight: false,
+    syntaxHighlight: "shiki",
+    shikiConfig: { theme: "github-dark" },
   },
   vite: {
     plugins: [tailwindcss()],
