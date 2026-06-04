@@ -103,8 +103,7 @@ set the project up and then walk through each pillar in turn.
   <AgentBlock for="claude">
 
     Install [Claude Code](https://docs.anthropic.com/en/docs/claude-code)
-    and sign in once. Spektacular invokes `claude` non-interactively for
-    each phase, so the CLI needs to be authenticated in your shell.
+    and sign in once. 
 
     ```bash
     claude --version
@@ -114,9 +113,8 @@ set the project up and then walk through each pillar in turn.
 
   <AgentBlock for="bob">
 
-    Install the Bob CLI from your usual distribution channel and confirm
-    it runs. Spektacular calls `bob` once per phase; no long-running
-    session is required.
+    Install the Bob CLI from [https://bob.ibm.com/download?bob=shell](https://bob.ibm.com/download?bob=shell) 
+    and run the following command to validate that everything is working.
 
     ```bash
     bob --version
@@ -139,6 +137,10 @@ set the project up and then walk through each pillar in turn.
 </TutorialStep>
 
 <TutorialStep number="3" heading="Initialise your project">
+
+  For every repository that you want to use Spektacular with you need to
+  intiialize it. This process installs the skills into your coding agent and
+  configures the local knowledge base for the project.
 
   Run `spektacular init` from the root of the codebase you want
   Spektacular to operate on. Pass your chosen agent's identifier so

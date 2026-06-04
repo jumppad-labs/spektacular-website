@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Install — Spektacular</title>
+<meta name="description" content="Install Spektacular on your machine using Homebrew, Debian/Ubuntu apt, or a direct download from GitHub Releases.">
+
+  
+    
+    
+      
+        <link rel="stylesheet" href="/css/main.css">
+      
+    
+  
+
+
+
+</head>
+<body class="flex flex-col min-h-screen font-sans bg-bg-base text-text-primary antialiased leading-relaxed">
+  <nav class="sticky top-0 z-50 bg-bg-surface/85 backdrop-blur-md border-b border-border-subtle">
+  <div class="mx-auto max-w-[1100px] px-md">
+    <div class="flex items-center justify-between h-[60px]">
+      <a href="/" class="font-extrabold text-lg text-text-primary tracking-tight hover:text-accent-light no-underline">spektacular</a>
+      <ul class="flex items-center gap-md max-sm:gap-sm list-none m-0 p-0">
+        
+          
+          <li class="max-sm:hidden">
+            <a href="/how-it-works/"
+               class="text-sm transition-colors no-underline text-text-secondary hover:text-text-primary">
+              How it works
+            </a>
+          </li>
+        
+          
+          <li>
+            <a href="/install/"
+               class="text-sm transition-colors no-underline text-text-secondary hover:text-text-primary">
+              Install
+            </a>
+          </li>
+        
+        <li>
+          <a href="https://github.com/jumppad-labs/spektacular"
+             class="flex items-center gap-1.5 text-text-secondary hover:text-text-primary text-sm transition-colors no-underline"
+             target="_blank" rel="noopener">
+            <svg class="w-[18px] h-[18px] fill-current" viewBox="0 0 16 16" aria-hidden="true">
+              <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
+            </svg>
+            GitHub
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+
+  <main class="grow">
+  
+  <div class="py-14 pb-10 border-b border-border-subtle">
+    <div class="mx-auto max-w-[1100px] px-md">
+      <h1 class="text-text-primary font-extrabold leading-[1.1] tracking-[-0.02em] mb-3 text-[clamp(1.875rem,4vw,2.75rem)]">Install Spektacular</h1>
+      <p class="text-[1.0625rem] text-text-secondary max-w-[60ch] m-0">Get Spektacular running on your machine in under a minute.</p>
+    </div>
+  </div>
+
+  
+  <section class="pt-12 pb-xl max-sm:pb-lg">
+    <div class="mx-auto max-w-[1100px] px-md">
+      <div class="mb-8">
+        <h2 class="mb-xs text-text-primary font-bold leading-tight tracking-[-0.01em] text-[clamp(1.625rem,3vw,2.25rem)]">Choose your install method</h2>
+        <p class="text-lg text-text-secondary max-w-[65ch]">Pick the method that fits your workflow.</p>
+      </div>
+
+      <div class="flex flex-col">
+        
+        <div class="py-14 pb-6 border-t border-border-subtle first:border-t-0 first:pt-0">
+          <h3 class="text-lg font-semibold text-text-primary mb-2">Homebrew</h3>
+          <p class="text-[0.9375rem] text-text-secondary mb-3 max-w-[65ch]">Install via the official Homebrew tap:</p>
+          <div class="flex w-full items-center gap-3 bg-bg-code border border-border-subtle rounded-md px-5 py-3 font-mono text-sm">
+  <span class="text-terminal-green font-bold select-none">$</span>
+  <code class="text-text-primary flex-1 overflow-x-auto">brew install jumppad-labs/homebrew-repo/spektacular</code>
+  <button type="button"
+          class="copy-btn cursor-pointer bg-bg-elevated text-text-secondary border border-border-subtle rounded-sm px-2.5 py-1 text-xs font-sans whitespace-nowrap transition-colors hover:bg-accent-subtle hover:text-accent-light hover:border-accent-primary"
+          data-copy="brew install jumppad-labs/homebrew-repo/spektacular">Copy</button>
+</div>
+
+        </div>
+
+        
+        <div class="py-14 pb-6 border-t border-border-subtle first:border-t-0 first:pt-0">
+          <h3 class="text-lg font-semibold text-text-primary mb-2">Debian / Ubuntu</h3>
+          <p class="text-[0.9375rem] text-text-secondary mb-3 max-w-[65ch]">Add the apt repository and install:</p>
+          <div class="bg-bg-code border border-border-subtle rounded-md overflow-hidden">
+  <pre class="px-5 py-4 overflow-x-auto text-sm leading-relaxed text-text-primary"><code class="text-text-primary">echo &#34;deb [trusted=yes] https://apt.fury.io/jumppad/ /&#34; \
+  | sudo tee /etc/apt/sources.list.d/spektacular.list
+sudo apt update
+sudo apt install spektacular</code></pre>
+</div>
+
+        </div>
+
+        
+        <div class="py-14 pb-6 border-t border-border-subtle first:border-t-0 first:pt-0">
+          <h3 class="text-lg font-semibold text-text-primary mb-2">GitHub Releases</h3>
+          <p class="text-[0.9375rem] text-text-secondary mb-3 max-w-[65ch]">
+            Download the latest release archive from
+            <a href="https://github.com/jumppad-labs/spektacular/releases" class="text-link-blue hover:underline" target="_blank" rel="noopener">GitHub Releases</a>,
+            extract the binary, and move it to a directory on your
+            <code class="bg-bg-elevated text-accent-light px-1.5 py-0.5 rounded-sm text-[0.875em] font-mono">$PATH</code>.
+          </p>
+          <div class="grid grid-cols-2 gap-4 mt-1 max-sm:grid-cols-1">
+              <div>
+                <p class="text-[0.8125rem] font-semibold text-text-secondary mb-1.5 max-w-none">macOS (Apple Silicon)</p>
+                <div class="bg-bg-code border border-border-subtle rounded-md overflow-hidden">
+  <pre class="px-5 py-4 overflow-x-auto text-sm leading-relaxed text-text-primary"><code class="text-text-primary">tar -xzf spektacular_Darwin_arm64.tar.gz
+sudo mv spektacular /usr/local/bin/</code></pre>
+</div>
+
+              </div>
+              <div>
+                <p class="text-[0.8125rem] font-semibold text-text-secondary mb-1.5 max-w-none">macOS (Intel)</p>
+                <div class="bg-bg-code border border-border-subtle rounded-md overflow-hidden">
+  <pre class="px-5 py-4 overflow-x-auto text-sm leading-relaxed text-text-primary"><code class="text-text-primary">tar -xzf spektacular_Darwin_x86_64.tar.gz
+sudo mv spektacular /usr/local/bin/</code></pre>
+</div>
+
+              </div>
+              <div>
+                <p class="text-[0.8125rem] font-semibold text-text-secondary mb-1.5 max-w-none">Linux (x86_64)</p>
+                <div class="bg-bg-code border border-border-subtle rounded-md overflow-hidden">
+  <pre class="px-5 py-4 overflow-x-auto text-sm leading-relaxed text-text-primary"><code class="text-text-primary">tar -xzf spektacular_Linux_x86_64.tar.gz
+sudo mv spektacular /usr/local/bin/</code></pre>
+</div>
+
+              </div>
+              <div>
+                <p class="text-[0.8125rem] font-semibold text-text-secondary mb-1.5 max-w-none">Linux (ARM64)</p>
+                <div class="bg-bg-code border border-border-subtle rounded-md overflow-hidden">
+  <pre class="px-5 py-4 overflow-x-auto text-sm leading-relaxed text-text-primary"><code class="text-text-primary">tar -xzf spektacular_Linux_arm64.tar.gz
+sudo mv spektacular /usr/local/bin/</code></pre>
+</div>
+
+              </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+
+  <footer class="bg-bg-surface border-t border-border-subtle py-7 mt-auto">
+  <div class="mx-auto max-w-[1100px] px-md">
+    <div class="flex items-center justify-between flex-wrap gap-4 max-sm:flex-col max-sm:items-start">
+      <span class="text-sm text-text-muted">
+        Spektacular —
+        <a href="https://github.com/jumppad-labs/spektacular/blob/main/LICENSE"
+           class="text-text-secondary hover:text-text-primary no-underline"
+           target="_blank" rel="noopener">Apache 2.0</a>
+      </span>
+      <div class="flex gap-6">
+        <a href="https://github.com/jumppad-labs/spektacular"
+           class="text-sm text-text-secondary hover:text-text-primary no-underline"
+           target="_blank" rel="noopener">GitHub</a>
+        <a href="https://github.com/jumppad-labs/spektacular/releases"
+           class="text-sm text-text-secondary hover:text-text-primary no-underline"
+           target="_blank" rel="noopener">Releases</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+
+  
+  
+    <script src="/js/main.js" defer></script>
+  
+
+
+</body>
+</html>
