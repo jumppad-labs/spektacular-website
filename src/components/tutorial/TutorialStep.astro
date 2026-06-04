@@ -1,0 +1,17 @@
+---
+interface Props {
+  number: string;
+  heading: string;
+}
+
+const { number, heading } = Astro.props;
+---
+<div class="grid grid-cols-[2.5rem_1fr] gap-x-5 gap-y-4 items-start max-sm:grid-cols-[2rem_1fr] mt-8">
+  <div class="w-10 h-10 rounded-full bg-accent-subtle border border-accent-primary text-accent-light font-bold text-sm flex items-center justify-center shrink-0">{number}</div>
+  <div class="spek-body">
+    <h3 class="text-lg font-semibold text-text-primary mb-1.5">{heading}</h3>
+    <div class="text-[0.9375rem] text-text-secondary mb-3 max-w-[65ch]">
+      <slot />
+    </div>
+  </div>
+</div>

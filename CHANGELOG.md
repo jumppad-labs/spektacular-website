@@ -1,3 +1,16 @@
+## 000005_tutorial-section
+
+The Spektacular website now has a Tutorials section reachable from
+the top nav. Each tutorial is a single MDX file in a new content
+collection, and the index page lists every published tutorial as a
+clickable card. Every tutorial page carries an agent selector
+(default Bob, plus Claude and Codex) at the top that swaps per-step
+instructions and screenshots between the supported coding agents
+without a page reload; the choice is persisted across visits. The
+first tutorial, "How to use Spektacular", walks a reader through
+the end-to-end workflow from install to implement. Per-agent
+screenshots ship as labelled placeholders pending real captures.
+
 ## 000004_astro-migration
 
 The Spektacular website has moved off Hugo onto Astro 5 with MDX and

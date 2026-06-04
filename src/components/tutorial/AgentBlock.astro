@@ -1,0 +1,11 @@
+---
+import type { AgentId } from "../../config/agents";
+
+interface Props {
+  for: AgentId | readonly AgentId[];
+}
+
+const ids = Array.isArray(Astro.props.for) ? Astro.props.for : [Astro.props.for];
+const dataAgentBlock = (ids as readonly AgentId[]).join(" ");
+---
+<div data-agent-block={dataAgentBlock}><slot /></div>

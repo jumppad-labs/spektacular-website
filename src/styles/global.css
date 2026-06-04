@@ -89,3 +89,11 @@
   color: var(--color-text-primary);
   font-weight: 600;
 }
+
+/* Per-agent visibility for tutorial blocks. The active agent is held
+   as `data-agent` on <html>; tutorial blocks emit `data-agent-block`
+   listing the agent IDs they apply to. Keep these rules in lockstep
+   with src/config/agents.ts — one rule per agent. */
+[data-agent="bob"] [data-agent-block]:not([data-agent-block~="bob"]) { display: none; }
+[data-agent="claude"] [data-agent-block]:not([data-agent-block~="claude"]) { display: none; }
+[data-agent="codex"] [data-agent-block]:not([data-agent-block~="codex"]) { display: none; }

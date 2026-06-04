@@ -1,0 +1,29 @@
+---
+import { getCollection } from "astro:content";
+import Shell from "../../layouts/Shell.astro";
+import Hero from "../../components/sections/Hero.astro";
+
+const tutorials = (await getCollection("tutorials")).sort(
+  (a, b) => a.data.order - b.data.order,
+);
+---
+<Shell title="Tutorials — Spektacular" description="Long-form guides on Spektacular and spec-driven development.">
+  <Hero
+    heading="Tutorials"
+    sub="Long-form guides on Spektacular and spec-driven development."
+    variant="page"
+  />
+  <section class="py-xl max-sm:py-lg">
+    <div class="mx-auto max-w-[820px] px-md grid gap-md">
+      {tutorials.map((entry) => (
+        <a
+          href={`/tutorials/${entry.id}/`}
+          class="block p-md bg-bg-surface border border-border-subtle rounded-md hover:border-accent-primary transition-colors no-underline"
+        >
+          <h2 class="text-lg font-semibold text-text-primary mb-1.5">{entry.data.title}</h2>
+          <p class="text-sm text-text-secondary m-0">{entry.data.summary}</p>
+        </a>
+      ))}
+    </div>
+  </section>
+</Shell>
