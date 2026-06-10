@@ -1,0 +1,25 @@
+---
+import Shell from "./Shell.astro";
+import Hero from "../components/sections/Hero.astro";
+import AgentSelector from "../components/tutorial/AgentSelector.astro";
+import Lightbox from "../components/tutorial/Lightbox.astro";
+
+interface Props {
+  title: string;
+  summary: string;
+}
+
+const { title, summary } = Astro.props;
+---
+<Shell title={title} description={summary}>
+  <Hero heading={title} sub={summary} variant="page" />
+  <section class="py-xl max-sm:py-lg">
+    <div class="mx-auto max-w-[820px] px-md">
+      <AgentSelector />
+      <article class="spek-body prose prose-invert max-w-none prose-headings:text-text-primary prose-h2:text-2xl prose-h2:font-bold prose-h2:tracking-tight prose-h2:mt-12 prose-h2:mb-4 prose-p:text-text-secondary prose-strong:text-text-primary prose-code:text-accent-light prose-code:bg-bg-elevated prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded-sm prose-code:text-[0.875em] prose-code:font-mono prose-code:before:content-none prose-code:after:content-none prose-a:text-link-blue prose-a:no-underline hover:prose-a:underline prose-li:text-text-secondary">
+        <slot />
+      </article>
+    </div>
+  </section>
+  <Lightbox />
+</Shell>

@@ -1,0 +1,36 @@
+---
+import { AGENTS, AGENT_STORAGE_KEY } from "../../config/agents";
+
+const agentIds = AGENTS.map((a) => a.id);
+---
+<div class="flex items-center gap-3 py-md">
+  <label for="spek-agent-select" class="text-sm text-text-secondary">Agent</label>
+  <select
+    id="spek-agent-select"
+    class="bg-bg-elevated border border-border-default text-text-primary text-sm rounded-md px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-accent-primary"
+  >
+    {AGENTS.map((agent) => (
+      <option value={agent.id}>{agent.label}</option>
+    ))}
+  </select>
+</div>
+<script is:inline define:vars={{ agentIds, storageKey: AGENT_STORAGE_KEY }}>
+  (function () {
+    var select = document.getElementById("spek-agent-select");
+    if (!select) return;
+    var current = document.documentElement.dataset.agent;
+    if (current && agentIds.indexOf(current) !== -1) {
+      select.value = current;
+    }
+    select.addEventListener("change", function () {
+      var next = select.value;
+      if (agentIds.indexOf(next) === -1) return;
+      document.documentElement.dataset.agent = next;
+      try {
+        localStorage.setItem(storageKey, next);
+      } catch (e) {
+        /* localStorage unavailable; in-memory swap still applies */
+      }
+    });
+  })();
+</script>

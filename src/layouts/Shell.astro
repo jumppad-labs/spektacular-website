@@ -3,6 +3,7 @@ import "../styles/global.css";
 import Head from "../components/Head.astro";
 import Nav from "../components/Nav.astro";
 import Footer from "../components/Footer.astro";
+import { AGENTS, DEFAULT_AGENT_ID, AGENT_STORAGE_KEY } from "../config/agents";
 
 interface Frontmatter {
   title: string;
@@ -18,10 +19,21 @@ interface Props {
 const { title, description, frontmatter } = Astro.props;
 const resolvedTitle = title ?? frontmatter?.title ?? "Spektacular";
 const resolvedDescription = description ?? frontmatter?.description;
+const agentIds = AGENTS.map((a) => a.id);
 ---
 <!doctype html>
-<html lang="en" class="scroll-smooth">
+<html lang="en" class="scroll-smooth" data-agent={DEFAULT_AGENT_ID}>
   <head>
+    <script is:inline define:vars={{ agentIds, storageKey: AGENT_STORAGE_KEY }}>
+      try {
+        var stored = localStorage.getItem(storageKey);
+        if (stored && agentIds.indexOf(stored) !== -1) {
+          document.documentElement.dataset.agent = stored;
+        }
+      } catch (e) {
+        /* localStorage unavailable; SSR default holds */
+      }
+    </script>
     <Head title={resolvedTitle} description={resolvedDescription} />
   </head>
   <body class="flex flex-col min-h-screen font-sans bg-bg-base text-text-primary antialiased leading-relaxed">

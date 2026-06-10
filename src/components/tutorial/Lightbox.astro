@@ -1,0 +1,52 @@
+---
+// Shared lightbox overlay for `.spek-zoomable` images. Rendered once per
+// page; a delegated click handler enlarges whichever image is clicked.
+---
+<div
+  id="spek-lightbox"
+  class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80 p-8 cursor-zoom-out max-sm:p-4"
+  aria-hidden="true"
+>
+  <img
+    id="spek-lightbox-img"
+    src=""
+    alt=""
+    class="max-h-full max-w-full rounded-md object-contain shadow-2xl"
+  />
+</div>
+<script is:inline>
+  (function () {
+    var overlay = document.getElementById("spek-lightbox");
+    var fullImg = document.getElementById("spek-lightbox-img");
+    if (!overlay || !fullImg) return;
+
+    function open(src, alt) {
+      fullImg.src = src;
+      fullImg.alt = alt || "";
+      overlay.classList.remove("hidden");
+      overlay.classList.add("flex");
+      overlay.setAttribute("aria-hidden", "false");
+      document.body.style.overflow = "hidden";
+    }
+
+    function close() {
+      overlay.classList.add("hidden");
+      overlay.classList.remove("flex");
+      overlay.setAttribute("aria-hidden", "true");
+      fullImg.src = "";
+      document.body.style.overflow = "";
+    }
+
+    document.addEventListener("click", function (e) {
+      var img = e.target.closest && e.target.closest(".spek-zoomable");
+      if (img) {
+        open(img.getAttribute("src"), img.getAttribute("alt"));
+      }
+    });
+
+    overlay.addEventListener("click", close);
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape") close();
+    });
+  })();
+</script>

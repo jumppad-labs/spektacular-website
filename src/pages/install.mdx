@@ -40,6 +40,20 @@ export const components = { pre: CodeBlock };
     ```
 
   </InstallMethod>
+  
+  <InstallMethod heading="Apt (Debian/Ubuntu)">
+
+    If you have Go 1.21+ installed, fetch and build the latest release directly:
+
+    ```bash
+    echo "deb [trusted=yes] https://apt.fury.io/jumppad/ /" | \
+    sudo tee -a /etc/apt/sources.list.d/fury.list
+
+    sudo apt-get update
+    sudo apt-get install spektacular
+    ```
+
+  </InstallMethod>
 
   <InstallMethod heading="GitHub Releases">
 

@@ -426,12 +426,13 @@ local-development instructions.
 
 **Acceptance criteria**:
 
-- [ ] A push to `main` builds with Hugo and publishes the built site to
-      GitHub Pages *(verifiable only post-merge — workflow is structurally
-      correct and pinned to Hugo 0.161.0)*
-- [ ] The live site loads correctly over the `spektacular.dev` custom domain
-      *(verifiable only post-deploy — `CNAME` is published into `public/`
-      via `static/CNAME`, confirmed locally)*
+- [x] A push to `main` builds with Hugo and publishes the built site to
+      GitHub Pages *(verified post-merge — Actions run 26157921061
+      completed in 45s on commit 92ae9d0)*
+- [x] The live site loads correctly over the `spektacular.dev` custom domain
+      *(verified post-deploy — `https://spektacular.dev/`,
+      `/how-it-works/`, and `/install/` all return HTTP 200 with the
+      Hugo-built content and fingerprinted Tailwind CSS)*
 - [x] `make serve` starts the Hugo development server
 
 ## Open Questions
