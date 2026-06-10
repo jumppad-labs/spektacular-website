@@ -6,8 +6,9 @@ order: 10
 import TutorialStep from "../../components/tutorial/TutorialStep.astro";
 import AgentBlock from "../../components/tutorial/AgentBlock.astro";
 import CodeBlock from "../../components/CodeBlock.astro";
+import ZoomImage from "../../components/tutorial/ZoomImage.astro";
 
-export const components = { pre: CodeBlock };
+export const components = { pre: CodeBlock, img: ZoomImage };
 
 AI coding agents are very good at producing code that looks right. The
 problem is that *looks right* and *is right for your codebase* are rarely
@@ -78,7 +79,7 @@ There are three pillars:
 Done right it feels close to vibe coding, but with sharper output. Let us
 set the project up and then walk through each pillar in turn.
 
-## Set up your project
+## Setting up your project
 
 <TutorialStep number="1" heading="Install Spektacular">
 
@@ -164,7 +165,7 @@ set the project up and then walk through each pillar in turn.
     spektacular init bob
     ```
 
-    ![placeholder — swap real Bob init screenshot here](/images/tutorials/getting-started/init-bob.png)
+    ![bob init](/images/tutorials/getting-started/init-bob.png)
 
   </AgentBlock>
 
@@ -179,114 +180,238 @@ set the project up and then walk through each pillar in turn.
 
   </AgentBlock>
 
-  This creates `.spektacular/` in your project with config, the knowledge
-  base, and the spec and plan templates.
+  This command installs the skills for your agent and creates the `.spektacular/` 
+  folder containing the default config and project level knowledge base.
 
 </TutorialStep>
 
-## The spec
+In this tutorial we are going to add a feature that adds SQLLite database to an
+existing Go HTTP API. You can follow along by checkout out the following respository. 
 
-If you have worked with PRDs you may be familiar with headings like
-these: Overview, Requirements, Constraints, Acceptance Criteria,
-Technical Approach, Success Metrics, Non-Goals. The core difference
-between a PRD and a spec is that the spec relates to the technical
-implementation of the PRD. As a developer you would work through a PRD
-and translate it into a technical implementation; the spec captures the
-output of that translation in a form the agent can act on.
+[https://github.com/jumppad-labs/tutorial-spektacular-how-to](https://github.com/jumppad-labs/tutorial-spektacular-how-to)
+
+And selecting the `tutorial` branch. The `main` branch contains the final code after
+the tutorial is complete, so you can check your work against it at any time.
+
+## The specification
+
+If you have worked with Product Requirement Documents (PRDs) you will be familiar 
+with the process of translating business requirements into a technical specification
+that you can turn into code. The specification in Spektacular serves the same purpose,
+it is a hint to the agent of what you want to build.
+
+The key with a specification is that it is `what` you want to build not `how` you want to
+build it. The how is the agent's job. The process in spec driven development guides
+the agent to create the code that satisfies your requirements and does it in a
+way ensuring that the code produced is correct and  
+
+The specification in the Spektacular workflow is a markdown file with the 
+following sections:
+* Overview
+* Requirements
+* Constraints
+* Acceptance Criteria
+* Technical Approach
+* Success Metrics
+* Non-Goals 
+
+The content in these sections is what gudes the agent to create a technical
+plan which is then implemented. Spending time on getting the specification right
+ultimately saves you time as the plan is more likely to be correct and contain
+the features that you actually want to build. It also acts as living documentation
+for the features you are buiding and allows you to collaborate with you team
+on the initial requirements. 
+
+Let's use the spek-new skill to scaffold a new specification for our SQLLite feature.
+
+### Using the skill
+
+Start a new instance of your agent and run the following to start the spec-new skill:
+
+```bash
+/spek-new
+```
+
+You will be prompted to enter the name of the feature that you want to build.
+
+<AgentBlock for="bob">
+</AgentBlock>
+
+<AgentBlock for="claude">
+![new spec](/images/tutorials/getting-started/new-spec-claude.png)
+</AgentBlock>
+
+For the tutorial we are going to use `SQLLite migration` as the feature name.
+
+Spektacular will automatically create the file name for the spec and allocate an
+ID to it. This is dependent on the configuration for your project. The configuration
+for the example is stored at `.spektacular/config.yaml`, below shows the config
+for the spec section. 
+
+```yaml
+spec:
+    provider: file
+    id_method: timestamp
+    config:
+        directory: .spektacular/specs
+```
+
+When you enter the name SQLLite migration into the prompt box, you will be prompted
+to run a command. The way that Spektacular works is that the skill prompts the agent 
+to call the Spektacular CLI with the right arguments. This performs features like 
+creating the spec file and enabling knowledge base lookups. 
+
+![spektacular command approval](/images/tutorials/getting-started/approval-claude.png)
+
+You will need to approve the command for it to run. Once you approve, an empty
+spec will be created in the folder `.spektacular/specs` the agent will then start to 
+prompt you to complete the sections of the spec. 
 
 ### Overview
 
-A short two-or-three-sentence summary that answers what is being built,
-what problem it solves, and who benefits. For the OAuth example:
+The overview is a short two-or-three-sentence summary that answers what is being built,
+what problem it solves, and who benefits. For the SQLLite migration the overview
+might look like this:
 
 ```markdown
-Add OAuth2 login with Google and GitHub providers to the existing Go HTTP
-API. Users currently authenticate against a local password store that the
-security team has flagged for retirement; OAuth removes that dependency
-and lets the team standardise on a managed identity provider.
+Currently the monsters and users are stored in plain text files. We should migrate 
+this to a datastore so the system can safely handle updates from multiple threads 
+without relying on file writes. This benefits the teams operating and extending 
+the service by making data updates more reliable and scalable.
 ```
+
+In the prompt box for your agent enter the overview and submit it.
+
+<AgentBlock for="claude">
+![spec overview](/images/tutorials/getting-started/overview-claude.png)
+</AgentBlock>
+
+Once you submit it the agent will move on to the next section which are the requirements.
+
+Your agent will probably ask you to write to a temporary file. Spektacular writes 
+all temporary content and context to disk before creating the final specification or plan.
+This enables the workflow to be resumable and also so you can see and edit any of the
+working copy.
 
 ### Requirements
 
-Specific, testable behaviours. Active voice ("Users can…"). Each item
-independently verifiable, focused on *what* not *how*:
+Requirements are specific, testable behaviours and are written in an Active voice 
+("Users can…"). Each item should be independently verifiable, focused on *what* not *how*:
+
+Quite often the agent will assist you with some examples of requirements if if
+can infer enough detail from the overview or it may ask you for some clarifying 
+questions that help you write better requirements.
+
+<AgentBlock for="claude">
+![spec requirements](/images/tutorials/getting-started/requirements-claude.png)
+</AgentBlock>
+
+If you answer the questions that the agent asks you it will attempt to generate some 
+requirements for you. You can then edit these to make them more specific or add any 
+that you think are missing. Below is the list that the agent suggested for me:
 
 ```markdown
-- [ ] **Google OAuth sign-in works**
-  Users can sign in with a Google account and reach the existing
-  authenticated home route.
-- [ ] **GitHub OAuth sign-in works**
-  Users can sign in with a GitHub account and reach the existing
-  authenticated home route.
-- [ ] **Session persists across browser refreshes**
-  An authenticated user who refreshes the browser remains signed in
-  until the session expires or they sign out.
-- [ ] **Sign-out clears the session**
-  A signed-in user can sign out and is redirected to the public landing
-  page with no residual session cookie.
+1. The system must store all monster and user records in a datastore instead of plain text files.
+2. The system must migrate all existing monster and user records into the datastore so no existing data is lost.
+3. The system does not need to retain the old text files after migration.
+4. The system must apply every record update atomically — an update either fully succeeds or has no effect.
+5. The system must apply concurrent updates in a well-defined order so simultaneous operations do not interfere with one
+another.
+6. The system must allow multiple concurrent operations to read and update records safely without data corruption.
+7. If a write fails, the system must guarantee no corrupt or partial records and no loss of previously committed data.
+8. Every operation available against the existing text-file storage must continue to work identically after the migration.
+9. This change introduces no new user-facing capabilities; it is a like-for-like migration.
 ```
 
-### Constraints
-
-Hard boundaries the solution must operate within that cannot be inferred
-from context. For our example:
+For the purposes of this tutorial we are going to simplify this list to the following requirements.
+If the agent has already suggested a list of requirements for you you can tell it to 
+replace that list with the simplified one below. If it has not suggested a list yet you can just tell it 
+to use this list.
 
 ```markdown
-- Must use the existing chi router and session middleware stack (no
-  separate auth service)
-- Cannot change the schema of the `/api/users` endpoint — downstream
-  internal tools depend on it
-- Only add dependencies from `golang.org/x/oauth2`; no full third-party
-  auth frameworks
+- The system must persist monsters and users across service restarts.
+- The system must allow multiple threads to update monster and user data safely without corruption.
+- The system must return the latest committed monster and user data to readers.
+- The system must support creating, updating, and retrieving monster and user records.
+- The system must query the datastore on demand instead of loading all monster and user data into memory at startup.
 ```
 
-Each constraint exists because the agent has no way to infer the
-boundary on its own. The `/api/users` constraint is the important one
-here — without it, an agent might reasonably propose adding a `provider`
-field to the user object, which would silently break consumers of that
-endpoint.
+Next let's look at the acceptance criteria.
 
 ### Acceptance Criteria
 
-Binary pass/fail conditions, each traceable to a requirement:
+Acceptance criteria is binary pass/fail conditions, each traceable to a requirement:
+
+<AgentBlock for="claude">
+![spec acceptance criteria](/images/tutorials/getting-started/acceptance-claude.png)
+</AgentBlock>
+
+Again the agent has suggested some acceptance criteria based on the requirements and it
+is also prompting you to answer some questions that best help it refine this list.
+Interestingly the agent is also asking about deletion, which was not one of our
+requirement however is a common capability for an API. For this tutorial, let's just
+use the following list for the acceptance criteria. 
 
 ```markdown
-### Google OAuth sign-in works
-- [ ] **Successful Google login lands on /home**
-  A user who completes the Google OAuth flow with a valid account is
-  redirected to `/home` and the request context carries the resolved
-  user via the existing auth middleware.
-- [ ] **Cancelled Google login lands on /login with an error flash**
-  A user who cancels the Google OAuth consent screen is redirected to
-  `/login` with a non-empty `error` flash message.
+- When the service restarts, previously created monsters and users are still available.
+- When multiple updates happen at the same time, all successful changes are preserved without corrupted records.
+- When a monster or user record is updated, the next read returns the updated values.
+- When a client creates, updates, or retrieves a monster or user record, the operation succeeds and returns the expected data.
+- When the service starts, it does not require preloading all monster and user data before serving requests, and requested records are returned from the datastore on demand.
 ```
 
-A good acceptance criterion lets two independent reviewers run a test
-and get the same yes-or-no answer. *"The login flow should feel
-responsive"* is not independently verifiable; the criteria above are.
+Good acceptance criterion lets two independent reviewers run a test and get the 
+same yes-or-no answer. An example of bad acceptance criteria would be something like 
+*"The API should feel responsive"* this is not independently verifiable as responsive
+is subjective based on the testers expectations and experience. If we wanted acceptance
+criteria around responsiveness we would make it measureable, for example:
+*The API should response to monster read requests within 100ms 95% of the time under a 
+load of 100 concurrent users*.
 
-At no point have we defined any technical implementation details. The
-spec's job is to describe what the system must do, not how it does it.
-The moment you put a code snippet in a spec you are making an
-implementation decision that belongs to the agent.
+At no point have we defined any technical implementation details. The spec's job is to 
+describe what the system must do, not how it does it. The moment you put a code snippet 
+in a spec you are making an implementation decision that belongs to the agent.
 
-### Technical Approach and Success Metrics
+### Constraints
 
-Keep Technical Approach brief — only what is specific to this feature.
-Anything global belongs in the knowledge base, which we cover next.
-Success Metrics define how you will measure success after delivery
-(quantitative or behavioural).
+Constraints are hard boundaries the solution must operate within that cannot be inferred
+from context. The agent has done a pretty good job of asking some clarifying questions that
+would lead to some constraints for this feature. For example asking about external infrastructure
+would guide the technology choice. 
 
-<TutorialStep number="4" heading="Scaffold and write your spec">
+<AgentBlock for="claude">
+![spec constraints](/images/tutorials/getting-started/constraint-claude.png)
+</AgentBlock>
 
-  Pass a JSON payload with the feature name. Spektacular normalises the
-  name, returns a `spec_name` and `spec_path`, and creates a markdown
-  file you fill in.
+Let's use the following list of constraints:
 
-  ```bash
-  spektacular spec new --data '{"name":"oauth-login"}'
-  $EDITOR .spektacular/specs/<returned-spec-name>.md
-  ```
+```markdown
+- Must use SQLite as the embedded datastore
+- Must replace file-based storage (monsters.json, users.txt)
+- Database file location must be configurable, defaulting to ./data.db
+```
+
+You may wonder why the SQLLite constraint is not in the technical approach. 
+This is because a constraint is a non-negotiable technical boundary, technical approaches
+are discrestionary, you guide the agent but you do not dictate the solution.
+
+Let's look at the technical approaches for our feature.
+
+### Technical Approach
+
+The Technical Approach should be kept breif, only define what is specific to this feature and
+that you feel the agent would not be able to infer from the codebase or the knowledge base.
+
+Ideally you would leave this section blank and let the agent propose the technical approach. 
+The agent works best when you give it freedom to propose its own soloution. 
+
+<AgentBlock for="claude">
+![spec constraints](/images/tutorials/getting-started/technical-claude.png)
+</AgentBlock>
+
+```bash
+No technical direction has been decided beyond the captured constraints; the detailed design is left for the plan workflow to propose.
+```
 
   Fill in `## Overview`, `## Requirements`, `## Constraints`, and
   `## Acceptance Criteria` using the patterns above. Leave
@@ -298,19 +423,56 @@ Success Metrics define how you will measure success after delivery
 
   </AgentBlock>
 
-  <AgentBlock for="bob">
+### Success Metrics
 
-    ![placeholder — swap real Bob spec session screenshot here](/images/tutorials/getting-started/spec-bob.png)
+The Success Metrics section is where you define how you will measure the success of 
+the feature your are building. You should define these in a way that are measruable,
+for example:
+* p99 latency of the read API is under 200ms
+* Read API should return the correct monster
 
-  </AgentBlock>
+<AgentBlock for="claude">
+![spec metrics](/images/tutorials/getting-started/success-metrics-claude.png)
+</AgentBlock>
 
-  <AgentBlock for="codex">
+The content you add to this section influence the testing approach that will
+be defined in the plan and createst during the implementation phase. 
+If it is not possible to measure the success of the feature using automated tests
+then the implementation phase will generate a manual testing plan instead.
 
-    ![placeholder — swap real Codex spec session screenshot here](/images/tutorials/getting-started/spec-codex.png)
+For the purposes of this tutorial we are going to keep it simple and test the 
+success or our migration manually. To do that we can simplly add the following:
 
-  </AgentBlock>
+```markdown
+Will test manually
+```
 
-</TutorialStep>
+Finally we have the non-goals section.
+
+### Non-Goals
+
+The non-goals section is intended to capture anything that you specifically do not
+want to do. This limits the scope of the plan. 
+
+<AgentBlock for="claude">
+![spec non goals](/images/tutorials/getting-started/non-goals-claude.png)
+</AgentBlock>
+
+The skill tells the agent to suggest some of the non-goals for you based on the
+current specification and the answers that you have already provided. In this 
+instance the non-goals are correct for our feature so we can just use the suggested list. 
+
+That completes the final section of the specification, the next step is for the
+agent to verify the specification before writing it to the specs directory.
+
+### Verification
+
+The final step in the process is that the agent will run a final pass on the 
+
+<AgentBlock for="claude">
+![spec non goals](/images/tutorials/getting-started/finished-claude.png)
+</AgentBlock>
+
 
 ## Context
 
@@ -654,3 +816,4 @@ Start the next feature with a new spec. As you go, add to
 `.spektacular/knowledge/` whenever you correct the agent on something a
 future run would benefit from knowing — every note you add raises the
 floor for the next plan.
+  
