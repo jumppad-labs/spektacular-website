@@ -21,13 +21,13 @@ works, but it is slow, and it tends to surface the same mistakes repeatedly. The
 agent does not learn what your team already knows.
 
 In this tutorial you will see how Spektacular's Spec Driven Development workflow
-improves this itterative process by using a measured and planned approach to the
-feature development.  
+improves this iterative process by taking a measured, planned approach to
+feature development.
 
-We are going to walk through the process end to end adding OAuth2 login to an
-existing Go HTTP API as the example. The example itself does not matter much,
-what matters is the pattern, and the part of the pattern where most runs succeed
-or fail: providing the right context.
+We are going to walk through the process end to end, adding a SQLite-backed
+datastore to an existing Go HTTP API as the example. The example itself does
+not matter much; what matters is the pattern, and the part of the pattern
+where most runs succeed or fail: providing the right context.
 
 The tutorial works with every coding agent Spektacular supports — pick yours at
 the top of the page and the agent-specific commands and screenshots swap to
@@ -35,10 +35,11 @@ match.
 
 ## What is Spektacular
 
-Spektacular is a CLI and collection of skills that integrates with your coding
-agent and drives Spec Driven Development end to end. It is agent-agnostic, it
-ships with adapters for Claude Code, Bob, and it has a plugable data layer that
-allows you to write your specs and knowledge base in a way that works for you.
+Spektacular is a CLI and a collection of skills that integrates with your coding
+agent and drives Spec Driven Development end to end. It is agent-agnostic,
+shipping with adapters for Claude Code, Codex, and Bob, and it has a pluggable
+data layer so you can store your specs and knowledge base in whatever way works
+for you.
 
 There are three agent skills that do the real work:
 
@@ -50,19 +51,19 @@ There are three agent skills that do the real work:
 
 Each skill runs as a resumable state machine. You can stop in the middle of a
 run, edit a file, and pick the run back up. Nothing is hidden inside opaque
-agent state — the spec, the plan, the supporting research and context documents,
+agent state: the spec, the plan, the supporting research and context documents,
 and the project knowledge base all live on disk where you can read and edit
 them.
 
 ## What is Spec Driven Development
 
 Spec Driven Development (SDD) is a methodology for working with AI coding
-agents. It increases the quality of an agent's output by following a simple
-process that does nothing more than improve the description of what you want and
-the context around the system where it will be applied. As a human working on a
-task you follow a very similar process: before starting to code, you form an
-idea of what needs to be done and, using your knowledge of the system and the
-team's practices, you work out where and how to implement the change.
+agents. It improves the quality of an agent's output through a simple process:
+sharpen the description of what you want, and supply the context of the system
+it will be applied to. You already do something similar as a human. Before
+starting to code, you form an idea of what needs to be done, and using your
+knowledge of the system and the team's practices, you work out where and how to
+implement the change.
 
 There are three pillars:
 
@@ -73,8 +74,8 @@ There are three pillars:
 - **Process** — spec, plan, refine, implement, with a human in the loop at every
   transition.
 
-Done right it feels close to vibe coding, but with sharper output. Let us set
-the project up and then walk through each pillar in turn.
+Done right, it feels close to vibe coding but with sharper output. Let's set
+the project up, then walk through each pillar in turn.
 
 ## Setting up your project
 
@@ -95,7 +96,7 @@ the project up and then walk through each pillar in turn.
 <TutorialStep number="2" heading="Install and configure your coding agent">
 
   Spektacular drives an external coding agent. Install the one you picked at the
-  top of the page; the rest of the tutorial assumes it is on your `PATH`.
+  top of the page. The rest of the tutorial assumes it is on your `PATH`.
 
   <AgentBlock for="claude">
 
@@ -135,13 +136,13 @@ the project up and then walk through each pillar in turn.
 
 <TutorialStep number="3" heading="Initialise your project">
 
-  For every repository that you want to use Spektacular with you need to
-  intiialize it. This process installs the skills into your coding agent and
-  configures the local knowledge base for the project.
+  Every repository you want to use Spektacular with needs to be initialised.
+  This installs the skills into your coding agent and configures the local
+  knowledge base for the project.
 
   Run `spektacular init` from the root of the codebase you want Spektacular to
-  operate on. Pass your chosen agent's identifier so Spektacular knows which CLI
-  to drive.
+  operate on, passing your chosen agent's identifier so Spektacular knows which
+  CLI to drive.
 
   <AgentBlock for="claude">
 
@@ -177,32 +178,32 @@ the project up and then walk through each pillar in turn.
   </AgentBlock>
 
   This command installs the skills for your agent and creates the
-  `.spektacular/` folder containing the default config and project level
-  knowledge base.
+  `.spektacular/` folder, which contains the default config and the
+  project-level knowledge base.
 
 </TutorialStep>
 
-In this tutorial we are going to add a feature that adds SQLLite database to an
-existing Go HTTP API. You can follow along by checkout out the following
-respository. 
+In this tutorial we are going to add a SQLite database to an existing Go HTTP
+API. You can follow along by cloning the following repository and checking out
+the `tutorial` branch:
 
 [https://github.com/jumppad-labs/tutorial-spektacular-how-to](https://github.com/jumppad-labs/tutorial-spektacular-how-to)
 
-And selecting the `tutorial` branch. The `main` branch contains the final code
-after the tutorial is complete, so you can check your work against it at any
-time.
+The `main` branch contains the final code after the tutorial is complete, so
+you can check your work against it at any time.
 
 ## The specification
 
-If you have worked with Product Requirement Documents (PRDs) you will be
+If you have worked with Product Requirement Documents (PRDs), you will be
 familiar with the process of translating business requirements into a technical
 specification that you can turn into code. The specification in Spektacular
-serves the same purpose, it is a hint to the agent of what you want to build.
+serves the same purpose: it is a hint to the agent about what you want to
+build.
 
-The key with a specification is that it is `what` you want to build not `how`
-you want to build it. The how is the agent's job. The process in spec driven
-development guides the agent to create the code that satisfies your requirements
-and does it in a way ensuring that the code produced is correct and  
+The key thing about a specification is that it captures *what* you want to
+build, not *how* you want to build it. The *how* is the agent's job. The Spec
+Driven Development process guides the agent to produce code that satisfies your
+requirements and fits the way your system is already built.
 
 The specification in the Spektacular workflow is a markdown file with the
 following sections:
@@ -214,14 +215,14 @@ following sections:
 * Success Metrics
 * Non-Goals 
 
-The content in these sections is what gudes the agent to create a technical plan
-which is then implemented. Spending time on getting the specification right
-ultimately saves you time as the plan is more likely to be correct and contain
-the features that you actually want to build. It also acts as living
-documentation for the features you are buiding and allows you to collaborate
-with you team on the initial requirements. 
+The content in these sections is what guides the agent when it creates a
+technical plan, which is then implemented. Spending time on getting the
+specification right ultimately saves you time, as the resulting plan is more
+likely to be correct and contain the features you actually want to build. It
+also acts as living documentation for the features you are building, and lets
+you collaborate with your team on the initial requirements.
 
-Let's use the spek-new skill to scaffold a new specification for our SQLLite
+Let's use the `spek-new` skill to scaffold a new specification for our SQLite
 feature.
 
 ### Using the skill
@@ -239,7 +240,7 @@ You will be prompted to enter the name of the feature that you want to build.
   ![new spec](/images/tutorials/getting-started/new-spec-claude.png)
 </AgentBlock>
 
-For the tutorial we are going to use `SQLLite migration` as the feature name.
+For the tutorial we are going to use `SQLite migration` as the feature name.
 
 Spektacular will automatically create the file name for the spec and allocate an
 ID to it. This is dependent on the configuration for your project. The
@@ -254,7 +255,7 @@ spec:
         directory: .spektacular/specs
 ```
 
-When you enter the name SQLLite migration into the prompt box, you will be
+When you enter the name SQLite migration into the prompt box, you will be
 prompted to run a command. The way that Spektacular works is that the skill
 prompts the agent to call the Spektacular CLI with the right arguments. This
 performs features like creating the spec file and enabling knowledge base
@@ -269,7 +270,7 @@ start to prompt you to complete the sections of the spec.
 ### Overview
 
 The overview is a short two-or-three-sentence summary that answers what is being
-built, what problem it solves, and who benefits. For the SQLLite migration the
+built, what problem it solves, and who benefits. For the SQLite migration the
 overview might look like this:
 
 ```markdown
@@ -396,7 +397,7 @@ Let's use the following list of constraints:
 - Database file location must be configurable, defaulting to ./data.db
 ```
 
-You may wonder why the SQLLite constraint is not in the technical approach. This
+You may wonder why the SQLite constraint is not in the technical approach. This
 is because a constraint is a non-negotiable technical boundary, technical
 approaches are discrestionary, you guide the agent but you do not dictate the
 solution.
@@ -485,7 +486,7 @@ specification store (in this case `.spektacular/specs/`). You can open the file
 and review the final specification. It should look something like this:
 
 ```markdown
-# Feature: 20260605141835-sqllite-migration
+# Feature: 20260605141835-sqlite-migration
 
 ## Overview
 
@@ -574,7 +575,7 @@ When your agent generates a plan it always loads the conventions and then will
 query the knowledge sources as required. This approach ensures that it minimizes
 the token consumption and maximize the quality of the plan.
 
-For the SQLLite migration example, we need to add two conventions:
+For the SQLite migration example, we need to add two conventions:
 1. Context Cancellation
 2. Dependency Injection
 
