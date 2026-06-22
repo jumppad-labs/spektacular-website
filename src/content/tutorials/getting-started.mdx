@@ -476,8 +476,9 @@ third party reviewer would. Any feedback from the subagent is then passed back
 to the main agent which can make any final adjustments before writing the final
 spec to disk.
 
-<AgentBlock for="claude"> ![spec non
-goals](/images/tutorials/getting-started/finished-claude.png) </AgentBlock>
+<AgentBlock for="claude"> 
+![spec non goals](/images/tutorials/getting-started/finished-claude.png) 
+</AgentBlock>
 
 The agent will now genereate your full specification and write it to the defined
 specification store (in this case `.spektacular/specs/`). You can open the file
@@ -608,61 +609,63 @@ with a mock implementation. The correct solution should be to use dependency
 injection and for the consumer to rely on an interface rather than a concrete
 implementation.
 
-If you note from the second code snippet above, the agent has suggested that 
-`GetMonster` is a method on a `Store` struct. This allows us to define an
-interface for the datastore. 
+If you look at the example code repository you will see that the knowledge
+base contains two files that capture these conventions.
 
-
-#### Context Cancellation
-
-
-````markdown
+```markdown
+# .spektacular/knowledge/conventions/context-cancellation.md
 # Context Cancellation
 
 Any function that performs I/O or otherwise blocks — database queries, HTTP
 calls, file operations — must accept a `context.Context` as its first
 parameter and thread it through to the underlying call.
 
-- Propagate the request's context from the HTTP handler (`r.Context()`) all
-  the way down, so client disconnects and timeouts cancel in-flight work.
-- Never start a new root context (`context.Background()` /
-  `context.TODO()`) in the middle of a call chain when a caller's context is
-  available.
-
-```go
-func (s *Store) GetMonster(ctx context.Context, name string) (*models.Monster, error) {
-    row := s.db.QueryRowContext(ctx, `SELECT ... WHERE LOWER(name) = LOWER(?)`, name)
+# ...
 ```
-}
-````
 
-For the OAuth example, before generating the plan, populate the knowledge base
-with the bits the agent could not infer:
+and 
+
 
 ```markdown
-# .spektacular/knowledge/session-middleware.md
+# .spektacular/knowledge/conventions/dependency-injection.md
+# Dependency Injection
 
-The Go service uses a single session middleware mounted in
-`internal/middleware/session.go`. It backs sessions in Redis via
-`github.com/redis/go-redis/v9` and signs cookies with the value of
-`SESSION_SECRET`. Any new auth flow must reuse this middleware — do not
-introduce a second session store. Cookies are configured `HttpOnly`,
-`Secure`, `SameSite=Lax` in production; tests rely on `SameSite=Lax` for
-the OAuth round trip to work, so do not tighten this without checking
-the integration tests in `internal/auth/auth_test.go`.
+All dependencies (database handles, clients, config, loggers) must be passed
+explicitly to the code that uses them. Do **not** store shared state in
+package-level globals or expose it through accessor functions.
+
+# ...
 ```
 
-Notice what this file is and is not. It is not architecture documentation. It is
-the answer to a specific question — *"how does session handling work, and what
-is the trap if you change it?"* — written for a reader who is about to make a
-change. The agent will read this, the answer will be loaded before any planning
-starts, and the resulting plan will reuse the right middleware instead of
-reinventing one.
+The end result is that when the agent generates the plan it will use these conventions and produce code that looks like the following:
+
+```go
+package handlers
+
+type MonsterReader interface {
+    GetMonster(ctx context.Context, name string) (*models.Monster, error)
+}
+
+type Handler struct {
+    store MonsterReader
+}
+
+func NewHandler(store MonsterReader) *Handler
+func (h *Handler) GetMonster(w http.ResponseWriter, r *http.Request)
+```
+
+As you can see this code uses both conventions, Context Cancellation and Dependency Injection. This is developed to the Go best practice and idoms, however should
+your team have a different approach you can of course capture that in the knowledge base and the agent will use that instead.
+
+Let's now look at that concept of team knowledge base and learn how Spektacular
+supports multiple knowledge sources.
 
 ### Multi-source knowledge
 
-A single project's knowledge directory is the start, but Spektacular supports
-multiple knowledge sources, each scoped:
+The example we have just covered could realistially be team or language based
+conventions rather than project specific. To enable you to leverage multiple
+knowledge sources Spektacular allows you to define multiple knowledge sources
+so you can manage things in a way that works best for you.
 
 ```yaml
 # .spektacular/config.yaml
@@ -683,91 +686,10 @@ knowledge:
 ```
 
 When the agent searches for context, Spektacular queries each source in order
-and tags every result with its scope. This matters because the same question can
-have different answers at different scopes — a *team* source might say *"we
-always use `golang.org/x/oauth2` for OAuth and never third-party auth frameworks
-like `goth`"*; a *project* source might say *"this project additionally requires
-the GitHub flow to allow only members of the `acme-engineering` org."* The scope
-tags are visible to the agent, so when answers conflict it knows which is more
-specific.
+and aggregates the results. These results are then passed back to the agent to
+use or request further clairification from the user.
 
-### MCP servers for live documentation
-
-The knowledge base captures what your team knows. The other half — APIs, SDKs,
-and libraries whose documentation moves faster than model training cycles — is
-best served by Model Context Protocol (MCP) servers. An MCP server gives the
-agent a tool it can call to fetch current information on demand, instead of
-relying on what was true the last time the model was trained.
-
-Configuring MCP servers is specific to the agent. For Claude Code you would add
-them to `.mcp.json`; Bob and Codex have their own configuration formats.
-Spektacular itself does not manage MCP — the agent owns that — but the project
-knowledge base is a good place to leave a note for future contributors about
-which MCP servers this project expects.
-
-### Skills for domain expertise
-
-The knowledge base captures what your team knows. MCP servers give the agent a
-way to fetch what is currently true. *Skills* are the fourth surface — packaged,
-reusable bundles of practices and conventions for a particular domain that the
-agent loads alongside your project knowledge.
-
-A skill is closer to a discipline than a fact. A "Go HTTP API" skill might
-encode practices like *"always thread `context.Context` through handler chains"*
-or *"return `http.StatusUnprocessableEntity` for validation failures, not
-`400`."* These are the corrections an experienced reviewer makes on every PR; a
-skill encodes them once so the agent applies them by default.
-
-Tessl is a good source of these skills. It is a package manager for agent tiles,
-distributing curated bundles for specific domains — language conventions,
-provider-specific best practices, popular library patterns — and benchmarking
-each tile against a standard evaluation, so you can see the quality improvement
-a tile produces before installing it. For our OAuth example, a Go HTTP API tile
-and a `golang.org/x/oauth2` tile would catch the kinds of mistakes a generic
-model makes when writing idiomatic Go — wrong context propagation, leaked
-goroutines on cancelled OAuth flows, ad-hoc error handling that diverges from
-the rest of the codebase.
-
-Skills are managed by the agent rather than by Spektacular — for Claude Code,
-Tessl installs tiles into `.tessl/` and references them from `AGENTS.md`, which
-Claude loads automatically. The split between surfaces is worth keeping in your
-head: knowledge files are *yours*, skills are *shared*, and MCP is *live*. The
-agent benefits most when you provide all three on top of the codebase itself.
-
-### Why context decides the outcome
-
-Here is the concrete failure mode. Without the session-middleware note above, an
-agent generating an OAuth implementation will look at the codebase, see *some*
-session handling, and produce a plausible plan that often wires a second session
-store (frequently `gorilla/sessions`) into a parallel middleware chain for the
-OAuth routes. The integration tests will pass because each session stack handles
-its own cookies. Production will fail interestingly the first time a user who
-logged in via OAuth hits a handler that reads the original session.
-
-The fix in code is trivial. The fix in process is to write the note once, put it
-in `.spektacular/knowledge/`, and never have to catch the same mistake in plan
-review again. Context investment compounds: every note you add raises the floor
-for every future plan against the same codebase.
-
-<TutorialStep number="5" heading="Populate the knowledge base">
-
-  Before generating the plan, walk your codebase looking for the load-bearing
-  facts the agent would not infer — session handling, shared middleware, the
-  schema rule that breaks downstream consumers, the test files that quietly rely
-  on a particular config value. Write each one as a short, focused markdown file
-  under `.spektacular/knowledge/`.
-
-  ```bash
-  $EDITOR .spektacular/knowledge/session-middleware.md
-  $EDITOR .spektacular/knowledge/auth-conventions.md
-  ```
-
-  Three or four well-targeted notes is usually enough to see the difference in
-  the very first plan. Treat the knowledge base as a living document — add to it
-  whenever you correct the agent on something a future run would benefit from
-  knowing.
-
-</TutorialStep>
+Let's see all of this in action now by generating the plan for our feature.
 
 ## The plan
 
@@ -775,139 +697,88 @@ The plan is the technical implementation blueprint of what the agent will
 produce. It provides enough detail to give you a firm idea of direction and
 enough context for the implementation itself.
 
-<TutorialStep number="6" heading="Generate a plan">
+Like the specification, you can create a plan by using the skill `spek-plan`.
 
-  Pass the spec name returned by `spec new`. Spektacular loads the spec, the
-  knowledge base sources, and any agent-side configuration, then drives the
-  agent through an exploration phase. It reads the parts of the codebase the
-  spec touches, looks up your knowledge-base notes, queries MCP for current API
-  signatures, and surfaces clarifying questions when it finds gaps.
+<AgentBlock for="claude"> 
+![plan start](/images/tutorials/getting-started/plan-claude.png) 
+</AgentBlock>
 
-  ```bash
-  spektacular plan new --data '{"name":"<returned-spec-name>"}'
-  ```
+The agent will then prompt you to enter the name of the specification that you
+want to generate a plan for. Select the spec that you have just created, the
+agent will then start to generate the plan using the configured context.
 
-  Answer the questions in your terminal and the run continues. The plan, along
-  with supporting `research.md` and `context.md` documents, lands in
-  `.spektacular/plans/<id>_oauth-login/` when it is done.
+During the planning process the agent will ask you for clarification on any
+points that it can not infer from the specification or the context.
 
-  <AgentBlock for="claude">
+<AgentBlock for="claude"> 
+![plan questions](/images/tutorials/getting-started/plan-question-claude.png) 
+</AgentBlock>
 
-    ![placeholder — swap real Claude Code plan session screenshot here](/images/tutorials/getting-started/plan-claude.png)
+You will also be asked to confirm some architectual decisions that the agent has 
+retrieved from the specification and the context.
 
-  </AgentBlock>
+<AgentBlock for="claude"> 
+![plan confirm](/images/tutorials/getting-started/plan-confirm-claude.png) 
+</AgentBlock>
 
-  <AgentBlock for="bob">
+The agent will then procede to generate the required sections of the plan and 
+write three files to the plans directory:
 
-    ![placeholder — swap real Bob plan session screenshot here](/images/tutorials/getting-started/plan-bob.png)
+| File | Consumer | Description |
+| ---- | -------- | ----------- |
+| `context.md` | Agent | Context that is relevant to the implementation of this feature, having a distilled context file allows the implementing ageent to load only the most relevant context for the implementation phase. |
+| `research.md` | Agent | Any research that the agent did to fill in gaps in the specification or to make decisions during the planning process. |
+| `plan.md` | Agent / User | The actual plan, this is the technical blueprint for the implementation. |
 
-  </AgentBlock>
+Before proceedung to the implementation phase you should review the plan and 
+make any changes that you feel are required. The plan is a working document,
+you can either edit it directly or you can ask the agent to make changes for you.
 
-  <AgentBlock for="codex">
-
-    ![placeholder — swap real Codex plan session screenshot here](/images/tutorials/getting-started/plan-codex.png)
-
-  </AgentBlock>
-
-</TutorialStep>
-
-A plan looks something like this:
-
-```markdown
-# Plan: OAuth Login (000001_oauth-login)
-
-## Overview
-Add Google and GitHub OAuth flows to the existing Go HTTP API using
-`golang.org/x/oauth2`, integrating with the session middleware in
-`internal/middleware/session.go`. Local-password authentication remains
-unchanged.
-
-## Phases
-
-### Phase 1 — Wire OAuth into the existing session middleware
-- Add an `OAuth` service in `internal/auth/oauth.go` that wraps an
-  `oauth2.Config` per provider.
-- Mount the OAuth handlers under `/auth/...` *after* the session
-  middleware on the chi router so they share the Redis-backed session.
-- Resolve or create the local user record by provider email inside the
-  callback handler.
-
-### Phase 2 — Add provider routes
-- Add `GET /auth/google`, `GET /auth/google/callback`,
-  `GET /auth/github`, `GET /auth/github/callback` to the chi router in
-  `internal/auth/routes.go`.
-- Callbacks use the project's existing `flash` helper for the
-  cancel/error path so the error surface stays consistent with the
-  local login flow.
-```
-
-Further down, the plan carries forward the things your knowledge base told it —
-for our example, the cookie-config note appears as an explicit instruction not
-to modify `sameSite` because the integration tests rely on it. With a
-vibe-coding approach this kind of detail would not surface until the final code
-was produced, and you would discover the trap by breaking integration tests. The
-plan stage is where that conversation happens cheaply.
-
-<TutorialStep number="7" heading="Refine the plan">
-
-  However good your spec and context are, you will not always get a perfect plan
-  first time. Correcting it is trivial: you talk to your agent the way you would
-  talk to a colleague. *"We are missing a test for the cancel path on the GitHub
-  flow — can you add one?"* *"Our naming convention for integration tests is
-  `<feature>_integration_test.go`."* The agent updates the plan, you check it
-  again, and once you are happy you move on.
-
-  Spektacular's plan stage is resumable, so you can stop, edit the plan or a
-  knowledge file directly, and pick up where you left off. If a correction
-  reveals something that would help every future plan against this codebase,
-  write it into `.spektacular/knowledge/` while you are there. Future runs
-  benefit immediately.
-
-</TutorialStep>
+Once you are happy wity the plan you can move on to the implemenatation phase
+and generate the final code.
 
 ## Implementation
 
-<TutorialStep number="8" heading="Implement the plan">
+In terms of user input the implementation phase is the simplest of the three
+as all the requirements that the agent needs have already been captured.
 
-  Pass the plan name returned by `plan new`. Spektacular drives the agent
-  through each phase of the plan in turn, ticks off acceptance criteria as they
-  pass, and writes a per-phase changelog into the plan document.
+In this phase the agent will read the plan and generate the code that implements
+the feature.
 
-  ```bash
-  spektacular implement new --data '{"name":"<plan-name>"}'
-  ```
+You can start the implementastion phase by running the skill `spek-implement` and selecting the plan that you want to implement.
 
-  If a criterion is not yet satisfied, the run does not advance until the gap is
-  closed. You see the verification status in the terminal as it goes, and
-  because everything is on disk you can interrupt at any point, hand-edit
-  anything that looks off, and resume.
+<AgentBlock for="claude"> 
+![implement init](/images/tutorials/getting-started/implement-init-claude.png) 
+</AgentBlock>
 
-  <AgentBlock for="claude">
+During the implementation phase the agent should run unattended, you may get
+questions about running commands or writing files which are part of the agents 
+normal code generation workflow. The agent will work through the plan milestone
+by milestone, after each milestone it will prompt you to review the changes to
+the codebase and approve them before moving on to the next milestone.
 
-    ![placeholder — swap real Claude Code implement loop screenshot here](/images/tutorials/getting-started/implement-claude.png)
+Once all the milestones are complete the agent will give you a final summary of the changes that it has made.
 
-  </AgentBlock>
+<AgentBlock for="claude"> 
+![implement init](/images/tutorials/getting-started/implement-init-claude.png) 
+</AgentBlock>
 
-  <AgentBlock for="bob">
+Depending on the success metrics that you set in the specification the agent will attempt to create and run automated tests to verify the success of the feature.
+In the case of our feature we did not define any success metrics this is reflected
+in the test-plan that the agent generates and writes to the plan directory.
 
-    ![placeholder — swap real Bob implement loop screenshot here](/images/tutorials/getting-started/implement-bob.png)
+```go
+# Test Plan: 20260602142911-datastore
 
-  </AgentBlock>
+The spec defines no success metrics, and the plan's Testing Approach confirms there are none to verify. Every acceptance criterion is covered by an automated behavioural test (see the acceptance-criteria coverage map at the top of `data/store_test.go`), and the two server-cutover phases were additionally validated end-to-end by running the built binary.
 
-  <AgentBlock for="codex">
+All success metrics are covered by automated behavioural tests; no manual test plan is required.
+```
 
-    ![placeholder — swap real Codex implement loop screenshot here](/images/tutorials/getting-started/implement-codex.png)
+This completes the implementation phase and also concludes the tutorial. You should now have a working feature that has been implemented using the Spec Driven Development workflow. All that is left for you to do is create a branch, commit your
+code and then create a pull request.
 
-  </AgentBlock>
-
-</TutorialStep>
-
-When the run finishes, you have the working implementation, a populated set of
-integration tests derived from the acceptance criteria, and a complete trail of
-the decisions that produced both — the spec, the plan with its research and
-context, and any clarifying questions the agent asked along the way.
-
-## What's next
+## Conclusion
 
 Spec Driven Development is not a productivity hack and it is not a way to remove
 humans from the loop. It is a way of front-loading the conversation about *what*
@@ -922,8 +793,4 @@ stay the same regardless of which tool you use:
 - **Process** — spec, plan, refine, implement, with humans in the loop at every
   transition.
 
-Start the next feature with a new spec. As you go, add to
-`.spektacular/knowledge/` whenever you correct the agent on something a future
-run would benefit from knowing — every note you add raises the floor for the
-next plan.
-  
+In addition to producing better, more correct code, the process also produces a living record of the work that was done, and why. The specification and plan are both written down, and the implementation is reviewed and approved by a human at every step. This makes it easier to onboard new team members, to review past decisions, and to understand how the system works.
