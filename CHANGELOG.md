@@ -1,3 +1,14 @@
+## 000006_document-context
+
+The Spektacular website has a new Knowledge Base page, reachable from the top
+navigation right after "How it works". It explains what the knowledge base is
+and the problem it solves, walks through the six categories of knowledge and the
+two ways they are retrieved, shows how an entry is created, searched, and kept up
+to date, and covers how the knowledge base is configured and where that
+configuration lives, including pointing at more than one source. A closing
+section explains why the subsystem is designed the way it is, so readers come
+away understanding not just how to use it but why to trust it.
+
 ## 000005_tutorial-section
 
 The Spektacular website now has a Tutorials section reachable from

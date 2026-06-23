@@ -1,0 +1,268 @@
+---
+layout: ../layouts/Shell.astro
+title: "Knowledge Base - Spektacular"
+description: "What Spektacular's knowledge base is, the six categories it holds, and how entries are created, searched, configured, and kept up to date."
+---
+import Hero from "../components/sections/Hero.astro";
+import Section from "../components/sections/Section.astro";
+import Prose from "../components/sections/Prose.astro";
+import CtaBanner from "../components/sections/CtaBanner.astro";
+import Button from "../components/Button.astro";
+
+<Hero
+  heading="The Knowledge Base"
+  sub="Your project's collective memory, captured once and drawn on every time Spektacular plans a feature."
+/>
+
+<Section heading="What it is">
+
+  <Prose>
+
+  The knowledge base is the accumulated know-how a project draws on when
+  planning: the rules it commits to, the shared vocabulary it speaks, how the
+  system is built, the traps to avoid, what past work taught, and why decisions
+  were made. Spektacular keeps it alongside your code, under
+  `.spektacular/knowledge/`, so it lives and versions with the project.
+
+  It is a **planning-time input**. When you ask Spektacular to plan a feature,
+  the planning agent reads the relevant knowledge and writes the parts that
+  matter straight into the plan. The implement workflow then works only from the
+  plan documents (it never re-reads the knowledge base), so the plan is the
+  contract.
+
+  This is what it solves: without a knowledge base, every plan starts from a
+  blank slate. The agent rediscovers your conventions, walks into gotchas you
+  already mapped, and re-derives decisions you already made. Captured once and
+  reused on every plan, the knowledge base is what lets Spektacular produce
+  plans that fit *your* project instead of generic ones. It is also why you can
+  trust the output enough to build on it.
+
+  </Prose>
+
+</Section>
+
+<Section heading="The six categories" surface>
+
+  <Fragment slot="sub">
+
+    Every entry belongs to exactly one of six categories, fixed by the first
+    segment of its path: an entry at `gotchas/timeouts.md` is a `gotchas` entry.
+    The categories are the single model the whole subsystem is built on.
+
+  </Fragment>
+
+  <Prose>
+
+  Each category carries a **retrieval tier** that decides when its entries reach
+  the planning agent. There are two:
+
+  - **Always-applied**: `conventions` and `glossary`. Every entry is loaded in
+    full on every planning task, and these categories are deliberately excluded
+    from search so the same content is never surfaced twice. Keep them small:
+    their entire contents are paid for on every task.
+  - **Looked-up**: `architecture`, `gotchas`, `learnings`, and `decisions`.
+    This is the larger reference body. Entries are retrieved only when a query
+    matches them, so the category can grow without weighing down every task.
+
+  The six categories, in the order the registry declares them:
+
+  | Category | Tier | What goes in it | What belongs elsewhere |
+  | --- | --- | --- | --- |
+  | `conventions` | always-applied | The rules the team always wants honoured: coding standards, naming, formatting, required patterns, house style. Stated as an imperative rule to follow. | The *reasoning* behind a rule (a decision); a one-off lesson (a learning). |
+  | `glossary` | always-applied | The shared vocabulary: domain and project terms, each a term plus a one- or two-sentence gloss. | How a thing works (architecture); why a choice was made (a decision). |
+  | `architecture` | looked-up | How the system is built and fits together: components, responsibilities, boundaries, and data/control flow. | Why a structure was chosen (a decision); a defined term (glossary). |
+  | `gotchas` | looked-up | Sharp edges and non-obvious traps: surprising behaviours and easy mistakes, with what to do instead. | A standing rule (a convention); the system's structure (architecture). |
+  | `learnings` | looked-up | Empirical findings from doing the work: what was tried, what worked, what didn't. | A decision with its rationale (a decision); a rule to follow (a convention). |
+  | `decisions` | looked-up | The reasoning behind choices (ADR-style): options considered, trade-offs weighed, why one path won. | The resulting structure (architecture); a rule to follow (a convention). |
+
+  The boundaries matter as much as the purposes: they are what let you, and the
+  assistant, tell two similar-looking categories apart at the edges, so a
+  rule lands in `conventions`, the reasoning behind it lands in `decisions`, and
+  the structure it shapes lands in `architecture`.
+
+  </Prose>
+
+</Section>
+
+<Section heading="The lifecycle of an entry">
+
+  <Fragment slot="sub">
+
+    Entries are plain markdown files, and you manage them through the
+    `spektacular knowledge` commands: create one, search and read it back, and
+    rewrite it when things change.
+
+  </Fragment>
+
+  <Prose>
+
+  **Creating.** A new entry is written with `knowledge write`, naming the scope
+  to store it in and the path within that scope. The content comes from a file
+  or standard input:
+
+  ```bash
+  spektacular knowledge write \
+    --data '{"scope": "project", "path": "gotchas/db-timeouts.md"}' \
+    --file ./db-timeouts.md
+  ```
+
+  The first segment of the path picks the category (`gotchas/db-timeouts.md`
+  lands in `gotchas`) and the entry is stored as raw markdown at
+  `<location>/<category>/<name>.md`, with any missing parent directories created
+  for you. There is no required frontmatter; an entry's title is taken from its
+  first heading, falling back to its path.
+
+  **Searching and retrieving.** `knowledge search` runs a keyword query across
+  every configured source and returns ranked, one-per-document hits, each with a
+  few short excerpts so an agent can scan many results cheaply. Results are
+  scored by how often the query terms appear, with ties broken by source order
+  and then path, so the ordering is stable. `knowledge read` pulls back a single
+  entry in full.
+
+  ```bash
+  spektacular knowledge search "database timeout"
+  ```
+
+  The two always-applied categories, `conventions` and `glossary`, are
+  deliberately left out of search results. They are already loaded in full on
+  every planning task (via `knowledge always-applied`), so surfacing them in
+  search too would only repeat the same content.
+
+  **Keeping it up to date.** There is no separate update command: you write the
+  entry again to the same scope and path, and the new content replaces the old.
+  Because entries are identified by the exact bytes of their content, rewriting
+  the same text changes nothing, while genuinely edited text supersedes the
+  previous version.
+
+  </Prose>
+
+</Section>
+
+<Section heading="Configuration" surface>
+
+  <Fragment slot="sub">
+
+    Where the knowledge base lives, and how to point Spektacular at more than
+    one source, all from `.spektacular/config.yaml`.
+
+  </Fragment>
+
+  <Prose>
+
+  Knowledge configuration lives under the `knowledge` key of
+  `.spektacular/config.yaml`, the file `spektacular init` creates at the root of
+  your project. The knowledge base is defined as a list of **sources**, each
+  with a `scope` (a label such as `project`), a `provider` (currently `file`),
+  and a `location` (the directory its entries live in). Out of the box there is a
+  single source: the `project` scope at `.spektacular/knowledge`, versioned
+  alongside your code:
+
+  ```yaml
+  # .spektacular/config.yaml
+  knowledge:
+    sources:
+      - scope: project
+        provider: file
+        config:
+          location: .spektacular/knowledge
+  ```
+
+  You can add more sources, for example a `team` knowledge base shared across
+  repositories, or a personal `global` one. Relative locations resolve against
+  the project root; absolute paths and `~` work too:
+
+  ```yaml
+  knowledge:
+    sources:
+      - scope: project
+        provider: file
+        config:
+          location: .spektacular/knowledge
+      - scope: team
+        provider: file
+        config:
+          location: ~/work/team-knowledge
+      - scope: global
+        provider: file
+        config:
+          location: ~/spektacular-global
+  ```
+
+  When Spektacular searches, it queries every source in the order they are
+  configured and merges the results, tagging each hit with the scope it came
+  from so you can see where a piece of knowledge lives. Because every source is
+  just a directory of markdown files under its category folders, the whole
+  knowledge base stays something you can read, edit, and version directly.
+
+  </Prose>
+
+</Section>
+
+<Section heading="Why it works this way">
+
+  <Fragment slot="sub">
+
+    A few deliberate design choices are worth understanding, because they are
+    what make the knowledge base trustworthy rather than just convenient.
+
+  </Fragment>
+
+  <Prose>
+
+  **Knowledge is a planning-time input, not a runtime one.** The planning agent
+  reads the knowledge base while producing a plan and writes the relevant parts
+  into the plan itself; the implement workflow then works only from the plan. So
+  the knowledge base shapes *what gets planned*, and the plan, not a live lookup,
+  is the contract the implementation is held to. This keeps implementation
+  reproducible: the same plan builds the same thing, regardless of how the
+  knowledge base changes afterwards.
+
+  **One registry is the single source of truth for the category model.** The six
+  categories and their tiers are declared once, in code. That single declaration
+  scaffolds a new project's directories and READMEs, decides each category's
+  retrieval behaviour, and tells the assistant where a new entry belongs. Adding
+  a category, or moving one between tiers, is a change in exactly one place.
+
+  **Two tiers, split by how knowledge is retrieved.** Always-applied knowledge
+  (conventions, glossary) is the small set every plan must reflect and the
+  vocabulary needed to read everything else, so it is loaded in full each time.
+  Looked-up knowledge (architecture, gotchas, learnings, decisions) is the
+  larger reference body, fetched only when a query matches it. Because tier
+  membership lives in that one registry, re-tiering a category is a single,
+  self-consistent action: the full-load reader starts including it and search
+  stops returning it at the same moment, so the two behaviours cannot drift
+  apart.
+
+  **De-duplication is exact, not fuzzy.** When the same knowledge is written more
+  than once, the mechanical check for "this is already here" matches on exact
+  byte-identity rather than a similarity score. That is deliberate, because
+  lexical similarity does not track meaning: *"always retry"* and *"never retry"*
+  are nearly identical text but opposite instructions, while *"add jitter to
+  retries"* and *"randomize backoff intervals"* share almost no words yet say the
+  same thing. Exact matching claims the one thing it can prove, that two entries
+  are byte-for-byte the same, and leaves every genuinely semantic judgement to a
+  human or the assistant, which is where that judgement belongs.
+
+  **Sources are layered, most-specific first.** When several scopes hold
+  knowledge about the same thing, the most specific one wins: a project entry
+  overrides a team entry, which overrides a global one. A refinement is resolved
+  in favour of the most-specific source and noted rather than hidden, while a
+  genuine disagreement between sources is surfaced as a conflict instead of being
+  silently resolved.
+
+  </Prose>
+
+</Section>
+
+<CtaBanner heading="See it in the workflow">
+  <Fragment slot="body">
+    The knowledge base feeds the planning step. See where it fits in the
+    spec-driven pipeline.
+  </Fragment>
+  <Button
+    href="/how-it-works/"
+    label="How it works →"
+    variant="primary"
+    large
+  />
+</CtaBanner>

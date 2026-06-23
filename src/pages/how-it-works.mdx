@@ -11,6 +11,7 @@ import SpecKey from "../components/sections/SpecKey.astro";
 import Pipeline from "../components/sections/Pipeline.astro";
 import PipelineStage from "../components/sections/PipelineStage.astro";
 import PipelineNode from "../components/PipelineNode.astro";
+import PipelineInputs from "../components/PipelineInputs.astro";
 import PipelineConnector from "../components/PipelineConnector.astro";
 import CtaBanner from "../components/sections/CtaBanner.astro";
 import InstallBlock from "../components/InstallBlock.astro";
@@ -221,8 +222,10 @@ import Button from "../components/Button.astro";
 
   <PipelineStage number="2" heading="Generate the Plan">
 
-    <PipelineNode kind="file" icon="📄" label="spec.md" sub="your requirements" />
-    <PipelineConnector />
+    <PipelineInputs>
+      <PipelineNode slot="top" kind="file" icon="📚" label="knowledge base" sub="conventions, gotchas,<br>decisions, architecture" />
+      <PipelineNode slot="bottom" kind="file" icon="📄" label="spec.md" sub="your requirements" />
+    </PipelineInputs>
     <PipelineNode kind="step" name="Plan" sub="explores codebase,<br>asks questions" />
     <PipelineConnector />
     <PipelineNode kind="output" icon="📋" label="plan.md" sub="+ research.md<br>+ context.md" />
@@ -230,9 +233,13 @@ import Button from "../components/Button.astro";
     <Fragment slot="body">
 
       **Plan** turns the spec into a detailed implementation plan. It loads
-      your project knowledge base, explores the codebase, and surfaces
-      clarifying questions before writing anything. The plan, plus supporting
-      research and context documents, are written to `.spektacular/plans/`.
+      your project [knowledge base](/knowledge-base/), explores the codebase,
+      and surfaces clarifying questions before writing anything. The
+      conventions, gotchas, decisions, and architecture it draws from the
+      knowledge base are woven directly into the plan, so the output reflects
+      how *your* project works rather than a generic approach. The plan, plus
+      supporting research and context documents, are written to
+      `.spektacular/plans/`.
 
     </Fragment>
 
