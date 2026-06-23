@@ -90,6 +90,54 @@
   font-weight: 600;
 }
 
+/* Expressive Code: give EVERY code block a visible frame header by default.
+   EC only renders a header on terminal blocks or editor blocks with a
+   `title=`; title-less editor frames (e.g. ```markdown) otherwise show just a
+   thin border and read as "no frame". This renders the same window-chrome bar
+   on those blocks too. Per-block `frame="none"` still removes the frame
+   entirely. Keep colors in sync with ec.config.mjs styleOverrides.frames. */
+.expressive-code .frame:not(.is-terminal):not(.has-title) {
+  --button-spacing: calc(1.9rem + var(--ec-brdWd) + 2 * var(--ec-uiPadBlk));
+}
+.expressive-code .frame:not(.is-terminal):not(.has-title) .header {
+  display: block;
+  position: relative;
+  height: calc(1.1rem + 2 * var(--ec-uiPadBlk));
+  background: var(--ec-frm-trmTtbBg);
+  border: var(--ec-brdWd) solid var(--ec-brdCol);
+  border-bottom: none;
+}
+/* Window dots, mirroring EC's `.frame.is-terminal .header::before`. */
+.expressive-code .frame:not(.is-terminal):not(.has-title) .header::before {
+  content: '';
+  position: absolute;
+  pointer-events: none;
+  top: 50%;
+  transform: translateY(-50%);
+  left: var(--ec-uiPadInl);
+  width: 2.1rem;
+  height: 0.56rem;
+  line-height: 0;
+  background-color: var(--ec-frm-trmTtbDotsFg);
+  opacity: var(--ec-frm-trmTtbDotsOpa);
+  -webkit-mask-image: var(--ec-frm-trmIcon);
+  -webkit-mask-repeat: no-repeat;
+  mask-image: var(--ec-frm-trmIcon);
+  mask-repeat: no-repeat;
+}
+.expressive-code .frame:not(.is-terminal):not(.has-title) .header::after {
+  content: '';
+  position: absolute;
+  pointer-events: none;
+  inset: 0;
+  border-bottom: var(--ec-brdWd) solid var(--ec-frm-trmTtbBrdBtmCol);
+}
+.expressive-code .frame:not(.is-terminal):not(.has-title) pre {
+  border-top: none;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
 /* Per-agent visibility for tutorial blocks. The active agent is held
    as `data-agent` on <html>; tutorial blocks emit `data-agent-block`
    listing the agent IDs they apply to. Keep these rules in lockstep
