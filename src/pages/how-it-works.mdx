@@ -58,37 +58,48 @@ import Button from "../components/Button.astro";
 
   <Step number="3" heading="Create a spec">
 
-    Scaffold a new spec by passing a JSON payload with the feature name. The
-    command returns the normalised `spec_name` and `spec_path` — use those
-    for the follow-up steps rather than assuming the filename.
+    All interaction with Spektacular is through your agent, spektacular provides
+    the agent skills that instruct it how to perform various capabilies like creating
+    a new specification. 
+
+    To create a new specification using the agent Claude Code you can run the 
+    following command in the agents terminal:
 
     ```bash
-    spektacular spec new --data '{"name":"auth-feature"}'
-    $EDITOR .spektacular/specs/<returned-spec-name>.md
+    /spek-new
     ```
+
+    Spektacular will then guide you through the process of gathering the required
+    information to create a new specification.
 
   </Step>
 
   <Step number="4" heading="Generate a plan">
 
-    Pass the spec name returned by step 3. The plan workflow explores your
-    codebase, asks clarifying questions, and writes the plan to
-    `.spektacular/plans/` when done.
+    Once the specification has been created, next you move on to generate a detailed
+    technical plan for the implementation of the specification. This is also achieved
+    by using a skill in your agents terminal.
+
+    Note: The aim of spektacular is to make conservative use of tokens for your coding
+    agent. It has been designed that no agent context is required from the previous steps.
+    For this reason you should clear your agents context before running the next command
+    to generate a plan. 
 
     ```bash
-    spektacular plan new --data '{"name":"<returned-spec-name>"}'
+    /clear # Clear the agents context before generating a plan
+    /spek-plan 
     ```
 
   </Step>
 
   <Step number="5" heading="Implement the plan">
 
-    Pass the plan name returned by step 4. Spektacular drives the coding agent
-    through each phase of the plan and validates the result against your
-    acceptance criteria.
+    Finally, once the plan is complete and you are happy with it, it is time to
+    start generating code. This is also acheived by using a skill in your agents terminal.
 
     ```bash
-    spektacular implement new --data '{"name":"<plan-name>"}'
+    /clear
+    /spek-implement
     ```
 
   </Step>
