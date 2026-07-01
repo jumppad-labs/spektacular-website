@@ -1,3 +1,14 @@
+## 000007_video-element
+
+Tutorials and documentation pages can now embed a YouTube video directly
+alongside the written content. Authors provide a video's URL and get a
+playable YouTube player rendered in the same spot, sized, and styled
+consistently with how an image appears in the same location. Authors can
+optionally set a start time and an end time so playback covers just the
+relevant portion of a longer video, and can turn off the player's fullscreen
+control when it isn't wanted. Playback itself uses YouTube's own default
+controls, with no custom player UI.
+
 ## 000006_document-context
 
 The Spektacular website has a new Knowledge Base page, reachable from the top

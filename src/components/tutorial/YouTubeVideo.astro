@@ -1,0 +1,25 @@
+---
+// Thin wrapper around @astro-community/astro-embed-youtube's <YouTube>,
+// see https://astro-embed.netlify.app/components/youtube/ for its full prop surface.
+import { YouTube } from "@astro-community/astro-embed-youtube";
+
+interface Props {
+  url: string;
+  start?: number;
+  end?: number;
+  fullscreen?: boolean;
+}
+
+const { url, start, end, fullscreen = true } = Astro.props;
+
+const params = new URLSearchParams();
+if (start !== undefined) params.set("start", String(start));
+if (end !== undefined) params.set("end", String(end));
+if (!fullscreen) params.set("fs", "0");
+---
+<YouTube
+  id={url}
+  params={params.toString() || undefined}
+  class="block rounded-md border border-border-subtle overflow-hidden"
+  style="max-width: none; width: 100%;"
+/>

@@ -8,6 +8,9 @@ export default defineEcConfig({
     // Wrap long lines instead of horizontal scroll. Prose-style blocks
     // (requirements, terminal transcripts) read far better wrapped.
     wrap: true,
+    // Inset soft-wrapped continuation lines by 2 columns so a real new line
+    // (starts at the margin) is visually distinct from a wrapped line.
+    hangingIndent: 2,
     // Line numbers off by default; opt in per block with `showLineNumbers`.
     showLineNumbers: false,
     // Shell commands shouldn't preserve indent on wrapped continuation lines.

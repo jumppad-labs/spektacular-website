@@ -81,26 +81,27 @@ components, item helpers, and every `<Fragment slot="…">…</Fragment>`.
 The pattern matches markdown paragraph spacing and keeps diffs
 scannable.
 
-## Rule 4 — Code blocks are fenced markdown routed through `<CodeBlock>`
+## Rule 4 — Code blocks are fenced markdown, chrome comes from astro-expressive-code
 
 Code is authored as markdown fenced blocks (triple-backtick) — never as
-`<CodeBlock code={…} />` JSX with a string prop. The page wires the
-routing via two lines after the import block:
+JSX with a string code prop. There is no per-page wiring step: the
+`astro-expressive-code` integration is registered once in
+`astro.config.mjs`, ahead of `mdx()`:
 
-```mdx
-import CodeBlock from "../components/CodeBlock.astro";
-
-export const components = { pre: CodeBlock };
+```js
+integrations: [astroExpressiveCode(), mdx()],
 ```
 
-…then every fenced block on the page flows through `<CodeBlock>`'s
-chrome:
+…and it processes every fenced block on every page automatically at
+build time. No page needs `export const components = { pre: … }` — the
+integration hooks into the markdown pipeline directly, not through an
+MDX component override.
 
-````mdx
+```mdx
 ```bash
 go install github.com/jumppad-labs/spektacular@latest
 ```
-````
+```
 
 Why this matters:
 
@@ -112,26 +113,15 @@ Why this matters:
   does not apply inside fenced code blocks.
 - **No `\n` escape soup.** Multi-line code is just multi-line markdown.
 - **One source of truth for chrome.** Every code block on every page
-  (including the prose-heavy Extending page) shares the same border,
-  padding, and monospace styling.
+  shares the same border, padding, syntax highlighting theme, and line
+  wrapping, configured once in `ec.config.mjs` (theme `github-dark`,
+  `wrap: true`, palette overrides matching the site's dark colours)
+  rather than per-component classes.
 
-Astro's default Shiki highlighter is **disabled** in `astro.config.mjs`
-(`markdown: { syntaxHighlight: false }`) so the chrome rendering stays
-consistent with the historical plain-monospace look. Flip the flag if
-syntax colour is wanted later — CodeBlock's chrome composes cleanly
-with Shiki's coloured spans.
-
-`CodeBlock` retains a `code={…}` string prop and a plain-text default
-slot fallback for legacy / edge cases (e.g. inside named slots where
-fenced syntax proves awkward), but no current page needs them. CI
-guards:
-
-```bash
-grep -nE "<CodeBlock"      src/pages/*.mdx
-grep -nE 'code=\{|code="'  src/pages/*.mdx
-```
-
-…both must return zero matches.
+`ec.config.mjs` is the single place to change code-block appearance
+(theme, line numbers, per-language overrides, colours) — never
+component-level classes or props, since there is no code-block
+component to put them on.
 
 ## Where the conventions are enforced
 
@@ -140,9 +130,9 @@ grep -nE 'code=\{|code="'  src/pages/*.mdx
   that make Rule 2's markdown bodies look right.
 - Every section component with a body or sub container wraps its slot
   rendering in an element with the `.spek-body` class.
-- `astro.config.mjs` disables Shiki for Rule 4 chrome consistency.
-- The five MDX pages all carry `export const components = { pre:
-  CodeBlock }` so Rule 4 applies uniformly.
+- `astro.config.mjs` registers `astroExpressiveCode()` before `mdx()`
+  so fenced blocks are processed before MDX handles the rest of the
+  page; `ec.config.mjs` holds all of Rule 4's chrome configuration.
 
 ## Verification before merge
 
@@ -151,6 +141,5 @@ Run these against `src/pages/*.mdx`:
 | Guard | Pattern | Expected |
 |-------|---------|----------|
 | Rule 1 | `<div\|<section\|class=` | 0 matches |
-| Rule 4 | `<CodeBlock\|code=\{\|code="` | 0 matches |
 | Build  | `npm run build` | succeeds |
 | Types  | `npx astro check` | 0 errors, 0 warnings |

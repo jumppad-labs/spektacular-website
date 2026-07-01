@@ -1,82 +1,274 @@
-# Working context — 000006_document-context
+# Working context — implement 000007_video-element
 
-## Decisions
-- Deliverable is a **new documentation page on the Spektacular website** (this repo), not a README or external doc.
-- Audience: **developers who use Spektacular** on their own projects (consumers), not contributors to Spektacular itself.
-- Scope: the **whole knowledge base subsystem** — categories (architecture, gotchas, learnings, decisions, glossary, conventions), how entries are created/searched/updated, configuration, and the rationale ("why it works this way").
-- Source material may be drawn in part from the **existing tutorial**.
+(Previous contents were from the now-finished plan workflow for this
+same feature; superseded below now that implementation has started.)
 
-## Discovery learnings
-- **Model page = `src/pages/extending.mdx`** (prose-heavy reference doc). Skeleton: frontmatter (`layout: ../layouts/Shell.astro`, title, description) → import Hero/Prose/Section/CtaBanner/Button → `<Hero variant="page">` → `<Prose>` with `##` headings + fenced code → `<CtaBanner>` + `<Button>`.
-- **STALE CONVENTION FLAG:** stored `conventions/mdx-authoring.md` Rule 4 (CodeBlock + `export const components = { pre: CodeBlock }` + `syntaxHighlight:false`) does NOT match the live repo — no `CodeBlock.astro`, no such export, no astro.config flag. Live pages render plain fenced code inside `<Prose>` (Tailwind Typography `prose-code:*`). Follow the repo, not the convention. (Candidate knowledge correction via spek-knowledge later.)
-- **Nav:** add `{ label, href }` to `src/components/Nav.astro` items array (proposed: Knowledge Base after Configuration, before Plugins). Routing: `src/pages/knowledge-base.mdx` → `/knowledge-base/`.
-- **Subsystem truth sources (../spektacular):** categories+tiers `internal/knowledge/category.go`; commands+args `cmd/knowledge.go`; config `internal/config/config.go`; rationale `docs/knowledge-base.md`. Tiers: always-applied = conventions+glossary (loaded full, excluded from search); looked-up = architecture/gotchas/learnings/decisions (keyword search). Config = `.spektacular/config.yaml` `knowledge.sources[]` (scope/provider:file/config.location).
-- **Reusable tutorial copy:** `src/content/tutorials/getting-started.mdx:545-690`.
+## Read plan step — complete
+- All three plan documents read in full through `spektacular plan file
+  read`. Structural validation passed: all 10 required `##` sections
+  present in plan.md, both phases have `*Technical detail:*` links
+  resolving to matching `### Phase` headings in context.md.
+- Drift check: zero mismatches. Every file the plan references
+  (ZoomImage.astro, AgentBlock.astro, TutorialStep.astro,
+  Lightbox.astro, AgentSelector.astro, TutorialLayout.astro,
+  getting-started.mdx, global.css, astro.config.mjs,
+  content.config.ts, package.json) still exists, and the specific
+  line contents cited (ZoomImage.astro:13, Lightbox.astro:40-45,
+  TutorialLayout.astro:17-19, getting-started.mdx:10,175,197) still
+  match. `npm view @astro-community/astro-embed-youtube version` still
+  resolves (0.5.10) — package still exists.
+- No `## Changelog` section in plan.md yet → first-phase invocation.
+  Pick up at Phase 1.1.
+- Carrying forward the one flagged risk from planning: Phase 2.1 must
+  empirically verify that `params="fs=0"` actually suppresses
+  fullscreen through the `lite-youtube-embed` facade; if not, stop and
+  find the package's real mechanism rather than ship a no-op prop.
 
-## Architecture decisions (confirmed)
-- **Page structure: Sectioned** — Hero + one `<Section>` per topic (What it is / The six categories / Lifecycle / Configuration / Why it works this way) + CtaBanner; alternating `surface` backgrounds. One new file `src/pages/knowledge-base.mdx` + one nav entry. No new components.
-- **Conventions confirmed:** apply MDX Rules 1-3; deliberately DROP Rule 4 (CodeBlock) as stale — use plain fenced code in `<Prose>`.
+## Analyze step (Phase 1.1) — complete
+Current phase: 1.1 "Add the YouTubeVideo component with basic embed and
+image-parity styling". Low complexity, did research myself (no
+sub-agent delegation needed). Downloaded the actual npm tarballs for
+`@astro-community/astro-embed-youtube@0.5.10` and its dependency
+`lite-youtube-embed@0.3.4` to scratchpad and read the real source
+(not just docs), which resolves two of the plan's open assumptions
+with hard evidence instead of guesses:
 
-## Plan progress
-- All sections drafted + user-confirmed (structure sectioned, nav after How-it-works, conventions). 4 phases across 3 milestones, all single-file (`src/pages/knowledge-base.mdx`) + 1 nav line.
-- Assemble + verification done. All three docs (plan/context/research) committed to the plan store under `000006_document-context/`. Working dir removed. Plan COMPLETE.
-- Metadata: created 2026-06-23T13:00:28Z, commit a728014, branch main.
+- **`class`/`style`/any HTML attribute passthrough: CONFIRMED.**
+  `YouTube.astro`'s frontmatter destructures only `id, poster,
+  posterQuality, title, style` out of `Astro.props` (typed `Props
+  extends astroHTML.JSX.HTMLAttributes`); everything else, including
+  `class` and `params`, flows into `...attrs` and is spread directly
+  onto the rendered `<lite-youtube {...attrs}>` element. So
+  `<YouTube id={url} class="rounded-md border border-border-subtle" />`
+  applies our styling directly to the custom element — **no wrapper
+  `<div>` is needed**, simpler than the plan assumed. This changes
+  nothing architecturally (still matches ZoomImage's approach of
+  classing the single leaf element directly), just simplifies the
+  Phase 1.1 markup.
+- **`params="fs=0"` suppressing fullscreen: CONFIRMED to work, not just
+  assumed.** `lite-yt-embed.js`'s `getParams()` does
+  `new URLSearchParams(this.getAttribute('params') || [])` then appends
+  `autoplay=1`/`playsinline=1`; this exact object is used to build BOTH
+  the plain-iframe `src` query string (`createBasicIframe()`) AND the
+  `YT.Player({ playerVars: paramsObj })` call (`addYTPlayerIframe()`,
+  used on Safari/mobile). Both are YouTube-native code paths that
+  respect the documented `fs` player parameter. Still doing the Phase
+  2.1 manual browser check the plan requires, but this is no longer a
+  genuine unknown, just a confirmation pass.
+- **New finding, not previously known:** `lite-youtube-embed`'s own
+  CSS (`lite-yt-embed.css`) hardcodes `max-width: 720px` on the
+  `lite-youtube` element, plus a 16:9 `padding-bottom` aspect-ratio
+  trick on `::after`. Images have no such cap (they stretch to the
+  820px article width via `prose`'s defaults). To satisfy the plan's
+  requirement-5 width parity, Phase 1.1's class list must override
+  this (e.g. add `w-full max-w-none` alongside the border/rounding
+  classes), or the video will render narrower than an image would in
+  the same spot. This is a small addition to the Phase 1.1 class list,
+  not a change to the plan's architecture.
+- Confirmed package export: `export { default as YouTube } from
+  './YouTube.astro'` — import as `import { YouTube } from
+  "@astro-community/astro-embed-youtube"` (named export, not default).
+- `id` prop accepts either a raw video ID (`^[A-Za-z0-9-_]+$`) or a URL
+  matched by a regex covering `youtube.com/watch?v=`,
+  `youtube.com/embed/`, `youtube.com/shorts/`, and `youtu.be/` forms —
+  covers all three URL shapes the plan/spec care about, confirming
+  that open assumption too.
 
-## Implement run — drift resolution (read_plan gate)
-- **Drift fixed (user chose "Fix the plan first"):** the search/scoring/excerpt source moved in `../spektacular`. Old pointer `internal/knowledge/store/search.go` no longer exists. Current reality:
-  - Search orchestration: `internal/knowledge/set.go:102` (`func (s *Set) Search`).
-  - Keyword/scoring/excerpt internals: `internal/store/search.go` (`maxExcerptBytes=256`, `maxExcerptsPerHit=3`).
-  - `Hit` type: `internal/store/store.go:24`.
-  - Always-applied exclusion within search: `internal/knowledge/set.go:134-145` (helper `alwaysAppliedSet()` `:156`), was cited as `set.go:127-162`/`127-141`.
-  - Path resolution still at `set.go:76-79` (unchanged, verified).
-  - context.md + research.md updated in the plan store to these refs; all other plan pointers verified present.
-- Changelog mode: **ABSENT** → first-phase invocation; analyze picks up at Phase 1.1.
+No sub-agent research needed beyond this; proceeding straight to
+implementing Phase 1.1.
 
-## Phase 1.1 research (analyze) — confirmed, no mismatches
-- Component prop signatures verified: `Hero`(heading req, sub?, variant? default "page", sub slot), `Section`(heading req, sub?, surface?, maxWidth?, sub slot + default slot), `CtaBanner`(heading req, body?, body/install/default slots), `Button`(href, label, variant?, large?, external?).
-- Authoring shape to follow: `configuration.mdx` = `<Section heading>` + `<Fragment slot="sub">` (blank lines around slot body, MDX Rule 3); `extending.mdx` = `<Prose>` body + `<CtaBanner>`/`<Button>` footer. Live pages OMIT `variant` on Hero (defaults to "page").
-- Nav: insert `{ label: "Knowledge Base", href: "/knowledge-base/" }` after the "How it works" entry (`Nav.astro:3`).
-- Phase 1.1 deliverable: new `src/pages/knowledge-base.mdx` — frontmatter (layout/title/description) → import Hero/Section/Prose/CtaBanner/Button → Hero → 5 `<Section>` (What it is filled; six categories / lifecycle / configuration / why-it-works as heading-only stubs; alternating `surface`) → CtaBanner + Button. No CodeBlock, no `export const components`.
+## Implement step (Phase 1.1) — complete
+- Ran `npm install @astro-community/astro-embed-youtube@0.5.10`
+  (pinned the exact version researched); added to `package.json`
+  dependencies, `package-lock.json` updated by npm itself.
+- Created `src/components/tutorial/YouTubeVideo.astro`: `interface
+  Props { url: string }`, imports named export `{ YouTube }` (not
+  default — confirmed during analyze), renders
+  `<YouTube id={url} class="block w-full max-w-none rounded-md border
+  border-border-subtle overflow-hidden" />`. No wrapper `<div>` (class
+  passthrough confirmed during analyze). `w-full max-w-none` overrides
+  `lite-youtube-embed`'s own hardcoded `max-width:720px` CSS rule (a
+  class selector beats that element selector on specificity regardless
+  of stylesheet load order, so this is not fragile) so the video
+  actually reaches the same width an image would in the same spot.
+- Added one real usage in `src/content/tutorials/getting-started.mdx`:
+  new import line for `YouTubeVideo`, and a `<YouTubeVideo url="..." />`
+  placed right before "## What is Spektacular" with a one-line
+  placeholder note above it (adapted from the image
+  placeholder-alt-text convention, since a video has no alt prop).
+  Used `https://www.youtube.com/watch?v=dQw4w9WgXcQ` (the same example
+  URL the plan's own Architecture section used) as a safe, guaranteed-
+  to-exist placeholder.
+- Verified via build output, not just `astro check`/`npm run build`
+  passing: inspected the generated
+  `dist/tutorials/getting-started/index.html` directly and confirmed
+  `<lite-youtube videoid="dQw4w9WgXcQ" class="block w-full max-w-none
+  rounded-md border border-border-subtle overflow-hidden" ...>` renders
+  with the correct extracted video ID, our classes applied, the
+  poster-image background wired, the play button present, and the
+  custom element's `<script type="module">` (defining
+  `customElements.define('lite-youtube', ...)`) inlined and present.
+  No dev server/browser was available in this environment to click
+  through actual playback; that remains for the plan's manual
+  verification pass.
+- `npx astro check`: 0 errors, 0 warnings, 3 pre-existing hints (all in
+  `Shell.astro`/`public/js/main.js`, unrelated to this change,
+  `document.execCommand` deprecation notices predating this feature).
+- `npm run build`: succeeded, 9 pages built including the tutorial
+  page with the new video.
+- No mismatch encountered; nothing needed from the plan/context.md fix
+  loop.
 
-## Progress: ALL PHASES COMPLETE (1.1, 2.1, 2.2, 3.1) — verified all-green, checkboxes flipped, per-phase changelog entries added. Repo CHANGELOG.md updated with 000006_document-context section. test-plan.md written to plan store (manual content-accuracy review, 6 items; no quantitative metrics — spec has none). Advancing to finished.
+## Test step (Phase 1.1) — skipped by user decision, mismatch documented
+- The generic `test` step instructions assume Go/testify/`t.TempDir()`
+  conventions. Confirmed by direct check: zero `.go` files in this
+  repo, no `thoughts/notes/testing.md`, no `test` script in
+  `package.json`. This matches the plan's own Testing Approach section,
+  which already decided (during planning) that no automated test
+  framework applies here — coverage is static (`astro check`/`build`,
+  already run and passing in the implement step) plus a manual browser
+  pass.
+- Presented this mismatch to the user rather than spawning a sub-agent
+  to fabricate Go tests that don't fit. User confirmed: skip
+  test-authoring, proceed straight to verify, per the plan's own
+  Testing Approach.
+- Nothing written in this step. `verify` should therefore lean on the
+  static checks already passing plus the acceptance criteria for Phase
+  1.1 needing an eventual manual/browser confirmation pass (no browser
+  tool available in this environment; documented for the user).
 
-## (earlier) Progress: Phases 1.1 + 2.1 COMPLETE (verified all-green, checkboxes flipped, changelog entries added 2026-06-23). Remaining: 2.2 (lifecycle+config), 3.1 (rationale+CTA+final review). User chose RUN ALL REMAINING PHASES autonomously (2.1, 2.2, 3.1) without pausing between them — loop analyze→...→update_changelog without re-prompting; stop only on a real problem or at the end.
+## Verify step (Phase 1.1) — complete
+- Sub-agent ran `npx astro check` (0 errors/0 warnings/3 pre-existing
+  hints) and `npm run build` (9 pages, success) — both PASS.
+- Structurally confirmed (not a substitute for a real browser check):
+  `dist/tutorials/getting-started/index.html` has the correct
+  `videoid`, the full image-parity class list, and the
+  `lite-youtube-embed` custom element registering itself.
+- Criteria 1 and 2 (actual playability, visual width/spacing parity)
+  remain a genuine manual/browser check the user still needs to do
+  themselves — flagged clearly to the user in the final summary, not
+  silently marked done. No command failed, so this is not a
+  STOP-on-mismatch case, just an environment limitation (no browser
+  tool available here) consistent with the plan's own manual-testing
+  classification for these criteria.
 
-## Phase 2.1 analyze — source confirmed (no mismatch)
-- `../spektacular/internal/knowledge/category.go`: registry order = conventions, glossary, architecture, gotchas, learnings, decisions. Each has Purpose/Boundary/Tier/EntryShape. Tiers: always-applied=conventions+glossary (loaded full every task, excluded from search, keep small); looked-up=architecture/gotchas/learnings/decisions (retrieved on query match). Category fixed by first path segment (`gotchas/x.md`→gotchas). Registry is single source of truth (drives init scaffold, tier behaviour, `knowledge categories` JSON).
-- Plan suggests a markdown table (category·tier·what goes in·boundary) for this section — allowed (markdown, not layout HTML).
+## Update plan step (Phase 1.1) — complete
+- Marked `#### - [x] Phase 1.1` and the build/check acceptance
+  criterion `[x]`. Left the two behavioural criteria (playability,
+  visual parity) as `[ ]` since they weren't actually verified in a
+  browser, per "do not mark complete just because the phase is mostly
+  done." Committed via `spektacular plan file write`.
 
-## Phase 2.2 analyze — sources confirmed (no mismatch)
-- Create: `knowledge write` (`cmd/knowledge.go:217` runKnowledgeWrite) → `Set.Write` (`set.go:175`) → `store.Write` (parent dirs auto-created). scope+path via `--data {scope,path}`, content via `--file`/stdin. Category = first path segment (`categoryOf` `set.go:147`); stored raw markdown at `<location>/<category>/<name>.md`.
-- Search: `knowledge search` → `Set.Search` (`set.go:102`): query every source, merge, rank score desc → source order → path asc, one hit/doc; conventions+glossary excluded (`set.go:134-145`) because loaded full via `always-applied`. Excerpts ≤3 @256B (`internal/store/search.go`). `knowledge read` = one entry full body; `knowledge always-applied` = conventions+glossary full.
-- Update: no separate command — re-write same scope/path overwrites.
-- Config (`internal/config/config.go:71-133`): `knowledge.sources[]` each `{scope, provider, config.location}`. Constants: ProviderFile="file" (:23), DefaultKnowledgeScope="project" (:33), DefaultKnowledgeLocation=".spektacular/knowledge" (:36). Default = single project source (`WithDefaults` :223). Relative location resolves vs projectRoot (`set.go:76-79`). Searches query each source in configured order + aggregate.
-- Reusable multi-source YAML: tutorial `getting-started.mdx:672-686` (project/team/global example).
+## Update changelog step (Phase 1.1) — complete
+- No `## Changelog` section existed yet; created it after `## Out of
+  Scope` with the first entry for Phase 1.1 (what was done, one
+  deviation noted: no wrapper div needed, files changed, discoveries
+  including the fs=0/max-width-720px findings and the test-step
+  mismatch). Committed via `spektacular plan file write`.
+- One unchecked phase remains (Phase 2.1). Asking user whether to
+  continue or pause here, per this step's default behavior.
+- User chose to continue. Proceeding to Phase 2.1.
 
-## Phase 3.1 analyze — rationale source confirmed (docs/knowledge-base.md, no mismatch)
-- Planning-time input (:1-9): knowledge read at plan time, relevant parts written INTO the plan; implement consumes only plan docs → plan is the contract.
-- Single registry source of truth (:37-51): category model declared once in `category.go`; drives init scaffold+READMEs, tier behaviour, contribution routing (`knowledge categories`). Add/re-tier = one change.
-- Two tiers by retrieval (:53-76): always-applied loaded full + excluded from search; looked-up via keyword search. Re-tiering self-consistent — full-load reader + search-exclusion both read the one registry field, can't drift.
-- Exact-byte de-dup not fuzzy (:120-141): mechanical step matches exact byte-identity, NOT similarity, because lexical distance ≠ semantic distance ("always retry" vs "never retry" ~95% identical but opposite). Exact-equivalence claims provable zero-difference for free; routes semantic equivalence to LLM judgement layer.
-- Layered precedence (:143-158): most-specific scope wins (project→team→global); refinements resolved to most-specific, genuine disagreement surfaced as conflict.
-- CTA already present (→ /how-it-works/); just finalize in 3.1. Final review = whole-page read vs all 6 spec ACs + MDX rules + no CodeBlock + build green.
+## Analyze + implement step (Phase 2.1) — complete
+- Current phase: 2.1 "Add start, end, and fullscreen controls". Low
+  complexity; no drift (YouTubeVideo.astro matched Phase 1.1 output
+  exactly); reused the deep package-source research already done
+  during Phase 1.1's analyze step (fs=0/params flow confirmed at the
+  source-code level then).
+- Widened `Props` to `{ url; start?: number; end?: number; fullscreen?:
+  boolean }` (default `true`). Build a `URLSearchParams` from
+  start/end/fs, pass `params={params.toString() || undefined}` to
+  `<YouTube>` so an all-default usage renders with no stray empty
+  `params=""` attribute (confirmed in build output: first usage has no
+  `params` attr at all, second has `params="start=30&end=90&fs=0"`).
+- Added a second `<YouTubeVideo>` usage in getting-started.mdx (start,
+  end, fullscreen={false}) alongside the Phase 1.1 plain one, so both
+  the fullscreen-enabled and fullscreen-disabled states have a real,
+  buildable usage, per context.md's Phase 2.1 instruction.
+- Sanity-checked in Node that `lite-youtube-embed`'s actual
+  `getParams()` logic (`new URLSearchParams(attr) + autoplay=1 +
+  playsinline=1`) produces exactly
+  `start=30&end=90&fs=0&autoplay=1&playsinline=1` from our rendered
+  attribute value (HTML-entity-encoded `&#38;` in the raw HTML,
+  decoded by the browser's attribute parser as normal) — this is the
+  query string that will hit `youtube-nocookie.com/embed/...`, and
+  `fs=0` is YouTube's own documented parameter for hiding the
+  fullscreen button. Strong evidence the open question is resolved,
+  though still no browser tool here to click through and confirm
+  visually.
+- `npx astro check`: 0 errors, 0 warnings, same 3 pre-existing hints.
+- `npm run build`: succeeded, 9 pages, both usages present with correct
+  `params` attributes in the built HTML.
 
-## Phase 1.1 implemented (implement step)
-- Created `src/pages/knowledge-base.mdx`: Hero ("The Knowledge Base") + 5 Sections — "What it is" FILLED (purpose + planning-time-input framing + problem-it-solves), four heading-only stubs ("The six categories"[surface] / "The lifecycle of an entry" / "Configuration"[surface] / "Why it works this way"), closing CtaBanner → Button "/how-it-works/". Body prose wrapped in `<Prose>`; Hero `variant` omitted (defaults "page").
-- Edited `src/components/Nav.astro:4`: added `{ label: "Knowledge Base", href: "/knowledge-base/" }` after How it works.
-- Verified: `astro check` 0 errors/0 warnings (execCommand hints are pre-existing in Shell.astro/main.min.js); `npm run build` OK, `/knowledge-base/index.html` built; nav link renders in correct order; Rule 1 + CodeBlock grep guards both zero.
+## Test step (Phase 2.1) — skipped, same reason as Phase 1.1
+- Identical mismatch as Phase 1.1 (Go/testify template vs. this repo's
+  zero-test-framework reality). Already confirmed once with the user;
+  did not re-ask for the same already-established situation. Skipped
+  straight to verify, noting it in the final summary.
 
-## Test step — N/A (documentation-only, by plan)
-- No `*_test.go` / automated tests written: project is a static Astro/MDX site with no application logic or Go test infra. Plan's `## Testing Approach` explicitly pre-decided this. No convention mismatch (plan and reality agree).
-- Phase 1.1 behavioural AC (build/type-check pass, page reachable, guards green) covered by automated gates already run green: `npm run build`, `astro check`, `grep` Rule-1 + CodeBlock guards.
-- Content-accuracy criteria are manual → deferred to `test_plan` step. Applies to every phase of this plan.
+## Verify step (Phase 2.1) — complete
+- Sub-agent ran `npx astro check` (0 errors/0 warnings) and `npm run
+  build` (success) — both PASS.
+- Structurally confirmed: two `<lite-youtube>` elements in the built
+  HTML, one with no `params` attribute (default/fullscreen-enabled),
+  one with `params="start=30&end=90&fs=0"`. Component props and
+  params-building logic read back and match the plan.
+- All four Phase 2.1 acceptance criteria remain genuine manual/browser
+  checks (does fs=0 actually hide the fullscreen button, does
+  start/end actually bound playback) — no browser tool available here.
+  No command failed, so not a STOP-on-mismatch case.
 
-## User answers
-- "new page", audience = developers who use the tool, document the whole subsystem, can pull data from the tutorial.
-- Requirements (6 items) approved as proposed without changes.
-- Acceptance criteria (6 items) approved as proposed.
-- Constraints approved: must fit existing site docs structure/authoring + build; must reflect current behaviour (not aspirational); docs-only (no changes to subsystem).
-- Technical Approach: source content from existing tutorial + the main Spektacular application repo at `../spektacular` (authoritative for behaviour/categories/config). Page follows existing docs format; structure left to plan.
-- Success metrics: none formal; author will manually test/review.
-- Non-goals: other subsystems (spec/plan/implement), hands-on tutorial, nav/IA rework. (Dropped "no subsystem changes" — duplicates docs-only constraint.)
-- **Nav placement (confirmed):** label "Knowledge Base", inserted after "How it works" → order: How it works · Knowledge Base · Tutorials · Install · Configuration · Plugins · Extending.
+## Post-workflow: width fix + "video will not play" investigation
+- User's IDE edit moved the video usage, changed URL/start/end, reduced
+  to one usage with `fullscreen={true}` explicit. Left their content
+  edits alone per instructions.
+- User reported width didn't match image. Root cause: CSS cascade
+  layers, not specificity. `lite-youtube-embed`'s own CSS is injected
+  unlayered; Tailwind v4 utilities are inside `@layer utilities`.
+  Unlayered rules always beat layered ones regardless of specificity,
+  so `w-full max-w-none` classes were silently losing to the package's
+  hardcoded `max-width:720px`. Fixed via inline `style="max-width:
+  none; width: 100%;"` (inline styles always win). Logged in plan
+  changelog.
+- User then reported "video will not play". No project run-skill
+  existed; installed Playwright temporarily (scratchpad only, not a
+  project dependency) pointed at the machine's existing
+  `/usr/bin/chromium-browser` (avoided needing sudo for missing shared
+  libs the bundled Playwright browser needed). Drove the already-running
+  dev server (:4321) directly.
+- Finding: on a clean page load the video plays perfectly (screenshot:
+  YouTube default controls, correct progress, fullscreen icon,
+  no overlay), width now matches the article container exactly (756px
+  both). Synthetic per-attribute tests confirmed start/end/fs all
+  produce correct iframe src in isolation. Diagnosis: the user's open
+  browser tab likely hit a Vite HMR + custom-elements conflict
+  (`customElements.define` can't be called twice for the same tag;
+  re-executing the defining module after an edit throws), not a real
+  code bug. Recommended a hard reload.
+- Used this real verification to check off every remaining acceptance
+  criterion in plan.md (both phases), replacing the earlier
+  "structurally confirmed only" caveats with actual evidence. Logged as
+  a changelog entry. Cleaned up the temporary Playwright/chromium
+  scratchpad install afterward.
+
+## Update plan step (Phase 2.1) — complete
+- Marked `#### - [x] Phase 2.1`. Left all 4 acceptance criteria as
+  `[ ]` since none were verified in a real browser (only structurally
+  confirmed). Committed via `spektacular plan file write`.
+
+## Update changelog step (Phase 2.1) — complete
+- Appended the Phase 2.1 entry to the existing `## Changelog` section.
+  Zero unchecked phases remain — this was the last one. Advancing to
+  `update_repo_changelog`.
+
+## Update repo changelog step — complete
+- Prepended a `## 000007_video-element` user-facing section to the
+  repo-root `CHANGELOG.md` (via Edit tool directly, this file is not
+  spektacular-owned). Matches the existing entries' style/tone.
+
+## Test plan step — complete
+- Wrote `.spektacular/plans/000007_video-element/test-plan.md`: a
+  6-procedure manual browser pass grounded in the real implementation
+  (the two actual `<YouTubeVideo>` usages in getting-started.mdx, the
+  real placeholder URL, real start/end/fullscreen values). Committed
+  via `spektacular plan file write`, confirmed readable back.
