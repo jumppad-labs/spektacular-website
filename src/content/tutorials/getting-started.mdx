@@ -176,7 +176,7 @@ you can check your work against it at any time.
     spektacular init claude
     ```
 
-    ![placeholder, swap real Claude Code init screenshot here](/images/tutorials/getting-started/init-claude.png)
+    ![init screenshot here](/images/tutorials/getting-started/init-claude.png)
 
   </AgentBlock>
 
@@ -197,8 +197,6 @@ you can check your work against it at any time.
     cd my-project
     spektacular init codex
     ```
-
-    ![placeholder, swap real Codex init screenshot here](/images/tutorials/getting-started/init-codex.png)
 
   </AgentBlock>
 
@@ -260,6 +258,10 @@ You will be prompted to enter the name of the feature that you want to build.
   ![new spec](/images/tutorials/getting-started/new-spec-claude.png)
 </AgentBlock>
 
+<AgentBlock for="bob"> 
+  ![new spec](/images/tutorials/getting-started/new-spec-bob.png)
+</AgentBlock>
+
 For the tutorial we are going to use `SQLite migration` as the feature name.
 
 Spektacular will automatically create the file name for the spec and allocate an
@@ -308,6 +310,10 @@ In the prompt box for your agent, enter the overview and submit it.
 ![spec overview](/images/tutorials/getting-started/overview-claude.png)
 </AgentBlock>
 
+<AgentBlock for="bob">
+![spec overview](/images/tutorials/getting-started/overview-bob.png)
+</AgentBlock>
+
 Once you submit it, the agent will move on to the next section, which is the
 requirements.
 
@@ -330,6 +336,10 @@ questions that help you write better requirements.
 
 <AgentBlock for="claude">
 ![spec requirements](/images/tutorials/getting-started/requirements-claude.png)
+</AgentBlock>
+
+<AgentBlock for="bob">
+![spec requirements](/images/tutorials/getting-started/requirements-bob.png)
 </AgentBlock>
 
 If you answer the questions the agent asks you, it will attempt to generate
@@ -376,6 +386,10 @@ requirement.
 ![spec acceptance criteria](/images/tutorials/getting-started/acceptance-claude.png)
 </AgentBlock>
 
+<AgentBlock for="bob">
+![spec acceptance criteria](/images/tutorials/getting-started/acceptance-bob.png)
+</AgentBlock>
+
 Again the agent has suggested some acceptance criteria based on the requirements
 and it is also prompting you to answer some questions that best help it refine
 this list. Interestingly the agent is also asking about deletion, which was not
@@ -416,6 +430,10 @@ asking about external infrastructure would guide the technology choice.
 
 <AgentBlock for="claude">
 ![spec constraints](/images/tutorials/getting-started/constraint-claude.png)
+</AgentBlock>
+
+<AgentBlock for="bob">
+![spec constraints](/images/tutorials/getting-started/constraint-bob.png)
 </AgentBlock>
 
 Let's use the following list of constraints:
@@ -466,6 +484,10 @@ example:
 ![spec metrics](/images/tutorials/getting-started/success-metrics-claude.png)
 </AgentBlock>
 
+<AgentBlock for="bob">
+![spec metrics](/images/tutorials/getting-started/success-metrics-bob.png)
+</AgentBlock>
+
 The content you add to this section influences the testing approach, which is
 defined in the plan and created during the implementation phase. If the
 feature's success cannot be measured with automated tests, the implementation
@@ -489,6 +511,10 @@ limits the scope of the plan.
 
 <AgentBlock for="claude">
 ![spec non-goals](/images/tutorials/getting-started/non-goals-claude.png)
+</AgentBlock>
+
+<AgentBlock for="bob">
+![spec non-goals](/images/tutorials/getting-started/non-goals-bob.png)
 </AgentBlock>
 
 The skill tells the agent to suggest non-goals for you, based on the
@@ -515,6 +541,10 @@ disk.
 
 <AgentBlock for="claude"> 
 ![finished spec](/images/tutorials/getting-started/finished-claude.png) 
+</AgentBlock>
+
+<AgentBlock for="bob"> 
+![finished spec](/images/tutorials/getting-started/finished-bob.png) 
 </AgentBlock>
 
 The agent will now generate your full specification and write it to the defined
@@ -752,6 +782,10 @@ As with the specification, you create a plan using the `spek-plan` skill.
 ![plan start](/images/tutorials/getting-started/plan-claude.png) 
 </AgentBlock>
 
+<AgentBlock for="bob"> 
+![plan start](/images/tutorials/getting-started/plan-bob.png) 
+</AgentBlock>
+
 The agent will then prompt you to enter the name of the specification you
 want to generate a plan for. Select the spec you just created, and the
 agent will start to generate the plan using the configured context.
@@ -761,6 +795,10 @@ points it cannot infer from the specification or the context.
 
 <AgentBlock for="claude"> 
 ![plan questions](/images/tutorials/getting-started/plan-question-claude.png) 
+</AgentBlock>
+
+<AgentBlock for="bob"> 
+![plan questions](/images/tutorials/getting-started/plan-question-bob.png) 
 </AgentBlock>
 
 You will also be asked to confirm some architectural decisions the agent has
@@ -802,6 +840,10 @@ You can start the implementation phase by running the `spek-implement` skill and
 ![implement init](/images/tutorials/getting-started/implement-init-claude.png) 
 </AgentBlock>
 
+<AgentBlock for="bob"> 
+![implement init](/images/tutorials/getting-started/implement-init-bob.png) 
+</AgentBlock>
+
 During the implementation phase, the agent should run largely unattended. You
 may get questions about running commands or writing files, which are part of the
 agent's normal code-generation workflow. The agent works through the plan
@@ -811,7 +853,7 @@ the changes to the codebase and approve them before moving on to the next one.
 Once all the milestones are complete, the agent will give you a final summary of the changes it has made.
 
 <AgentBlock for="claude"> 
-![implement init](/images/tutorials/getting-started/implement-init-claude.png) 
+![implement init](/images/tutorials/getting-started/implement-done-claude.png) 
 </AgentBlock>
 
 The agent will attempt to create and run automated tests to verify the feature.
