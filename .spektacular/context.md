@@ -264,3 +264,22 @@ in research.md's Open Assumptions).
 
 ## finished — workflow complete
 All 3 phases implemented and checked off. Nothing further to resume.
+
+## Post-implementation follow-up (2026-07-03) — nav regrouping
+- User asked to move Plugins to top-level (conceptual, not how-to) and
+  regroup "Resources" around Configuration + Extending + Debugging
+  (reference/how-to content). Confirmed via question prompts: top-level
+  now How it works, Knowledge Base, Tutorials, Install, Plugins (5) +
+  Resources dropdown (3). Net top-level count 6 -> 7 (+GitHub),
+  explicitly accepted by the user, superseding the original plan's "no
+  new top-level item" constraint for this later iteration.
+- Edited `Nav.astro`'s `items` array directly (same dropdown mechanism,
+  unchanged `isActive`/`matches` logic). `npm run build` and `npx astro
+  check` both pass clean. Verified active-state via rendered HTML.
+- Recorded as a changelog entry in plan.md (not a new plan — small,
+  low-risk follow-up to already-shipped work).
+- Still outstanding from the original implementation: the user has not
+  yet manually confirmed nav dropdown hover/keyboard-focus/mobile
+  behavior in a real browser (sandboxed environment couldn't launch
+  one). Test plan procedures for this are in
+  `000008_debugging-docs/test-plan.md`.

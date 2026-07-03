@@ -597,3 +597,33 @@ to both the parent trigger and the matching child on `/plugins/`,
 to proceed, planning to confirm hover/keyboard/mobile behavior themselves
 via `npm run dev` in a real browser. The corresponding acceptance
 criterion is left unchecked in plan.md pending that confirmation.
+
+### 2026-07-03 — Post-implementation follow-up: revise nav grouping
+
+**What was done**: After this plan shipped, the user asked to move
+Plugins back to a top-level nav item (it's a conceptual page, not a
+how-to) and regroup "Resources" around reference/how-to content
+instead: Configuration, Extending, and Debugging. Nav is now: How it
+works, Knowledge Base, Tutorials, Install, Plugins (all top-level, 5
+items) plus Resources (dropdown: Configuration, Extending, Debugging).
+Net top-level count grew from 6 to 7 (plus GitHub), a deliberate,
+explicit user decision that supersedes this plan's original "no new
+top-level nav item" constraint for the Debugging-launch scope — that
+constraint applied to the initial ship, not to future iteration on the
+grouping.
+
+**Deviations**: This changes the Milestone 3 / Phase 3.1 grouping
+decision recorded above (Plugins was originally kept out of top-level).
+The change was made directly in `Nav.astro`, not via a new plan — it's
+a small, low-risk follow-up to already-shipped work, not a new feature
+requiring its own spec/plan cycle.
+
+**Files changed**:
+- `src/components/Nav.astro`
+
+**Discoveries**: None. Same CSS-only dropdown mechanism, same
+`isActive`/`matches` logic, unchanged — only the `items` array's content
+moved. `npm run build` and `npx astro check` both pass clean (0
+errors); active-state verified via rendered HTML on `/plugins/` (plain
+top-level active) and `/configuration/` (both Resources trigger and
+Configuration child show active).
