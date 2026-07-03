@@ -1,3 +1,14 @@
+## 000008_debugging-docs
+
+Spektacular's debug logging is now correctly documented and easy to find.
+A new Debugging page walks through turning it on, where the resulting log
+file lives, and what one logged entry looks like, replacing the
+Configuration page's old, inaccurate claim that debug mode prints to the
+console. The top navigation gains a "Resources" menu that groups Plugins,
+Extending, and the new Debugging page together, so all three are
+reachable without already knowing their URLs, and without adding a new
+top-level nav item.
+
 ## 000007_video-element
 
 Tutorials and documentation pages can now embed a YouTube video directly

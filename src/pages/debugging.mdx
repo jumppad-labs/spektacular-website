@@ -1,0 +1,89 @@
+---
+layout: ../layouts/Shell.astro
+title: "Debugging — Spektacular"
+description: "Enable Spektacular's JSONL audit log to see exactly what the CLI did on every command."
+---
+import Hero from "../components/sections/Hero.astro";
+import Prose from "../components/sections/Prose.astro";
+import CtaBanner from "../components/sections/CtaBanner.astro";
+import Button from "../components/Button.astro";
+
+<Hero
+  heading="Debugging"
+  sub="See what Spektacular is doing under the hood, one JSON line per command."
+/>
+
+<Prose>
+
+## Enabling debug logging
+
+Debug logging is off by default. Every project scaffolded by `spektacular
+init` already has the key in `.spektacular/config.yaml`, just set to
+`false`. Turn it on by editing that file:
+
+```yaml
+debug:
+  enabled: true
+```
+
+## What gets logged
+
+Once enabled, every `spektacular` command appends one line to
+`.spektacular/debug/session-log.jsonl`. The file is created on the first
+command run after enabling, and it is never truncated or rotated, each
+command adds one more line.
+
+Here's a real sample line:
+
+```json
+{
+  "seq": 0,
+  "timestamp": "2026-07-03T11:31:53.075772108+01:00",
+  "session_id": "no-active-workflow",
+  "command": ["knowledge", "sources"],
+  "duration_ms": 0,
+  "exit_code": 0,
+  "response": "{...full JSON stdout response as a string...}",
+  "state_before": null,
+  "state_after": null,
+  "advanced": false
+}
+```
+
+- `seq`: this line's position in the file, starting at 0.
+- `timestamp`: when the command ran.
+- `session_id`: `"no-active-workflow"` when no spec, plan, or implement
+  workflow is in progress, or `"<kind>:<name>"` (for example
+  `"plan:000008_debugging-docs"`) when one is active.
+- `command`: the CLI arguments the command was invoked with.
+- `duration_ms`: how long the command took to run.
+- `exit_code`: the command's exit code.
+- `response`: the command's full JSON output, as a string.
+- `state_before` / `state_after`: the workflow's state before and after
+  this command, or `null` when no workflow is active.
+- `advanced`: whether this command moved the workflow state machine
+  forward.
+
+## Before you enable it
+
+The default `.spektacular/.gitignore` ignores `*.log`, but the debug log
+is named `session-log.jsonl`, so that pattern doesn't match it. If you
+enable debug logging, consider adding `.spektacular/debug/` to your own
+project's `.gitignore` so the growing log file doesn't end up committed.
+
+</Prose>
+
+<CtaBanner heading="More on configuration">
+  <Fragment slot="body">
+
+    The `debug` key is one of several top-level sections in
+    `.spektacular/config.yaml`, see the Configuration page for the rest.
+
+  </Fragment>
+  <Button
+    href="/configuration/"
+    label="View configuration →"
+    variant="primary"
+    large
+  />
+</CtaBanner>

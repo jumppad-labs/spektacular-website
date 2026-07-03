@@ -55,8 +55,10 @@ import Button from "../components/Button.astro";
 
   <ConfigKey name="debug" type="section" defaultValue="<code>debug.enabled: false</code>">
 
-    Debug logging. Set `debug.enabled: true` to surface verbose internal logs
-    to the console — useful when reporting issues or developing a new plugin.
+    Debug logging. Set `debug.enabled: true` to write a JSONL log of every
+    command to `.spektacular/debug/session-log.jsonl`, useful when reporting
+    issues or developing a new plugin. See the [Debugging](/debugging/) page
+    for the full walkthrough.
 
   </ConfigKey>
 

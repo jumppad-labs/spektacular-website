@@ -1,18 +1,32 @@
 ---
-const items = [
+type NavItem =
+  | { label: string; href: string }
+  | { label: string; children: { label: string; href: string }[] };
+
+const items: NavItem[] = [
   { label: "How it works", href: "/how-it-works/" },
   { label: "Knowledge Base", href: "/knowledge-base/" },
   { label: "Tutorials", href: "/tutorials/" },
   { label: "Install", href: "/install/" },
   { label: "Configuration", href: "/configuration/" },
-  { label: "Plugins", href: "/plugins/" },
-  { label: "Extending", href: "/extending/" },
+  {
+    label: "Resources",
+    children: [
+      { label: "Plugins", href: "/plugins/" },
+      { label: "Extending", href: "/extending/" },
+      { label: "Debugging", href: "/debugging/" },
+    ],
+  },
 ];
 
 const githubURL = "https://github.com/jumppad-labs/spektacular";
 const pathname = Astro.url.pathname;
-const isActive = (href: string) =>
+const matches = (href: string) =>
   pathname === href || (href !== "/" && pathname.startsWith(href));
+const isActive = (item: NavItem) =>
+  "href" in item
+    ? matches(item.href)
+    : item.children.some((child) => matches(child.href));
 ---
 <nav class="sticky top-0 z-50 bg-bg-surface/85 backdrop-blur-md border-b border-border-subtle">
   <div class="mx-auto max-w-[1100px] px-md">
@@ -20,17 +34,49 @@ const isActive = (href: string) =>
       <a href="/" class="font-extrabold text-lg text-text-primary tracking-tight hover:text-accent-light no-underline">spektacular</a>
       <ul class="flex items-center gap-md max-sm:gap-sm list-none m-0 p-0">
         {items.map((item, i) => (
-          <li class={i === 0 ? "max-sm:hidden" : ""}>
-            <a
-              href={item.href}
-              class={`text-sm transition-colors no-underline ${
-                isActive(item.href)
-                  ? "text-text-primary"
-                  : "text-text-secondary hover:text-text-primary"
-              }`}
-            >
-              {item.label}
-            </a>
+          <li class={`group relative ${i === 0 ? "max-sm:hidden" : ""}`}>
+            {"href" in item ? (
+              <a
+                href={item.href}
+                class={`text-sm transition-colors no-underline ${
+                  isActive(item)
+                    ? "text-text-primary"
+                    : "text-text-secondary hover:text-text-primary"
+                }`}
+              >
+                {item.label}
+              </a>
+            ) : (
+              <>
+                <a
+                  href={item.children[0].href}
+                  tabindex="0"
+                  class={`text-sm transition-colors no-underline ${
+                    isActive(item)
+                      ? "text-text-primary"
+                      : "text-text-secondary hover:text-text-primary"
+                  }`}
+                >
+                  {item.label}
+                </a>
+                <ul class="hidden group-hover:block group-focus-within:block absolute left-0 top-full pt-2 list-none m-0 min-w-[160px]">
+                  <li class="flex flex-col gap-1 bg-bg-surface border border-border-subtle rounded-md p-2 shadow-lg">
+                    {item.children.map((child) => (
+                      <a
+                        href={child.href}
+                        class={`text-sm transition-colors no-underline px-2 py-1 rounded-sm ${
+                          matches(child.href)
+                            ? "text-text-primary"
+                            : "text-text-secondary hover:text-text-primary"
+                        }`}
+                      >
+                        {child.label}
+                      </a>
+                    ))}
+                  </li>
+                </ul>
+              </>
+            )}
           </li>
         ))}
         <li>
