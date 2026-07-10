@@ -210,7 +210,7 @@ import Button from "../components/Button.astro";
 <Pipeline
   multi
   heading="The pipeline"
-  sub="Three stages: write the spec, generate a plan, then implement and validate."
+  sub="Three stages: write the spec, generate a plan, then implement and validate — with the agent checking its own work against the spec at each handoff."
 >
 
   <PipelineStage number="1" heading="Specification">
@@ -226,6 +226,13 @@ import Button from "../components/Button.astro";
       Run `spektacular spec new` to scaffold a spec from the template, then
       fill in your requirements, constraints, and acceptance criteria. The
       spec is plain markdown — no special syntax, just structured sections.
+
+      Specs don't only start this way — during any open-ended discussion,
+      the agent watches for the moment it produces something spec-worthy (a
+      scoped decision, a multi-requirement feature) and proactively offers
+      to capture it, calibrated by the `spec_trigger_threshold`
+      [config key](/configuration/). It always proposes before starting,
+      never begins unilaterally.
 
     </Fragment>
 
@@ -252,6 +259,13 @@ import Button from "../components/Button.astro";
       supporting research and context documents, are written to
       `.spektacular/plans/`.
 
+      Once the documents are written, the agent offers to walk through the
+      plan conversationally — the approach and reasoning, how the work
+      breaks into phases, and what was deliberately left out — before you
+      commit to it. You can interrupt with questions or changes at any
+      point; edits land directly in `plan.md`. Reading the documents
+      yourself remains just as valid — the walkthrough is optional.
+
     </Fragment>
 
   </PipelineStage>
@@ -269,6 +283,13 @@ import Button from "../components/Button.astro";
       **Implement** drives the coding agent through each phase of the plan
       and verifies the output against your acceptance criteria — so you know
       the implementation matches the spec.
+
+      Before it starts, Spektacular checks the plan's phases against the
+      spec's Requirements and Acceptance Criteria checklist — any gap must
+      be either filled in or explicitly accepted as a descope. After
+      implementation finishes, it checks the spec's checklist against what
+      was actually built, and writes a changelog record of what shipped,
+      why, and how it differed from the plan to `.spektacular/changelog/`.
 
     </Fragment>
 

@@ -32,8 +32,9 @@ import Button from "../components/Button.astro";
 
   <Fragment slot="sub">
 
-    Six top-level sections control the tool: `command`, `agent`, `debug`,
-    `spec`, `plan`, and `knowledge`.
+    Seven top-level sections control the tool: `command`, `agent`,
+    `spec_trigger_threshold`, `debug`, `spec`, `plan`, `changelog`, and
+    `knowledge`.
 
   </Fragment>
 
@@ -50,6 +51,18 @@ import Button from "../components/Button.astro";
     Which coding agent to drive during the implement workflow. Supported
     values: `claude` (Claude Code), `bob`, and `codex`. New agents register
     via the [Agent plugin interface](/plugins/).
+
+  </ConfigKey>
+
+  <ConfigKey name="spec_trigger_threshold" type="string" defaultValue="<code>moderate</code>">
+
+    How readily the agent offers to capture an open-ended discussion as a
+    spec mid-conversation, rather than waiting for you to run `/spek-new`.
+    One of `strict` (only substantial, multi-requirement features),
+    `moderate` (default — a clear scoped decision or a feature with more
+    than one requirement), or `lenient` (offers readily, including small
+    fixes). Read live at the moment the agent decides whether to offer, so a
+    change here takes effect immediately, mid-conversation.
 
   </ConfigKey>
 
@@ -85,6 +98,20 @@ import Button from "../components/Button.astro";
 
   </ConfigKey>
 
+  <ConfigKey name="changelog" type="section" defaultValue="file provider, <code>.spektacular/changelog</code>">
+
+    How completed-feature changelog records are stored.
+
+    - `changelog.provider`: storage backend; only `file` ships today.
+    - `changelog.config.directory`: where the file provider writes changelog
+      records. Defaults to `.spektacular/changelog`.
+
+    A record is written automatically at the end of every `implement` run —
+    one flat markdown file per feature — covering what was built, why it
+    matters, and how the outcome differed from the plan.
+
+  </ConfigKey>
+
   <ConfigKey name="knowledge" type="section" defaultValue="one project source at <code>.spektacular/knowledge</code>">
 
     Ordered list of knowledge sources, queried in order at plan time and
@@ -113,6 +140,7 @@ import Button from "../components/Button.astro";
   ```yaml
   command: spektacular
   agent: claude
+  spec_trigger_threshold: moderate
 
   debug:
     enabled: false
@@ -127,6 +155,11 @@ import Button from "../components/Button.astro";
     provider: file
     config:
       directory: .spektacular/plans
+
+  changelog:
+    provider: file
+    config:
+      directory: .spektacular/changelog
 
   knowledge:
     sources:
