@@ -1,7 +1,7 @@
 ---
 layout: ../layouts/Shell.astro
-title: "How It Works — Spektacular"
-description: "A deep dive into Spektacular's spec-driven development pipeline — from writing your first spec to reviewing a complete implementation plan."
+title: "How It Works - Spektacular"
+description: "A deep dive into Spektacular's spec-driven development pipeline, from writing your first spec to reviewing a complete implementation plan."
 ---
 import Hero from "../components/sections/Hero.astro";
 import QuickStart from "../components/sections/QuickStart.astro";
@@ -13,13 +13,14 @@ import PipelineStage from "../components/sections/PipelineStage.astro";
 import PipelineNode from "../components/PipelineNode.astro";
 import PipelineInputs from "../components/PipelineInputs.astro";
 import PipelineConnector from "../components/PipelineConnector.astro";
+import Section from "../components/sections/Section.astro";
 import CtaBanner from "../components/sections/CtaBanner.astro";
 import InstallBlock from "../components/InstallBlock.astro";
 import Button from "../components/Button.astro";
 
 <Hero
   heading="How Spektacular Works"
-  sub="A deep dive into spec-driven development — from writing your first spec to shipping working code."
+  sub="A deep dive into spec-driven development, from writing your first spec to shipping working code."
 />
 
 <QuickStart
@@ -108,7 +109,7 @@ import Button from "../components/Button.astro";
 
 <SpecFormat
   heading="The spec format"
-  sub="Specs are plain markdown files. No special syntax — just structured sections that give the planning agent what it needs."
+  sub="Specs are plain markdown files. No special syntax, just structured sections that give the planning agent what it needs."
 >
 
   <Fragment slot="example">
@@ -169,7 +170,7 @@ import Button from "../components/Button.astro";
 
   <SpecKey slot="keys" section="## Constraints">
 
-    Non-negotiable boundaries — existing APIs, dependency limits, performance
+    Non-negotiable boundaries: existing APIs, dependency limits, performance
     budgets. Violations are plan failures. Leave blank if none.
 
   </SpecKey>
@@ -184,7 +185,7 @@ import Button from "../components/Button.astro";
 
   <SpecKey slot="keys" section="## Technical Approach">
 
-    High-level technical direction — key architectural decisions, preferred
+    High-level technical direction: key architectural decisions, preferred
     patterns, integration points, and known risks. Leave blank to let the
     planner propose an approach.
 
@@ -200,7 +201,7 @@ import Button from "../components/Button.astro";
 
   <SpecKey slot="keys" section="## Non-Goals">
 
-    Explicitly out of scope — prevents scope creep and over-engineering. Leave
+    Explicitly out of scope, prevents scope creep and over-engineering. Leave
     blank if there are no exclusions to call out.
 
   </SpecKey>
@@ -210,24 +211,25 @@ import Button from "../components/Button.astro";
 <Pipeline
   multi
   heading="The pipeline"
-  sub="Three stages: write the spec, generate a plan, then implement and validate — with the agent checking its own work against the spec at each handoff."
+  sub="Three stages: write the spec, generate a plan, then implement and validate, with the agent checking its own work against the spec at each handoff."
 >
 
   <PipelineStage number="1" heading="Specification">
 
     <PipelineNode kind="file" icon="💡" label="idea" sub="requirements,<br>constraints &amp; criteria" />
     <PipelineConnector />
-    <PipelineNode kind="step" name="Write" sub="structured markdown<br>spec template" />
+    <PipelineNode kind="step" name="New" sub="structured markdown<br>spec template" />
     <PipelineConnector />
     <PipelineNode kind="output" icon="📄" label="spec.md" sub="your requirements<br>in a standard format" />
 
     <Fragment slot="body">
 
-      Run `spektacular spec new` to scaffold a spec from the template, then
-      fill in your requirements, constraints, and acceptance criteria. The
-      spec is plain markdown — no special syntax, just structured sections.
+      **New** scaffolds a spec from the template, then guides you through
+      filling in your requirements, constraints, and acceptance criteria.
+      The spec is plain markdown, no special syntax, just structured
+      sections.
 
-      Specs don't only start this way — during any open-ended discussion,
+      Specs don't only start this way: during any open-ended discussion,
       the agent watches for the moment it produces something spec-worthy (a
       scoped decision, a multi-requirement feature) and proactively offers
       to capture it, calibrated by the `spec_trigger_threshold`
@@ -260,11 +262,11 @@ import Button from "../components/Button.astro";
       `.spektacular/plans/`.
 
       Once the documents are written, the agent offers to walk through the
-      plan conversationally — the approach and reasoning, how the work
-      breaks into phases, and what was deliberately left out — before you
+      plan conversationally: the approach and reasoning, how the work
+      breaks into phases, and what was deliberately left out, before you
       commit to it. You can interrupt with questions or changes at any
       point; edits land directly in `plan.md`. Reading the documents
-      yourself remains just as valid — the walkthrough is optional.
+      yourself remains just as valid; the walkthrough is optional.
 
     </Fragment>
 
@@ -281,11 +283,11 @@ import Button from "../components/Button.astro";
     <Fragment slot="body">
 
       **Implement** drives the coding agent through each phase of the plan
-      and verifies the output against your acceptance criteria — so you know
+      and verifies the output against your acceptance criteria, so you know
       the implementation matches the spec.
 
       Before it starts, Spektacular checks the plan's phases against the
-      spec's Requirements and Acceptance Criteria checklist — any gap must
+      spec's Requirements and Acceptance Criteria checklist: any gap must
       be either filled in or explicitly accepted as a descope. After
       implementation finishes, it checks the spec's checklist against what
       was actually built, and writes a changelog record of what shipped,
@@ -296,6 +298,47 @@ import Button from "../components/Button.astro";
   </PipelineStage>
 
 </Pipeline>
+
+<Section heading="Code is king" surface>
+
+  <Fragment slot="sub">
+
+    Once written, the spec and plan become a historical, archaeological
+    record, not a live description of current behavior.
+
+  </Fragment>
+
+  A coding agent asked how the system works today reads the code, not the
+  spec: a spec and plan are a process document, not a product document,
+  capturing the intent and scope at the time they were written, while the
+  codebase keeps moving. Ask *why* something was built a particular way,
+  though, and the agent will still open and cite the relevant spec, plan, or
+  changelog record to explain the original reasoning.
+
+</Section>
+
+<Section heading="Artifact metadata">
+
+  <Fragment slot="sub">
+
+    Every spec, plan, and changelog record Spektacular writes carries the
+    same lifecycle metadata, tracked automatically without any extra
+    configuration.
+
+  </Fragment>
+
+  - **Created date**: when the record was first written.
+  - **Status**: where the record stands in its lifecycle (for example,
+    `in_progress` or `completed`).
+  - **Closed date**: when the record was resolved, once it has one.
+
+  This metadata is what makes the archaeology model workable at scale: as
+  specs, plans, and changelog records pile up across a project's history,
+  status and dates are how you and your agent tell a still-active record
+  from a closed one, or find the handful of records that matter out of
+  hundreds. Every record supports filtering by this metadata from the CLI.
+
+</Section>
 
 <CtaBanner
   heading="Ready to start?"

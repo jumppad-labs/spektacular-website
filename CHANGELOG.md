@@ -1,3 +1,16 @@
+## 000009_document-artifact-metadata-and-historical-artifacts
+
+The "How Spektacular Works" page now explains that once a spec or plan is
+written, coding agents treat it as a historical record of past intent
+rather than a live description of current behavior, answering "how does
+this work today" from the code itself, while still opening and citing the
+original spec, plan, or changelog entry when asked why something was built
+a certain way. The Configuration page now notes that every spec, plan, and
+changelog record automatically tracks a creation date, a status, and a
+closed date, and adds a new section with example commands for listing and
+filtering a project's own records by that metadata, including one command
+that queries across specs, plans, and changelog entries at once.
+
 ## 000008_debugging-docs
 
 Spektacular's debug logging is now correctly documented and easy to find.

@@ -12,11 +12,13 @@
     "update_changelog",
     "update_repo_changelog",
     "test_plan",
+    "update_feature_changelog",
+    "reconcile_spec",
     "finished"
   ],
-  "created_at": "2026-07-03T11:01:39.569448064Z",
-  "updated_at": "2026-07-03T11:14:17.818009085Z",
+  "created_at": "2026-07-30T08:54:15.282459152Z",
+  "updated_at": "2026-07-30T09:03:45.158422599Z",
   "data": {
-    "name": "000008_debugging-docs"
+    "name": "000009_document-artifact-metadata-and-historical-artifacts"
   }
 }

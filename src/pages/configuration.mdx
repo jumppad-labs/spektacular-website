@@ -1,6 +1,6 @@
 ---
 layout: ../layouts/Shell.astro
-title: "Configuration — Spektacular"
+title: "Configuration - Spektacular"
 description: "Configure Spektacular via .spektacular/config.yaml: command, agent, debug, spec, plan, and pluggable knowledge sources."
 ---
 import Hero from "../components/sections/Hero.astro";
@@ -41,7 +41,7 @@ import Button from "../components/Button.astro";
   <ConfigKey name="command" type="string" defaultValue="<code>spektacular</code>">
 
     The CLI command name used in agent-generated documentation. Almost never
-    needs to change — kept configurable so downstream tooling can refer to a
+    needs to change, kept configurable so downstream tooling can refer to a
     different binary name if your team wraps the tool.
 
   </ConfigKey>
@@ -59,7 +59,7 @@ import Button from "../components/Button.astro";
     How readily the agent offers to capture an open-ended discussion as a
     spec mid-conversation, rather than waiting for you to run `/spek-new`.
     One of `strict` (only substantial, multi-requirement features),
-    `moderate` (default — a clear scoped decision or a feature with more
+    `moderate` (default: a clear scoped decision or a feature with more
     than one requirement), or `lenient` (offers readily, including small
     fixes). Read live at the moment the agent decides whether to offer, so a
     change here takes effect immediately, mid-conversation.
@@ -86,6 +86,10 @@ import Button from "../components/Button.astro";
     - `spec.config.directory`: where the file provider writes specs. Defaults
       to `.spektacular/specs`.
 
+    Every spec record also carries lifecycle metadata: a created date, a
+    status, and, once resolved, a closed date, tracked automatically without
+    any extra configuration.
+
   </ConfigKey>
 
   <ConfigKey name="plan" type="section" defaultValue="file provider, <code>.spektacular/plans</code>">
@@ -95,6 +99,10 @@ import Button from "../components/Button.astro";
     - `plan.provider`: storage backend; only `file` ships today.
     - `plan.config.directory`: where the file provider writes plans. Defaults
       to `.spektacular/plans`.
+
+    Every plan record also carries lifecycle metadata: a created date, a
+    status, and, once resolved, a closed date, tracked automatically without
+    any extra configuration.
 
   </ConfigKey>
 
@@ -106,9 +114,11 @@ import Button from "../components/Button.astro";
     - `changelog.config.directory`: where the file provider writes changelog
       records. Defaults to `.spektacular/changelog`.
 
-    A record is written automatically at the end of every `implement` run —
-    one flat markdown file per feature — covering what was built, why it
-    matters, and how the outcome differed from the plan.
+    A record is written automatically at the end of every `implement` run,
+    one flat markdown file per feature, covering what was built, why it
+    matters, and how the outcome differed from the plan. Every changelog
+    record also carries the same lifecycle metadata as specs and plans: a
+    created date, a status, and, once resolved, a closed date.
 
   </ConfigKey>
 
@@ -117,7 +127,7 @@ import Button from "../components/Button.astro";
     Ordered list of knowledge sources, queried in order at plan time and
     tagged by scope in results.
 
-    - `knowledge.sources[].scope`: a label — `project`, `team`, `global`, or
+    - `knowledge.sources[].scope`: a label, `project`, `team`, `global`, or
       any custom string. Each scope must be unique within the list.
     - `knowledge.sources[].provider`: storage backend; only `file` ships
       today.
@@ -132,7 +142,7 @@ import Button from "../components/Button.astro";
 
   <Fragment slot="sub">
 
-    A complete `.spektacular/config.yaml` with two knowledge sources — a
+    A complete `.spektacular/config.yaml` with two knowledge sources: a
     project-local one and a team-wide one stored elsewhere on disk.
 
   </Fragment>

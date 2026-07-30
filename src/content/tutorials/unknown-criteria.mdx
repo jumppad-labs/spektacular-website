@@ -84,12 +84,12 @@ The agent examined the code and returned a fix:
 Make the invalid-goto error self-correcting: when the FSM rejects an event,
 catch it and append the legal move. Turn event acceptance_criteria inappropriate
 in current state overview into something like event acceptance_criteria
-inappropriate in current state overview; the next valid step is "requirements" —
+inappropriate in current state overview; the next valid step is "requirements",
 run: spec goto --data '{"step":"requirements"}'
 ```
 
 Now, experience and seeing the issue firsthand makes me think that this is
-probably what happened. The temptation is to just accept the fix and move on —
+probably what happened. The temptation is to just accept the fix and move on:
 this code change probably does not require a specification and a plan, and in
 reality, I could change the code myself in about 30 seconds. But experience
 also tells me that this is not the end of the story: my gut tells me that
@@ -108,7 +108,7 @@ How many more places are there errors surfaced to the agent like this?
 It responded that there were three other places in the codebase where this
 was happening: the new specification, plan, and implementation phases. But I
 know there are other places that probably surface poor error messages to the
-agent — for example, the knowledge base. So let me ask another question:
+agent, for example, the knowledge base. So let me ask another question:
 
 ```markdown
 Let's look at all errors across the entire codebase where an error is surfaced to the agent.
@@ -129,7 +129,7 @@ enough diagnostic information to allow it to find a solution.
 ## Writing the specifications
 
 The agent then uses the skill and creates a specification. Upon reviewing this
-specification, one of the Non-Goals actually surfaces something interesting —
+specification, one of the Non-Goals actually surfaces something interesting,
 something I had been thinking about myself.
 
 ```markdown

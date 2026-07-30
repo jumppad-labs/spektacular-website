@@ -1,6 +1,6 @@
 ---
 layout: ../layouts/Shell.astro
-title: "Extending — Spektacular"
+title: "Extending - Spektacular"
 description: "Implement the Store or Agent interface and register it. The shape of each interface, and where backends plug in."
 ---
 import Hero from "../components/sections/Hero.astro";
@@ -15,15 +15,15 @@ import Button from "../components/Button.astro";
 
 <Prose>
 
-Spektacular is built around two Go interfaces. Implement either one — or both
-— and you have a new backend. The interfaces live in
+Spektacular is built around two Go interfaces. Implement either one, or both,
+and you have a new backend. The interfaces live in
 `github.com/jumppad-labs/spektacular/internal/store` and
 `github.com/jumppad-labs/spektacular/internal/agent`.
 
 ## The Store interface
 
 A `Store` is a uniform read/write surface over a data directory. The same
-interface is used for spec storage, plan storage, and knowledge storage —
+interface is used for spec storage, plan storage, and knowledge storage:
 each section of `config.yaml` independently names a Store provider.
 
 ```go
@@ -53,7 +53,7 @@ Two helper types travel with `Store`:
 ```go
 type DirEntry struct {
     Name  string // child name, not a full path
-    IsDir bool   // true for a subdirectory — recurse into it via List
+    IsDir bool   // true for a subdirectory, recurse into it via List
 }
 
 type Hit struct {
@@ -70,7 +70,7 @@ Method contracts in brief:
   themselves when needed.
 - `Read`, `Write`, and `Delete` operate on paths relative to the store root.
   `Write` creates parent directories; `Delete` is idempotent.
-- `List` returns direct children only — callers recurse explicitly when they
+- `List` returns direct children only, callers recurse explicitly when they
   need to walk a tree.
 - `Exists` does not distinguish files from directories; callers that need to
   know use `List` on the parent.
@@ -81,7 +81,7 @@ Method contracts in brief:
 ## The Agent interface
 
 An `Agent` represents a coding agent Spektacular can drive during the
-implement workflow. The interface is intentionally narrow — the agent
+implement workflow. The interface is intentionally narrow: the agent
 declares its name and installs the workflow artefacts it needs.
 
 ```go
@@ -124,7 +124,7 @@ func init() {
 
 **Store providers** plug into the section that consumes them. For knowledge
 stores, that's the provider switch in
-`internal/knowledge/set.go` — a new arm names the provider and constructs
+`internal/knowledge/set.go`, a new arm names the provider and constructs
 the `Store` for each configured source. The shipping `case
 config.ProviderFile:` arm is the worked example.
 
@@ -135,15 +135,15 @@ contract end-to-end. Use it as the template for new Store providers.
 ## Next steps
 
 This page covers the **shape** of a plugin. A full walkthrough of building
-and shipping one — module layout, registration ordering, error handling,
-tests — is intentionally out of scope here; read the Go source under
+and shipping one (module layout, registration ordering, error handling,
+tests) is intentionally out of scope here; read the Go source under
 `internal/store` and `internal/agent` for the lived-in version.
 
 </Prose>
 
 <CtaBanner heading="Read the source">
   <Fragment slot="body">
-    The shipping `file` provider and three agents are the worked examples —
+    The shipping `file` provider and three agents are the worked examples,
     read them on GitHub.
   </Fragment>
   <Button
