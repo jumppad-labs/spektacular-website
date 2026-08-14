@@ -90,6 +90,12 @@
   font-weight: 600;
 }
 
+/* Expressive Code: breathing room above and below every code block. EC ships
+   no margin of its own, so blocks otherwise sit tight against adjacent prose. */
+.expressive-code {
+  margin-block: 1.5rem;
+}
+
 /* Expressive Code: give EVERY code block a visible frame header by default.
    EC only renders a header on terminal blocks or editor blocks with a
    `title=`; title-less editor frames (e.g. ```markdown) otherwise show just a
