@@ -70,8 +70,9 @@ import Button from "../components/Button.astro";
     /spek-new
     ```
 
-    Spektacular will then guide you through the process of gathering the required
-    information to create a new specification.
+    Spektacular will then interview you first, adaptive questions about what
+    you're building, before guiding you through drafting and confirming each
+    section of the specification.
 
   </Step>
 
@@ -218,16 +219,55 @@ import Button from "../components/Button.astro";
 
     <PipelineNode kind="file" icon="💡" label="idea" sub="requirements,<br>constraints &amp; criteria" />
     <PipelineConnector />
-    <PipelineNode kind="step" name="New" sub="structured markdown<br>spec template" />
+    <PipelineNode kind="step" name="New" sub="adaptive interview,<br>then drafted sections" />
     <PipelineConnector />
     <PipelineNode kind="output" icon="📄" label="spec.md" sub="your requirements<br>in a standard format" />
 
     <Fragment slot="body">
 
-      **New** scaffolds a spec from the template, then guides you through
-      filling in your requirements, constraints, and acceptance criteria.
-      The spec is plain markdown, no special syntax, just structured
-      sections.
+      Before Spektacular drafts a single section, it interviews you. Rather
+      than working through a fixed script, the agent asks open questions
+      about what you're building, adapting each one to what you've already
+      said, a technique called **Flipped Interaction**, drawn from
+      prompt-engineering research on shifting conversational control to the
+      agent.
+
+      ```
+      Agent: What are you building, and who runs into the problem it solves?
+      You:   A CLI users can point at a local repo to check for
+             outdated dependencies.
+      Agent: Should it just report outdated packages, or offer to
+             upgrade them too?
+      You:   Report only, for now, upgrading is a separate feature.
+      Agent: Got it, I have enough to draft an Overview. One more
+             thing: does this touch the docs site too, or is it
+             CLI-only for now?
+      ```
+
+      The interview stops once no further question would change the draft,
+      not once every possible detail has been asked about.
+
+      In a project with more than one [registered repo](/repo-configuration/),
+      the interview already knows the full roster, so a feature that reads as
+      focused on one repo still gets asked about impact on the others, shaped
+      by what each one actually is:
+
+      ```
+      Agent: This project also has a "docs" repo registered
+             (role: documentation). Does exposing this as a new
+             CLI flag mean the docs site needs a new page or
+             section too?
+      You:   Yes, it should get its own reference page.
+      ```
+
+      From there, each section, Requirements, Constraints, Acceptance
+      Criteria, and the rest, is drafted from what the interview
+      established and presented back for you to confirm or correct, rather
+      than asked from a blank prompt. Rejecting a draft opens a short
+      follow-up conversation to understand why before anything changes,
+      since a single correction can turn out to need more than one change.
+      The spec itself stays plain markdown, no special syntax, just
+      structured sections.
 
       Specs don't only start this way: during any open-ended discussion,
       the agent watches for the moment it produces something spec-worthy (a

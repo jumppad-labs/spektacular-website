@@ -32,9 +32,9 @@ import Button from "../components/Button.astro";
 
   <Fragment slot="sub">
 
-    Seven top-level sections control the tool: `command`, `agent`,
-    `spec_trigger_threshold`, `debug`, `spec`, `plan`, `changelog`, and
-    `knowledge`.
+    Eight top-level sections control the tool: `command`, `agent`,
+    `spec_trigger_threshold`, `debug`, `spec`, `plan`, `changelog`,
+    `knowledge`, and `repos`.
 
   </Fragment>
 
@@ -133,6 +133,27 @@ import Button from "../components/Button.astro";
       today.
     - `knowledge.sources[].config.location`: where the file provider reads
       knowledge from. Relative paths resolve against the project root.
+
+  </ConfigKey>
+
+  <ConfigKey name="repos" type="section" defaultValue="none">
+
+    How a project registers its member repositories. Each entry identifies
+    and locates one repository:
+
+    - `repos[].name`: the repository's project-local name, unique within
+      this project.
+    - `repos[].address`: the repository's remote URL, when it is not
+      colocated with the project.
+    - `repos[].local`: a local path to the repository, when it is colocated
+      or already checked out.
+    - `repos[].provider`: the repository's provider. Only `git` ships today.
+    - `repos[].dependencies`: the project-local names of other registered
+      repositories this one depends on.
+
+    A repository's description, role, tags, and deployment are not declared
+    here — they live in the repository's own configuration file. See
+    [Repository configuration](/repo-configuration/).
 
   </ConfigKey>
 

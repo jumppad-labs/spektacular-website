@@ -1,3 +1,11 @@
+## 000043_flipped-interaction-spec-interview
+
+The "How Spektacular Works" page now describes the adaptive interview that opens every new spec, names it as the Flipped Interaction pattern with attribution to the prompt-engineering research it draws from, and walks through a worked example exchange along with a second example showing the interview asking about impact on another registered repo in a multi-repo project. The homepage's features grid now features this interview as one of its cards, so the capability is visible to a first-time visitor rather than only described on the deeper reference page.
+
+## 000042_repo-self-describing-metadata
+
+The Configuration page's registered-repository entry now documents only membership fields — name, address or local path, provider, and dependencies — since a repository's description, role, tags, and deployment moved to the repository's own configuration file. A new Repository Configuration reference page, linked from the Configuration page and added to the site's Resources navigation, documents that repository-level file in full, including its descriptive metadata alongside its existing knowledge and changelog settings.
+
 ## 000009_document-artifact-metadata-and-historical-artifacts
 
 The "How Spektacular Works" page now explains that once a spec or plan is

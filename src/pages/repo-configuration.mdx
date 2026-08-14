@@ -1,0 +1,125 @@
+---
+layout: ../layouts/Shell.astro
+title: "Repository Configuration - Spektacular"
+description: "Configure a member repository's own .spektacular/config.yaml: description, role, tags, deployment, knowledge, and changelog."
+---
+import Hero from "../components/sections/Hero.astro";
+import Section from "../components/sections/Section.astro";
+import ConfigurationKeys from "../components/sections/ConfigurationKeys.astro";
+import ConfigKey from "../components/sections/ConfigKey.astro";
+import CtaBanner from "../components/sections/CtaBanner.astro";
+import Button from "../components/Button.astro";
+
+<Hero
+  heading="Repository Configuration"
+  sub="Every member repository carries its own .spektacular/config.yaml, distinct from a project's configuration."
+/>
+
+<Section heading="Where repository configuration lives">
+
+  <Fragment slot="sub">
+
+    A repository's own `.spektacular/config.yaml` is created as part of its
+    footprint, either when it is registered with `repos add` or during a
+    project's initialization cascade over its already-registered
+    repositories. It carries no reference back to any project that
+    registers it, so the same repository can belong to any number of
+    projects while describing itself in exactly one place. See
+    [Configuration](/configuration/) for the project-side registry entry
+    that identifies and locates this repository.
+
+  </Fragment>
+
+</Section>
+
+<ConfigurationKeys heading="Descriptive metadata">
+
+  <Fragment slot="sub">
+
+    What this repository is, shown wherever its details are surfaced, such
+    as `spektacular repo list` or the repository roster an agent sees
+    during planning.
+
+  </Fragment>
+
+  <ConfigKey name="description" type="string" defaultValue="none">
+
+    A short account of what this repository is or does.
+
+  </ConfigKey>
+
+  <ConfigKey name="role" type="string" defaultValue="none">
+
+    The role this repository plays, such as `service`, `documentation`, or
+    `library`.
+
+  </ConfigKey>
+
+  <ConfigKey name="tags" type="list of strings" defaultValue="none">
+
+    Free-form labels for the repository, such as `docs`, `website`, or
+    `backend`.
+
+  </ConfigKey>
+
+  <ConfigKey name="deployment" type="string" defaultValue="none">
+
+    How this repository is deployed, such as `kubernetes` or
+    `static-site`.
+
+  </ConfigKey>
+
+</ConfigurationKeys>
+
+<ConfigurationKeys heading="Knowledge and changelog">
+
+  <Fragment slot="sub">
+
+    A repository's own configuration also carries its knowledge sources and
+    changelog provider, unchanged by descriptive metadata. See the
+    [Knowledge Base](/knowledge-base/) page for `knowledge`, and the
+    [Configuration](/configuration/) page's `changelog` entry for its
+    shape, which is identical at the repository level.
+
+  </Fragment>
+
+</ConfigurationKeys>
+
+<Section heading="Example">
+
+  <Fragment slot="sub">
+
+    A complete repository `.spektacular/config.yaml` for a documentation
+    site.
+
+  </Fragment>
+
+  ```yaml
+  description: Marketing and documentation site, built with Astro
+  role: documentation
+  tags:
+    - docs
+    - website
+  deployment: static-site
+
+  knowledge:
+    sources:
+      - scope: project
+        provider: file
+        config:
+          location: .spektacular/knowledge
+
+  changelog:
+    provider: file
+    config:
+      directory: .spektacular/changelog
+  ```
+
+</Section>
+
+<CtaBanner
+  heading="Pluggable by design"
+  body="Specs, plans, knowledge, and agents are all behind plugin interfaces. See what ships today and what's planned."
+>
+  <Button href="/plugins/" label="Browse plugins →" variant="primary" large />
+</CtaBanner>
