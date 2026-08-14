@@ -1,0 +1,150 @@
+---
+layout: ../layouts/Shell.astro
+title: "Multi-Repo Projects - Spektacular"
+description: "How a Spektacular project can span more than one repository: registration, the config split, cross-repo attribution, cloning, and ignore files."
+---
+import Hero from "../components/sections/Hero.astro";
+import Section from "../components/sections/Section.astro";
+import ConfigurationKeys from "../components/sections/ConfigurationKeys.astro";
+import ConfigKey from "../components/sections/ConfigKey.astro";
+import CtaBanner from "../components/sections/CtaBanner.astro";
+import Button from "../components/Button.astro";
+
+<Hero
+  heading="Multi-Repo Projects"
+  sub="A Spektacular project can span more than one repository, tracked together as one coherent unit of work."
+/>
+
+<Section heading="What a multi-repo project is">
+
+  <Fragment slot="sub">
+
+    A project isn't limited to the repository it's colocated with. It can
+    register any number of other repositories too, such as a code repo
+    alongside its docs repo, so that planning and implementation work can
+    address both together instead of treating them as separate, disconnected
+    efforts.
+
+  </Fragment>
+
+  This site's own project is a live instance of the capability it's
+  documenting: it registers itself (`spektacular`, a local repository) and
+  the `docs` repository this page is built from. Running `spektacular repo
+  list` shows both, with their resolved local locations:
+
+  ```json
+  {
+    "repos": [
+      { "name": "spektacular", "local": ".", "materialized": false },
+      {
+        "name": "docs",
+        "address": "git@github.com:jumppad-labs/spektacular-website.git",
+        "local": "../spektacular-website",
+        "materialized": false
+      }
+    ]
+  }
+  ```
+
+</Section>
+
+<Section heading="Registering a repository" surface>
+
+  <Fragment slot="sub">
+
+    `repo add` registers a repository into the project by name, along with
+    an address or a local path so Spektacular knows where to find it.
+    `repo list` shows the registry with every entry's resolved location.
+
+  </Fragment>
+
+  ```bash
+  spektacular repo add --data '{"name":"docs","address":"git@example.com:org/docs.git"}'
+  ```
+
+</Section>
+
+<ConfigurationKeys heading="How configuration is split">
+
+  <Fragment slot="sub">
+
+    A project's own `.spektacular/config.yaml` holds membership only: which
+    repositories belong to this project and how to find them. Everything
+    that describes a repository itself, its description, role, tags,
+    deployment, knowledge sources, and changelog settings, lives instead in
+    that repository's own `.spektacular/repo.yaml`. This split exists
+    because a repository's own file carries no reference back to any
+    project that registers it, so the same repository can belong to more
+    than one project without duplicating or re-entering its description
+    each time it's added to a new one.
+
+  </Fragment>
+
+  <ConfigKey name="repos" type="section" defaultValue="none">
+
+    In `config.yaml`, each entry identifies and locates a member repository:
+    `repos[].name`, `repos[].address`, and `repos[].local`. See
+    [Configuration](/configuration/) for the full reference.
+
+  </ConfigKey>
+
+  <ConfigKey name="description, role, tags, deployment" type="fields" defaultValue="none">
+
+    These live only in the repository's own `repo.yaml`, never in the
+    project's registry entry. See
+    [Configuration](/configuration/) for the full reference.
+
+  </ConfigKey>
+
+</ConfigurationKeys>
+
+<Section heading="Work that spans repositories" surface>
+
+  <Fragment slot="sub">
+
+    Planning and implementation can address requirements that belong to
+    more than one registered repository in a single piece of work. Every
+    repository the work touches ends up with its own changelog entry,
+    naming the project and the spec or plan that produced it, so each
+    repository's history stays self-contained even though the work that
+    produced it spanned several.
+
+  </Fragment>
+
+  > Derived from project spektacular (git@github.com:jumppad-labs/spektacular.git), spec/plan 000044_projects-feature-documentation.
+
+</Section>
+
+<Section heading="How a registered repository becomes available">
+
+  <Fragment slot="sub">
+
+    A repository registered by remote address is cloned automatically the
+    first time it's needed. Once cloned, it's reused as-is: Spektacular
+    never fetches or pulls a repository that's already present without the
+    user doing so themselves.
+
+  </Fragment>
+
+</Section>
+
+<Section heading="Excluding paths from search" surface>
+
+  <Fragment slot="sub">
+
+    Any repository, or the project's own storage, can carry a
+    `.spektacular_ignore` file using gitignore-style patterns to keep paths
+    such as build artifacts out of Spektacular's own search and listing
+    results. A file named directly is still accessible even if it matches
+    an ignore pattern; only search and listing are affected.
+
+  </Fragment>
+
+</Section>
+
+<CtaBanner
+  heading="Ready to register another repository?"
+  body="See the full configuration reference for the project and repository sides of the split."
+>
+  <Button href="/configuration/" label="Configuration reference →" variant="primary" large />
+</CtaBanner>

@@ -1,3 +1,7 @@
+## 000044_projects-feature-documentation
+
+A new "Multi-Repo Projects" reference page explains how a Spektacular project can span more than one repository: why that's useful, how a repository is registered, how project and repository configuration relate to each other as one topic, how planning and implementation work is attributed across repos, how a repository becomes available locally, and how paths can be excluded from search. The page is reachable from the site's "Resources" navigation menu (listed first), and the getting-started tutorial now links to it at the point a reader following the single-repo walkthrough might otherwise assume a project can only ever contain one repository. The former separate "Repository Configuration" page has also been folded into the "Configuration" page, so project-level and per-repository configuration now read as one document instead of two.
+
 ## 000043_flipped-interaction-spec-interview
 
 The "How Spektacular Works" page now describes the adaptive interview that opens every new spec, names it as the Flipped Interaction pattern with attribution to the prompt-engineering research it draws from, and walks through a worked example exchange along with a second example showing the interview asking about impact on another registered repo in a multi-repo project. The homepage's features grid now features this interview as one of its cards, so the capability is visible to a first-time visitor rather than only described on the deeper reference page.

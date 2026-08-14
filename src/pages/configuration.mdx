@@ -1,7 +1,7 @@
 ---
 layout: ../layouts/Shell.astro
 title: "Configuration - Spektacular"
-description: "Configure Spektacular via .spektacular/config.yaml: command, agent, debug, spec, plan, and pluggable knowledge sources."
+description: "Configure Spektacular via .spektacular/config.yaml and a member repository's own .spektacular/repo.yaml: command, agent, debug, spec, plan, knowledge, and repository descriptive metadata."
 ---
 import Hero from "../components/sections/Hero.astro";
 import Section from "../components/sections/Section.astro";
@@ -12,29 +12,73 @@ import Button from "../components/Button.astro";
 
 <Hero
   heading="Configuration"
-  sub="Spektacular reads everything it needs from .spektacular/config.yaml. Here's what each key does."
+  sub="Spektacular splits configuration across two files: a project's own .spektacular/config.yaml, and each member repository's .spektacular/repo.yaml."
 />
 
-<Section heading="Where configuration lives">
+<Section heading="Project configuration: config.yaml" surface={false}>
 
   <Fragment slot="sub">
 
-    All Spektacular configuration lives in `.spektacular/config.yaml` at the
-    root of your project. The file is created by `spektacular init`, missing
-    keys fall back to defaults, and `${VAR}` patterns are expanded from the
-    environment when the file is read.
+    A project's own settings: the coding agent it drives, where it stores
+    specs, plans, and changelog records, its knowledge sources, and the
+    repositories it registers as members. Every project has exactly one
+    `.spektacular/config.yaml`, at the root of the project. The file is
+    created by `spektacular init`, missing keys fall back to defaults, and
+    `${VAR}` patterns are expanded from the environment when the file is
+    read. A complete example, with two knowledge sources (a project-local
+    one and a team-wide one stored elsewhere on disk):
 
   </Fragment>
 
+  ```yaml
+  command: spektacular
+  agent: claude
+  spec_trigger_threshold: moderate
+
+  debug:
+    enabled: false
+
+  spec:
+    provider: file
+    id_method: timestamp
+    config:
+      directory: .spektacular/specs
+
+  plan:
+    provider: file
+    config:
+      directory: .spektacular/plans
+
+  changelog:
+    provider: file
+    config:
+      directory: .spektacular/changelog
+
+  knowledge:
+    sources:
+      - scope: project
+        provider: file
+        config:
+          location: .spektacular/knowledge
+      - scope: team
+        provider: file
+        config:
+          location: ${HOME}/work/team-knowledge
+
+  repos:
+    - name: docs
+      local: ../docs
+  ```
+
 </Section>
 
-<ConfigurationKeys heading="Top-level keys">
+<ConfigurationKeys heading="Project configuration keys" surface={true}>
 
   <Fragment slot="sub">
 
-    Eight top-level sections control the tool: `command`, `agent`,
-    `spec_trigger_threshold`, `debug`, `spec`, `plan`, `changelog`,
-    `knowledge`, and `repos`.
+    Eight top-level sections control the tool from `.spektacular/config.yaml`:
+    `command`, `agent`, `spec_trigger_threshold`, `debug`, `spec`, `plan`,
+    `changelog`, `knowledge`, and `repos`.
 
   </Fragment>
 
@@ -152,45 +196,37 @@ import Button from "../components/Button.astro";
       repositories this one depends on.
 
     A repository's description, role, tags, and deployment are not declared
-    here — they live in the repository's own configuration file. See
-    [Repository configuration](/repo-configuration/).
+    here — they live in the repository's own configuration file, described
+    below.
 
   </ConfigKey>
 
 </ConfigurationKeys>
 
-<Section heading="Example">
+<Section heading="Repository configuration: repo.yaml" surface={false}>
 
   <Fragment slot="sub">
 
-    A complete `.spektacular/config.yaml` with two knowledge sources: a
-    project-local one and a team-wide one stored elsewhere on disk.
+    What a member repository is: its description, role, tags, deployment,
+    and its own knowledge sources and changelog provider. Every member
+    repository carries its own `.spektacular/repo.yaml`, distinct from the
+    project's own `.spektacular/config.yaml` above. It is created as part
+    of the repository's footprint, either when it is registered with
+    `repo add` or during a project's initialization cascade over its
+    already-registered repositories. It carries no reference back to any
+    project that registers it, so the same repository can belong to any
+    number of projects while describing itself in exactly one place. A
+    complete example, for a documentation site:
 
   </Fragment>
 
   ```yaml
-  command: spektacular
-  agent: claude
-  spec_trigger_threshold: moderate
-
-  debug:
-    enabled: false
-
-  spec:
-    provider: file
-    id_method: timestamp
-    config:
-      directory: .spektacular/specs
-
-  plan:
-    provider: file
-    config:
-      directory: .spektacular/plans
-
-  changelog:
-    provider: file
-    config:
-      directory: .spektacular/changelog
+  description: Marketing and documentation site, built with Astro
+  role: documentation
+  tags:
+    - docs
+    - website
+  deployment: static-site
 
   knowledge:
     sources:
@@ -198,13 +234,68 @@ import Button from "../components/Button.astro";
         provider: file
         config:
           location: .spektacular/knowledge
-      - scope: team
-        provider: file
-        config:
-          location: ${HOME}/work/team-knowledge
+
+  changelog:
+    provider: file
+    config:
+      directory: .spektacular/changelog
   ```
 
 </Section>
+
+<ConfigurationKeys heading="Repository configuration keys" surface={true}>
+
+  <Fragment slot="sub">
+
+    Descriptive metadata plus the repository's own knowledge sources and
+    changelog provider, shown wherever this repository's details are
+    surfaced, such as `spektacular repo list` or the repository roster an
+    agent sees during planning.
+
+  </Fragment>
+
+  <ConfigKey name="description" type="string" defaultValue="none">
+
+    A short account of what this repository is or does.
+
+  </ConfigKey>
+
+  <ConfigKey name="role" type="string" defaultValue="none">
+
+    The role this repository plays, such as `service`, `documentation`, or
+    `library`.
+
+  </ConfigKey>
+
+  <ConfigKey name="tags" type="list of strings" defaultValue="none">
+
+    Free-form labels for the repository, such as `docs`, `website`, or
+    `backend`.
+
+  </ConfigKey>
+
+  <ConfigKey name="deployment" type="string" defaultValue="none">
+
+    How this repository is deployed, such as `kubernetes` or
+    `static-site`.
+
+  </ConfigKey>
+
+  <ConfigKey name="knowledge" type="section" defaultValue="one project source at <code>.spektacular/knowledge</code>">
+
+    Same shape as the project-level `knowledge` key above. See the
+    [Knowledge Base](/knowledge-base/) page for the full reference.
+
+  </ConfigKey>
+
+  <ConfigKey name="changelog" type="section" defaultValue="file provider, <code>.spektacular/changelog</code>">
+
+    Same shape as the project-level `changelog` key above; this is where
+    the repository's own derived changelog entries land.
+
+  </ConfigKey>
+
+</ConfigurationKeys>
 
 <CtaBanner
   heading="Pluggable by design"
