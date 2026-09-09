@@ -1,0 +1,35 @@
+---
+/**
+ * The heading block that opens every band on the site: an h2 plus an optional
+ * sub-paragraph at the shared reading measure.
+ *
+ * This markup was duplicated verbatim across eight section components, which
+ * is how the site drifted into two heading scales and three sub widths. It
+ * lives here now; change the scale in one place and every band follows.
+ *
+ * Pass the sub as a `sub` string, or render it into the default slot when it
+ * needs markup (a component with more than one header forwards its own named
+ * slot in here).
+ */
+interface Props {
+  heading: string;
+  sub?: string;
+}
+
+const { heading, sub } = Astro.props;
+
+const hasSlotted = Astro.slots.has("default");
+---
+<div class="mb-lg">
+  <h2
+    class="mb-xs text-text-primary font-bold leading-tight tracking-[-0.01em] text-[clamp(1.625rem,3vw,2.25rem)]"
+    set:html={heading}
+  />
+  {hasSlotted ? (
+    <div class="spek-body text-lg text-text-secondary">
+      <slot />
+    </div>
+  ) : sub ? (
+    <p class="spek-body text-lg text-text-secondary" set:html={sub} />
+  ) : null}
+</div>

@@ -1,7 +1,7 @@
 ---
 layout: ../layouts/Shell.astro
 title: "Configuration - Spektacular"
-description: "Configure Spektacular via .spektacular/config.yaml and a member repository's own .spektacular/repo.yaml: command, agent, debug, spec, plan, knowledge, and repository descriptive metadata."
+description: "Configure Spektacular via .spektacular/config.yaml and a member repository's own .spektacular/repo.yaml: command, agent, debug, spec, plan, knowledge, each repository's location, and where its code lives (source)."
 ---
 import Hero from "../components/sections/Hero.astro";
 import Section from "../components/sections/Section.astro";
@@ -12,7 +12,7 @@ import Button from "../components/Button.astro";
 
 <Hero
   heading="Configuration"
-  sub="Spektacular splits configuration across two files: a project's own .spektacular/config.yaml, and each member repository's .spektacular/repo.yaml."
+  sub="Spektacular splits configuration across two files: a project's own .spektacular/config.yaml, which locates each member repository, and each member repository's .spektacular/repo.yaml, which describes it and says where its code lives."
 />
 
 <Section heading="Project configuration: config.yaml" surface={false}>
@@ -20,13 +20,13 @@ import Button from "../components/Button.astro";
   <Fragment slot="sub">
 
     A project's own settings: the coding agent it drives, where it stores
-    specs, plans, and changelog records, its knowledge sources, and the
+    specs, plans, and changelog records, its shared knowledge stores, and the
     repositories it registers as members. Every project has exactly one
     `.spektacular/config.yaml`, at the root of the project. The file is
     created by `spektacular init`, missing keys fall back to defaults, and
-    `${VAR}` patterns are expanded from the environment when the file is
-    read. A complete example, with two knowledge sources (a project-local
-    one and a team-wide one stored elsewhere on disk):
+    `${VAR}` patterns are expanded from the environment when `config.yaml`
+    or `repo.yaml` is read. A complete example, declaring one shared knowledge
+    store alongside the store each registered repository brings with it:
 
   </Fragment>
 
@@ -55,19 +55,15 @@ import Button from "../components/Button.astro";
       directory: .spektacular/changelog
 
   knowledge:
-    sources:
-      - scope: project
-        provider: file
-        config:
-          location: .spektacular/knowledge
-      - scope: team
+    sources:                        # the project's shared stores only; each
+      - name: team                  # repository declares its own in repo.yaml
         provider: file
         config:
           location: ${HOME}/work/team-knowledge
 
   repos:
     - name: docs
-      local: ../docs
+      location: ../../docs/.spektacular
   ```
 
 </Section>
@@ -76,7 +72,7 @@ import Button from "../components/Button.astro";
 
   <Fragment slot="sub">
 
-    Eight top-level sections control the tool from `.spektacular/config.yaml`:
+    Nine top-level sections control the tool from `.spektacular/config.yaml`:
     `command`, `agent`, `spec_trigger_threshold`, `debug`, `spec`, `plan`,
     `changelog`, `knowledge`, and `repos`.
 
@@ -166,13 +162,14 @@ import Button from "../components/Button.astro";
 
   </ConfigKey>
 
-  <ConfigKey name="knowledge" type="section" defaultValue="one project source at <code>.spektacular/knowledge</code>">
+  <ConfigKey name="knowledge" type="section" defaultValue="none">
 
-    Ordered list of knowledge sources, queried in order at plan time and
-    tagged by scope in results.
+    Ordered list of the shared knowledge stores the project itself owns, such
+    as a team handbook. Each repository declares its own store in its
+    `repo.yaml`, not here.
 
-    - `knowledge.sources[].scope`: a label, `project`, `team`, `global`, or
-      any custom string. Each scope must be unique within the list.
+    - `knowledge.sources[].name`: the name this store is addressed by. Must be
+      unique among the project's own stores.
     - `knowledge.sources[].provider`: storage backend; only `file` ships
       today.
     - `knowledge.sources[].config.location`: where the file provider reads
@@ -182,22 +179,32 @@ import Button from "../components/Button.astro";
 
   <ConfigKey name="repos" type="section" defaultValue="none">
 
-    How a project registers its member repositories. Each entry identifies
-    and locates one repository:
+    How a project registers its member repositories. Each entry names one
+    repository and locates the folder that holds the repository's own
+    `repo.yaml`:
 
     - `repos[].name`: the repository's project-local name, unique within
-      this project.
-    - `repos[].address`: the repository's remote URL, when it is not
-      colocated with the project.
-    - `repos[].local`: a local path to the repository, when it is colocated
-      or already checked out.
+      this project and slug-safe; plans and changelog entries refer to
+      repositories by it.
+    - `repos[].location`: the folder holding the repository's `repo.yaml`,
+      absolute or relative to the folder holding this `config.yaml`.
+      Nothing is appended to it, so the project's own footprint is `.` and
+      a repository folder inside the project is `../repos/<name>`. The
+      older `local` key is still accepted and means the same thing; it is
+      written back as `location`.
     - `repos[].provider`: the repository's provider. Only `git` ships today.
     - `repos[].dependencies`: the project-local names of other registered
       repositories this one depends on.
 
-    A repository's description, role, tags, and deployment are not declared
-    here — they live in the repository's own configuration file, described
-    below.
+    Where the repository's code lives is the repository's own concern,
+    declared by `source` in its `repo.yaml` (below). The older `address`
+    key is no longer accepted here: a configuration that still carries it
+    fails to load with an error naming the repository, and its value moves
+    to that repository's `source`.
+
+    A repository's description, role, and tags are not declared
+    here either. They live in the repository's own configuration file,
+    described below.
 
   </ConfigKey>
 
@@ -207,12 +214,14 @@ import Button from "../components/Button.astro";
 
   <Fragment slot="sub">
 
-    What a member repository is: its description, role, tags, deployment,
-    and its own knowledge sources and changelog provider. Every member
-    repository carries its own `.spektacular/repo.yaml`, distinct from the
-    project's own `.spektacular/config.yaml` above. It is created as part
-    of the repository's footprint, either when it is registered with
-    `repo add` or during a project's initialization cascade over its
+    What a member repository is: its description, role, tags,
+    where its code lives, and its own knowledge sources and changelog
+    provider. Every member repository carries its own `repo.yaml`,
+    distinct from the project's own `.spektacular/config.yaml` above. The
+    folder holding that file is the repository's location, and the `source`
+    key says where its code is, relative to that same folder. It is created
+    as part of the repository's footprint, either when it is registered
+    with `repo add` or during a project's initialization cascade over its
     already-registered repositories. It carries no reference back to any
     project that registers it, so the same repository can belong to any
     number of projects while describing itself in exactly one place. A
@@ -226,19 +235,20 @@ import Button from "../components/Button.astro";
   tags:
     - docs
     - website
-  deployment: static-site
+  source:
+    provider: file                   # file or git
+    config:
+      location: ..                   # or git@github.com:org/docs.git for git
 
   knowledge:
-    sources:
-      - scope: project
-        provider: file
-        config:
-          location: .spektacular/knowledge
+    provider: file
+    config:
+      location: knowledge
 
   changelog:
     provider: file
     config:
-      directory: .spektacular/changelog
+      directory: changelog
   ```
 
 </Section>
@@ -247,10 +257,12 @@ import Button from "../components/Button.astro";
 
   <Fragment slot="sub">
 
-    Descriptive metadata plus the repository's own knowledge sources and
-    changelog provider, shown wherever this repository's details are
-    surfaced, such as `spektacular repo list` or the repository roster an
-    agent sees during planning.
+    Descriptive metadata, the location of the repository's code, and the
+    repository's own knowledge sources and changelog provider, shown
+    wherever this repository's details are surfaced, such as
+    `spektacular repo list` or the repository roster an agent sees during
+    planning and implementation. Every relative path in this file, the
+    source included, resolves from the folder holding the file.
 
   </Fragment>
 
@@ -274,24 +286,45 @@ import Button from "../components/Button.astro";
 
   </ConfigKey>
 
-  <ConfigKey name="deployment" type="string" defaultValue="none">
+  <ConfigKey name="source" type="string" defaultValue="the directory holding <code>.spektacular/</code>">
 
-    How this repository is deployed, such as `kubernetes` or
-    `static-site`.
+    Where this repository's code lives. Either a file location (a plain
+    path or a `file://` path, absolute, relative to the directory holding
+    `repo.yaml`, or using `${VAR}`) or a git location (`git://`, `ssh://`,
+    `https://`, or `user@host:path`). A git location is cloned into the
+    project's `.spektacular/repos/<name>/` folder the first time the
+    repository is used and never fetched or pulled afterwards. When set,
+    `repo list` reports it as the repository's `root` and workflows send
+    agents there; knowledge and changelog entries still land where this
+    file's `knowledge` and `changelog` keys say, under the folder holding
+    `repo.yaml`. Leave it unset when the repository's Spektacular files
+    sit inside its code. Not to be confused with the project-level
+    `source` in `config.yaml`, which records a git address for changelog
+    provenance only.
 
   </ConfigKey>
 
-  <ConfigKey name="knowledge" type="section" defaultValue="one project source at <code>.spektacular/knowledge</code>">
+  <ConfigKey name="knowledge" type="section" defaultValue="a file store at <code>knowledge</code>">
 
-    Same shape as the project-level `knowledge` key above. See the
-    [Knowledge Base](/knowledge-base/) page for the full reference.
+    This repository's single knowledge store, holding what is true of its own
+    code. The store is addressed by the name the project registered this
+    repository under, so there is no name to set here and no more than one
+    store to declare.
+
+    - `knowledge.provider`: storage backend; only `file` ships today.
+    - `knowledge.config.location`: where the file provider reads this
+      repository's knowledge from. Relative paths resolve against the folder
+      holding `repo.yaml`.
+
+    See the [Knowledge Base](/knowledge-base/) page for the full reference.
 
   </ConfigKey>
 
-  <ConfigKey name="changelog" type="section" defaultValue="file provider, <code>.spektacular/changelog</code>">
+  <ConfigKey name="changelog" type="section" defaultValue="file provider, <code>changelog</code>">
 
-    Same shape as the project-level `changelog` key above; this is where
-    the repository's own derived changelog entries land.
+    Same shape as the project-level `changelog` key above, resolved from
+    the folder holding this file; this is where the repository's own
+    derived changelog entries land.
 
   </ConfigKey>
 

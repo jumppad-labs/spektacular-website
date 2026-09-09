@@ -16,7 +16,7 @@ import Button from "../components/Button.astro";
 
 <Section heading="What it is">
 
-  <Prose>
+  <Prose nested>
 
   The knowledge base is the accumulated know-how a project draws on when
   planning: the rules it commits to, the shared vocabulary it speaks, how the
@@ -51,7 +51,7 @@ import Button from "../components/Button.astro";
 
   </Fragment>
 
-  <Prose>
+  <Prose nested>
 
   Each category carries a **retrieval tier** that decides when its entries reach
   the planning agent. There are two:
@@ -94,15 +94,15 @@ import Button from "../components/Button.astro";
 
   </Fragment>
 
-  <Prose>
+  <Prose nested>
 
-  **Creating.** A new entry is written with `knowledge write`, naming the scope
-  to store it in and the path within that scope. The content comes from a file
-  or standard input:
+  **Creating.** A new entry is written with `knowledge write`, naming the tier
+  and the store to put it in and the path within that store. The content comes
+  from a file or standard input:
 
   ```bash
   spektacular knowledge write \
-    --data '{"scope": "project", "path": "gotchas/db-timeouts.md"}' \
+    --data '{"tier": "repo", "name": "docs", "path": "gotchas/db-timeouts.md"}' \
     --file ./db-timeouts.md
   ```
 
@@ -113,11 +113,14 @@ import Button from "../components/Button.astro";
   first heading, falling back to its path.
 
   **Searching and retrieving.** `knowledge search` runs a keyword query across
-  every configured source and returns ranked, one-per-document hits, each with a
-  few short excerpts so an agent can scan many results cheaply. Results are
-  scored by how often the query terms appear, with ties broken by source order
-  and then path, so the ordering is stable. `knowledge read` pulls back a single
-  entry in full.
+  the stores the request covers and returns ranked, one-per-document hits, each
+  with a few short excerpts so an agent can scan many results cheaply. Results
+  are scored by how often the query terms appear, with ties broken by store order
+  and then path, so the ordering is stable. Every hit reports the tier and store
+  it came from, which is exactly what `knowledge read` needs, so a result can be
+  pulled back in full without a second lookup and with no risk of fetching a
+  same-named entry from somewhere else. Add `--tier` and `--filter` to narrow
+  what a search covers.
 
   ```bash
   spektacular knowledge search "database timeout"
@@ -129,7 +132,8 @@ import Button from "../components/Button.astro";
   search too would only repeat the same content.
 
   **Keeping it up to date.** There is no separate update command: you write the
-  entry again to the same scope and path, and the new content replaces the old.
+  entry again to the same tier, store name, and path, and the new content replaces
+  the old.
   Because entries are identified by the exact bytes of their content, rewriting
   the same text changes nothing, while genuinely edited text supersedes the
   previous version.
@@ -142,57 +146,90 @@ import Button from "../components/Button.astro";
 
   <Fragment slot="sub">
 
-    Where the knowledge base lives, and how to point Spektacular at more than
-    one source, all from `.spektacular/config.yaml`.
+    Which knowledge you mean: the two tiers a store belongs to, how it gets its
+    name, and how a request says which stores it covers.
 
   </Fragment>
 
-  <Prose>
+  <Prose nested>
 
-  Knowledge configuration lives under the `knowledge` key of
-  `.spektacular/config.yaml`, the file `spektacular init` creates at the root of
-  your project. The knowledge base is defined as a list of **sources**, each
-  with a `scope` (a label such as `project`), a `provider` (currently `file`),
-  and a `location` (the directory its entries live in). Out of the box there is a
-  single source: the `project` scope at `.spektacular/knowledge`, versioned
-  alongside your code:
+  Knowledge lives in one of two tiers. Every registered repository contributes
+  exactly one store, holding what is true of that repository's own code. The
+  project declares any number of shared stores for knowledge that belongs to no
+  single repository, a team handbook say, or a personal one you carry between
+  projects. Every request states which tier it means, and names a store within
+  it.
+
+  One word does double duty, so it is worth separating now. A *category* has a
+  **retrieval tier**, which says when its entries are loaded: `always-applied`
+  for conventions and the glossary, `looked-up` for everything else. A *store*
+  has a tier in the sense used on this page, which says which knowledge it
+  holds. The two are different axes and never appear on the same thing.
+
+  **A repository declares one store.** It lives in the repository's `repo.yaml`,
+  so it travels with the repository into every project that registers it.
+  Relative locations resolve from the folder holding that file:
+
+  ```yaml
+  # repo.yaml
+  knowledge:
+    provider: file
+    config:
+      location: knowledge
+  ```
+
+  There is no name to set here. The store is addressed by the name the project
+  registered the repository under, so the repository does not choose it, and
+  there is no list because a repository has exactly one store.
+
+  **The project declares its shared stores.** These are the ones no single
+  repository owns, and they live under the `knowledge` key of
+  `.spektacular/config.yaml`, each with its own name. Relative locations resolve
+  against the project root; absolute paths and `~` work too:
 
   ```yaml
   # .spektacular/config.yaml
   knowledge:
     sources:
-      - scope: project
-        provider: file
-        config:
-          location: .spektacular/knowledge
-  ```
-
-  You can add more sources, for example a `team` knowledge base shared across
-  repositories, or a personal `global` one. Relative locations resolve against
-  the project root; absolute paths and `~` work too:
-
-  ```yaml
-  knowledge:
-    sources:
-      - scope: project
-        provider: file
-        config:
-          location: .spektacular/knowledge
-      - scope: team
+      - name: team
         provider: file
         config:
           location: ~/work/team-knowledge
-      - scope: global
-        provider: file
-        config:
-          location: ~/spektacular-global
   ```
 
-  When Spektacular searches, it queries every source in the order they are
-  configured and merges the results, tagging each hit with the scope it came
-  from so you can see where a piece of knowledge lives. Because every source is
-  just a directory of markdown files under its category folders, the whole
-  knowledge base stays something you can read, edit, and version directly.
+  Names must be unique within the project tier. A shared store may reuse a
+  repository's name, because a store is identified by its tier and its name
+  together, not by the name alone.
+
+  **Addressing a store.** Reading and writing name exactly one store, so they
+  take a tier and a name alongside the path:
+
+  ```bash
+  spektacular knowledge write \
+    --data '{"tier": "repo", "name": "docs", "path": "conventions/site-layout.md"}' \
+    --file ./site-layout.md
+  ```
+
+  Both the tier and the name are required. A write that leaves either out is
+  refused rather than landing somewhere plausible, and the refusal lists the
+  names available in that tier so you can reissue it straight away. Run
+  `spektacular knowledge sources` to see every configured store by tier and
+  name.
+
+  **Narrowing what a request covers.** Searching, listing, and the
+  always-applied load take a `--tier` and a repeatable `--filter`:
+
+  ```bash
+  spektacular knowledge search "database timeout" --tier repo
+  spektacular knowledge search "database timeout" --tier repo --filter docs
+  ```
+
+  Omitting the narrowing covers every store the tier reaches, and naming stores
+  covers exactly those. No store is ever included or excluded implicitly, which
+  is what lets planning work on one repository skip the standing rules of every
+  repository it is not touching. Because every store is just a directory of
+  markdown files under its category folders, the whole knowledge base stays
+  something you can read, edit, and version directly.
 
   </Prose>
 
@@ -207,7 +244,7 @@ import Button from "../components/Button.astro";
 
   </Fragment>
 
-  <Prose>
+  <Prose nested>
 
   **Knowledge is a planning-time input, not a runtime one.** The planning agent
   reads the knowledge base while producing a plan and writes the relevant parts
@@ -243,11 +280,12 @@ import Button from "../components/Button.astro";
   are byte-for-byte the same, and leaves every genuinely semantic judgement to a
   human or the assistant, which is where that judgement belongs.
 
-  **Sources are layered, most-specific first.** When several scopes hold
-  knowledge about the same thing, the most specific one wins: a project entry
-  overrides a team entry, which overrides a global one. A refinement is resolved
-  in favour of the most-specific source and noted rather than hidden, while a
-  genuine disagreement between sources is surfaced as a conflict instead of being
+  **The two tiers answer different questions.** A repository's own store answers
+  what is true of that repository's code; the project's shared stores answer what
+  spans repositories. Neither overrides the other, so nothing is dropped because
+  of where it lives. When two stores hold related knowledge, a refinement is kept
+  alongside what it refines and noted rather than hidden, while a genuine
+  disagreement is surfaced as a conflict naming both stores instead of being
   silently resolved.
 
   </Prose>

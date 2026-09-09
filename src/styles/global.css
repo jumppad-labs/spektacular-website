@@ -43,6 +43,31 @@
   --radius-pill: 9999px;
 }
 
+/* ---- Layout system -------------------------------------------------------
+   One frame, one flow width.
+
+   The frame is `mx-auto max-w-[1100px] px-md`, and everything that flows down
+   a page (paragraphs, lists, headings, code blocks, tables, card grids) runs
+   its full width. There is deliberately no narrower reading measure for body
+   text: a measure only works when something boxes it in (docs sites that use
+   one pair it with a left nav and a right table of contents). With neither of
+   those, a capped column leaves a dead margin down the right of every page and
+   reads as misaligned against any full-width block beside it, such as the spec
+   format's code-and-keys grid.
+
+   The exception is text that is centred rather than flowed: a centred hero
+   sub, a call-to-action body, a diagram caption. Centred lines do need a cap,
+   or they run the full frame with ragged edges on both sides; `.spek-centered`
+   is that one cap, and it is the only place a measure is applied. */
+:root {
+  --spek-centered-measure: 52ch;
+}
+
+.spek-centered {
+  max-width: var(--spek-centered-measure);
+  margin-inline: auto;
+}
+
 /* Inline code rendered inside body prose (set:html content). Mirrors
    the Hugo per-element class string
    "bg-bg-elevated text-accent-light px-1.5 py-0.5 rounded-sm
@@ -88,6 +113,78 @@
 .spek-body strong {
   color: var(--color-text-primary);
   font-weight: 600;
+}
+
+/* Long-form markdown rendered by <Prose> and the tutorial layout. Typography
+   supplies the rhythm; these rules pull its scale and measure onto the same
+   system the band components use, so a heading is the same size whether the
+   page is built from <Section> blocks or from markdown, and body text stops
+   at the same measure in both. Wide children (code blocks, tables, images)
+   are deliberately left uncapped so they span the frame. */
+.spek-prose h2 {
+  font-size: clamp(1.625rem, 3vw, 2.25rem);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+}
+
+.spek-prose h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+/* Fenced code blocks in body copy. Expressive Code emits a bare
+   `<div class="expressive-code">` wrapper, which Tailwind's preflight leaves
+   with no margin of its own, so a block sat flush against the text around it
+   everywhere except inside `.prose`, where Typography's generic `figure`
+   rule happened to supply 2em. Set the rhythm once, here, on the wrapper, so
+   it is identical in Section bodies, `.spek-body` blurbs, `<Prose>` articles
+   and tutorials; zero the inner figure so only the wrapper contributes.
+   Adjacent margins collapse, so a block following a section heading block
+   still gets that block's larger `mb-lg` gap. */
+.expressive-code {
+  margin-block: var(--spacing-md);
+}
+
+.expressive-code figure {
+  margin-block: 0;
+}
+
+.expressive-code:first-child {
+  margin-block-start: 0;
+}
+
+.expressive-code:last-child {
+  margin-block-end: 0;
+}
+
+/* Body content in a <Section>'s default slot. MDX renders plain <p> and <ul>
+   elements there, which preflight strips of margins and list markers, so
+   paragraphs ran together and bullets lost their discs. Direct children only,
+   so a nested <Prose> keeps Typography's own rhythm instead of this one. */
+.spek-section-body > p + p,
+.spek-section-body > p + ul,
+.spek-section-body > ul + p {
+  margin-top: var(--spacing-sm);
+}
+
+.spek-section-body > ul {
+  list-style: disc;
+  padding-left: 1.25rem;
+}
+
+.spek-section-body > ul > li {
+  margin-top: 0.25rem;
+}
+
+
+.spek-section-body a {
+  color: var(--color-link-blue);
+  text-decoration: none;
+}
+
+.spek-section-body a:hover {
+  text-decoration: underline;
 }
 
 /* Expressive Code: give EVERY code block a visible frame header by default.

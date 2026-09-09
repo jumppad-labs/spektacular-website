@@ -43,7 +43,7 @@ type Store interface {
     // Exists reports whether a file or directory exists at path.
     Exists(path string) bool
     // Search returns hits for a free-form keyword query, scanning only this
-    // store. Hits carry the store's own scope so callers can attribute them.
+    // store. Hits are left unattributed for the caller to tag.
     Search(query string) ([]Hit, error)
 }
 ```
@@ -57,7 +57,8 @@ type DirEntry struct {
 }
 
 type Hit struct {
-    Scope   string  `json:"scope"`   // scope label of the originating store
+    Tier    string  `json:"tier"`    // addressing tier, stamped by the caller
+    Name    string  `json:"name"`    // originating store's name, stamped by the caller
     Path    string  `json:"path"`    // locator, relative to the store root
     Excerpt string  `json:"excerpt"` // compact excerpt, capped at the budget
     Score   float64 `json:"score"`   // optional relevance score; 0 if absent
@@ -75,8 +76,10 @@ Method contracts in brief:
 - `Exists` does not distinguish files from directories; callers that need to
   know use `List` on the parent.
 - `Search` is the only contract with semantics beyond simple file IO: hits
-  must be **compact** (excerpts, not full bodies) and tagged with the store's
-  own **scope** so the caller can attribute results across multiple stores.
+  must be **compact** (excerpts, not full bodies). A store leaves `Tier` and
+  `Name` empty, because it has no notion of the caller's addressing scheme;
+  the knowledge layer stamps them after merging so every result says which
+  store it came from.
 
 ## The Agent interface
 

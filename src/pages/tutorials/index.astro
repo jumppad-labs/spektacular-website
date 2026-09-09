@@ -14,7 +14,7 @@ const tutorials = (await getCollection("tutorials")).sort(
     variant="page"
   />
   <section class="py-xl max-sm:py-lg">
-    <div class="mx-auto max-w-[820px] px-md grid gap-md">
+    <div class="mx-auto max-w-[1100px] px-md grid gap-md">
       {tutorials.map((entry) => (
         <a
           href={`/tutorials/${entry.id}/`}

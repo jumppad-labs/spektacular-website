@@ -16,7 +16,7 @@ const { number, heading } = Astro.props;
   </div>
   {Astro.slots.has("body") && (
     <div class="mt-6">
-      <div class="spek-body max-w-[70ch] text-left text-[0.9375rem] text-text-secondary">
+      <div class="spek-body text-left text-[0.9375rem] text-text-secondary">
         <slot name="body" />
       </div>
     </div>

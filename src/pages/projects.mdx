@@ -1,7 +1,7 @@
 ---
 layout: ../layouts/Shell.astro
 title: "Multi-Repo Projects - Spektacular"
-description: "How a Spektacular project can span more than one repository: registration, the config split, cross-repo attribution, cloning, and ignore files."
+description: "How a Spektacular project can span more than one repository: where each repository's files live, registration, the config split, cross-repo attribution, cloning, and ignore files."
 ---
 import Hero from "../components/sections/Hero.astro";
 import Section from "../components/sections/Section.astro";
@@ -19,48 +19,238 @@ import Button from "../components/Button.astro";
 
   <Fragment slot="sub">
 
-    A project isn't limited to the repository it's colocated with. It can
-    register any number of other repositories too, such as a code repo
-    alongside its docs repo, so that planning and implementation work can
-    address both together instead of treating them as separate, disconnected
-    efforts.
+    Spektacular projects are designed to work the way that you work. For example
+    some teams may choose to keep spektacular configuration and code in a single
+    repository; however, some teams may prefer to keep this configuration separate.
+    This flexibility does not tightly couple Spektacular to your projects enabling
+    a team or even team members within a team freedom of choice.
+
+  </Fragment>
+    
+  A project can register any number of other repositories too, such as a 
+  application repo alongside its documentation repo, so that planning and 
+  implementation work can address both together instead of treating them 
+  as separate, disconnected efforts.
+
+  The Spectacular project is a live instance of the capability the `config.yaml`
+  registers two repositories: the `spektacular` repository the project is 
+  colocated with, and the `spektacular-website` repository this page is built 
+  from. The registry itself holds nothing but a name and a location for each:
+
+  ```yaml
+  # spektacular/.spektacular/config.yaml
+  name: spektacular
+  command: spektacular
+  agent: claude
+
+  repos:
+    - name: spektacular
+      location: .
+    - name: docs
+      location: ../../spektacular-website/.spektacular
+  ```
+
+  A `location` names the folder holding that repository's `repo.yaml`, and
+  that file is where the repository describes itself. The `spektacular`
+  entry's `.` resolves to the project's own `.spektacular/` folder, so this
+  repository's description sits beside the registry that names it:
+
+  ```yaml
+  # spektacular/.spektacular/repo.yaml
+  description: Agent-agnostic CLI tool for spec-driven development
+  role: tool
+  tags:
+    - go
+    - cli
+
+  source:
+    provider: file
+    config:
+      location: ..              # the code is the folder above this one
+
+  knowledge:
+    provider: file
+    config:
+      location: knowledge
+
+  changelog:
+    provider: file
+    config:
+      directory: changelog
+  ```
+
+  The `spektacular-website` entry points at a repo.yaml located in the 
+  `spektacular-website`:
+
+  ```yaml
+  # spektacular-website/.spektacular/repo.yaml
+  description: Marketing and documentation site for Spektacular, built with Astro
+  role: documentation
+  tags:
+    - docs
+    - website
+    - astro
+
+  source:
+    provider: file
+    config:
+      location: ..
+  ```
+
+  Neither `repo.yaml` refers back to the project that registers it, which is
+  what lets the same repository belong to more than one project.
+  `spektacular repo list` reads both sides together and reports, for each
+  repository, the absolute folder holding its Spektacular files, the
+  absolute folder its code is in, whether that code is a checkout you
+  provided or a clone Spektacular made, and the description, role and tags
+  the repository gives for itself.
+
+</Section>
+
+<Section heading="Where a repository's files live" surface>
+
+  <Fragment slot="sub">
+
+    Every registered repository has two folders that matter: the one holding
+    its `repo.yaml`, knowledge and changelog, and the one holding its code.
+    They are usually nested, and occasionally far apart. Knowing which is
+    which is most of what there is to understand here.
 
   </Fragment>
 
-  This site's own project is a live instance of the capability it's
-  documenting: it registers itself (`spektacular`, a local repository) and
-  the `docs` repository this page is built from. Running `spektacular repo
-  list` shows both, with their resolved local locations:
+  In a simple one repository setup, the spektacular files are located in a 
+  `.spektacular/` folder next to the code base. A project created by  the
+  command `spektacular init <agent>` starts this way:
 
-  ```json
-  {
-    "repos": [
-      { "name": "spektacular", "local": ".", "materialized": false },
-      {
-        "name": "docs",
-        "address": "git@github.com:jumppad-labs/spektacular-website.git",
-        "local": "../spektacular-website",
-        "materialized": false
-      }
-    ]
-  }
+  ```
+  my-project/
+  ├── .spektacular/
+  │   ├── config.yaml           # repos: [{name: api, location: .}]
+  │   ├── repo.yaml             # source: file, location ..
+  │   ├── knowledge/            # this repository's own knowledge
+  │   ├── specs/                # the project's central stores
+  │   └── plans/
+  └── src/                      # the code
+  ```
+
+  A project can also be completely independent of the code repo. The below
+  instance has the spectacular config and knowledge base located in a separate
+  folder completely independent of the code base.
+  This suits teams that cannot, or would rather not, commit Spektacular 
+  files into a code repository: the project folder can be committed and 
+  shared while the code repository receives only code changes.
+
+  ```
+  my-project/
+  ├── .spektacular/
+  │   ├── config.yaml           # repos: [{name: api, location: ../repos/api/.spektacular}]
+  └── repos/api/.spektacular/
+      ├── repo.yaml             # source: file or git, pointing at the code
+      ├── knowledge/
+      └── changelog/            # this repository's derived records
+  └── repos/docs/.spektacular/
+      ├── repo.yaml             # source: file or git, pointing at the code
+      ├── knowledge/
+      └── changelog/            # this repository's derived records
   ```
 
 </Section>
 
-<Section heading="Registering a repository" surface>
+<Section heading="Registering a repository">
 
   <Fragment slot="sub">
 
-    `repo add` registers a repository into the project by name, along with
-    an address or a local path so Spektacular knows where to find it.
-    `repo list` shows the registry with every entry's resolved location.
+    Adding a repository is a short conversation. You are asked which
+    repository you want to add, and everything else is proposed for you,
+    drawn from the repository itself, so you confirm or correct a suggestion
+    rather than supplying facts your own code already states.
 
   </Fragment>
 
+  Only the first question is asked cold, because the folder your code sits in
+  is the one thing that cannot be worked out by reading it. Spektacular then
+  reads what the repository says about itself, its README, whatever manifest
+  its language uses, and what it is written in, and every question after that
+  arrives with an answer already drafted:
+
   ```bash
-  spektacular repo add --data '{"name":"docs","address":"git@example.com:org/docs.git"}'
+  Version matches. Here's what's registered in this project today:
+
+  ┌─────────────┬─────────────────────────────────────────────────────────────┬───────────────┐
+  │    name     │                          code root                          │     role      │
+  ├─────────────┼─────────────────────────────────────────────────────────────┼───────────────┤
+  │ spektacular │ /home/nicj/code/github.com/jumppad-labs/spektacular         │ tool          │
+  ├─────────────┼─────────────────────────────────────────────────────────────┼───────────────┤
+  │ docs        │ /home/nicj/code/github.com/jumppad-labs/spektacular-website │ documentation │
+  └─────────────┴─────────────────────────────────────────────────────────────┴───────────────┘
+
+  Both are file-source repos with colocated footprints, both resolve cleanly, no stale or missing-footprint warnings.
+  ────────────────────────────────────────────────────────────────────────────────────────────────────
+   ☐ Repo action
+
+  What would you like to do with the repo registry?
+
+  ❯ 1. Add a repo
+       Start the guided add workflow (`repo new`) to register another repo in this project.
+    2. Just the listing
+       You wanted to see what's registered — the table above is the answer, nothing further to do.
+    3. Repair a footprint
+       Recreate a repo.yaml footprint that's missing or broken. (Note: neither registered repo currently reports a problem.)
+    4. Type something.
+  ────────────────────────────────────────────────────────────────────────────────────────────────────
+    5. Chat about this
+
+  Agent: Which repo would you like to add? Tell me the folder its code lives in — a path on this machine.
+  
+  You: ../jumppad
+
+  Agent: Found it — a Go tool that calls itself jumppad, for building cloud native development environments. I will call it jumppad in this project. Does that work for you? If you would rather not go through the remaining details one at a time, I can read the repo and fill them in myself — just say the word and I will take it from here.
+
+  You: ok do it
+
+  Agent: jumppad has been added to the project. It's known here as jumppad, its code stays at /home/nicj/code/github.com/jumppad-labs/jumppad, and the project's folder for it now sits at /home/nicj/code/github.com/jumppad-labs/jumppad/.spektacular/.
   ```
+
+  If you look at the config.yaml, you will see that the additional repository
+  has been added by the agent.
+
+  ```yaml
+  repos:
+      - name: spektacular
+        location: .
+      - name: docs
+        location: ../../spektacular-website/.spektacular
+      - name: jumppad
+        location: ../../jumppad/.spektacular
+  ```
+
+  And the jumppad repository's own `repo.yaml` contains all the details about it:
+
+  ```yaml
+  description: CLI tool for building local cloud native development environments — declares OCI containers, Nomad and Kubernetes clusters and supporting resources in the Jumppad HCL configuration language and brings them up via Docker or Podman drivers.
+  role: tool
+  tags:
+      - go
+      - cli
+      - hcl
+      - containers
+      - dev-environments
+  source:
+      provider: file
+      config:
+          location: ..
+  knowledge:
+      provider: file
+      config:
+          location: knowledge
+  changelog:
+      provider: file
+      config:
+          directory: changelog
+  ```
+
+
+
 
 </Section>
 
@@ -69,29 +259,40 @@ import Button from "../components/Button.astro";
   <Fragment slot="sub">
 
     A project's own `.spektacular/config.yaml` holds membership only: which
-    repositories belong to this project and how to find them. Everything
-    that describes a repository itself, its description, role, tags,
-    deployment, knowledge sources, and changelog settings, lives instead in
-    that repository's own `.spektacular/repo.yaml`. This split exists
-    because a repository's own file carries no reference back to any
-    project that registers it, so the same repository can belong to more
-    than one project without duplicating or re-entering its description
-    each time it's added to a new one.
+    repositories belong to this project, and where each one's Spektacular
+    files are. Everything that describes a repository itself, its
+    description, role, tags, knowledge sources, changelog settings, and
+    where its code lives, lives instead in that repository's own
+    `repo.yaml`. The split exists because a repository's own file carries no
+    reference back to any project that registers it, so the same repository
+    can belong to more than one project without re-entering its description
+    each time.
 
   </Fragment>
 
   <ConfigKey name="repos" type="section" defaultValue="none">
 
-    In `config.yaml`, each entry identifies and locates a member repository:
-    `repos[].name`, `repos[].address`, and `repos[].local`. See
+    In `config.yaml`, each entry names a member repository and locates the
+    folder holding its `repo.yaml`: `repos[].name` and `repos[].location`.
+    See [Configuration](/configuration/) for the full reference.
+
+  </ConfigKey>
+
+  <ConfigKey name="source" type="section" defaultValue="the folder holding <code>repo.yaml</code>">
+
+    In the repository's own `repo.yaml`: where its code lives, as a provider
+    block. `provider: file` with a `config.location` path names a checkout
+    on disk, resolved from the folder holding `repo.yaml`; `provider: git`
+    with a `config.location` address is cloned on first use. See
     [Configuration](/configuration/) for the full reference.
 
   </ConfigKey>
 
-  <ConfigKey name="description, role, tags, deployment" type="fields" defaultValue="none">
+  <ConfigKey name="description, role, tags" type="fields" defaultValue="none">
 
     These live only in the repository's own `repo.yaml`, never in the
-    project's registry entry. See
+    project's registry entry. Planning reads them to decide which repository
+    a requirement belongs to, so they are worth filling in. See
     [Configuration](/configuration/) for the full reference.
 
   </ConfigKey>
@@ -102,29 +303,59 @@ import Button from "../components/Button.astro";
 
   <Fragment slot="sub">
 
-    Planning and implementation can address requirements that belong to
-    more than one registered repository in a single piece of work. Every
-    repository the work touches ends up with its own changelog entry,
-    naming the project and the spec or plan that produced it, so each
-    repository's history stays self-contained even though the work that
-    produced it spanned several.
+    Planning and implementation can address requirements that belong to more
+    than one registered repository in a single piece of work. The plan
+    attributes each requirement to the repository it lands in, using that
+    repository's description, role and tags, and the implementation is
+    carried out in each one's own code.
 
   </Fragment>
 
-  > Derived from project spektacular (git@github.com:jumppad-labs/spektacular.git), spec/plan 000044_projects-feature-documentation.
+  Changelog records are written twice over. One central record lives in the
+  project, covering the feature as a whole, and every repository the work
+  touched gets its own derived entry in its own changelog store, carrying
+  front matter that names the project and the spec and plan it came from:
+
+  ```yaml
+  ---
+  created_date: "2026-09-02"
+  status: in-progress
+  project: spektacular
+  project_source: git@github.com:jumppad-labs/spektacular.git
+  spec: 000046_relocatable-repo-footprint
+  plan: 000046_relocatable-repo-footprint
+  ---
+  ```
+
+  Entries are filed under a folder named after the project, so several
+  projects writing into one shared repository can never collide, and each
+  repository's history stays readable on its own terms even though the work
+  that produced it spanned several.
 
 </Section>
 
-<Section heading="How a registered repository becomes available">
+<Section heading="Cloning a git source">
 
   <Fragment slot="sub">
 
-    A repository registered by remote address is cloned automatically the
-    first time it's needed. Once cloned, it's reused as-is: Spektacular
-    never fetches or pulls a repository that's already present without the
-    user doing so themselves.
+    A repository whose `source` names a git address is cloned automatically
+    the first time it's needed, into the project's own gitignored working
+    folder, so clones never enter the project's history.
 
   </Fragment>
+
+  Once a clone exists it is reused as-is. Spektacular never fetches or pulls
+  on your behalf. If a clone has fallen behind its remote, `repo list`
+  reports a `stale_note` against that repository and leaves the decision to
+  you:
+
+  ```bash
+  git -C .spektacular/repos/api pull
+  ```
+
+  Listing is otherwise free of side effects. A repository whose git source
+  has not been cloned yet reports an empty root rather than triggering a
+  clone, so inspecting a project never changes it.
 
 </Section>
 
@@ -133,18 +364,23 @@ import Button from "../components/Button.astro";
   <Fragment slot="sub">
 
     Any repository, or the project's own storage, can carry a
-    `.spektacular_ignore` file using gitignore-style patterns to keep paths
-    such as build artifacts out of Spektacular's own search and listing
-    results. A file named directly is still accessible even if it matches
-    an ignore pattern; only search and listing are affected.
+    `.spektacular_ignore` file using gitignore-style patterns, to keep paths
+    such as build output or vendored code out of Spektacular's own search
+    and listing results.
 
   </Fragment>
+
+  The file sits at the root of the source it applies to and affects only
+  Spektacular's own search and listing. A file named directly is still
+  readable even when it matches a pattern, and the agent's ordinary file
+  tools are unaffected, so an ignore file is a way to keep results relevant
+  rather than a way to restrict access.
 
 </Section>
 
 <CtaBanner
-  heading="Ready to register another repository?"
-  body="See the full configuration reference for the project and repository sides of the split."
+  heading="Set up your own multi-repo project"
+  body="The configuration reference covers both sides of the split, key by key."
 >
   <Button href="/configuration/" label="Configuration reference →" variant="primary" large />
 </CtaBanner>

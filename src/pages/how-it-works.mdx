@@ -108,10 +108,17 @@ import Button from "../components/Button.astro";
 
 </QuickStart>
 
-<SpecFormat
-  heading="The spec format"
-  sub="Specs are plain markdown files. No special syntax, just structured sections that give the planning agent what it needs."
->
+<SpecFormat heading="The spec format">
+
+  <Fragment slot="sub">
+
+    Specs are plain markdown files. No special syntax, just structured sections
+    that give the planning agent what it needs. The Requirements and Constraints
+    sections follow [ISO/IEC/IEEE 29148:2018](https://www.iso.org/standard/72089.html),
+    the international standard for requirements engineering in systems and
+    software; the rest of the sections are ours.
+
+  </Fragment>
 
   <Fragment slot="example">
 

@@ -23,11 +23,11 @@ const hasSubSlot = Astro.slots.has("sub");
         set:html={heading}
       />
       {hasSubSlot ? (
-        <div class="spek-body text-lg text-text-secondary max-w-[52ch] mx-auto mb-8">
+        <div class="spek-body spek-centered text-lg text-text-secondary mb-8">
           <slot name="sub" />
         </div>
       ) : sub ? (
-        <p class="spek-body text-lg text-text-secondary max-w-[52ch] mx-auto mb-8" set:html={sub} />
+        <p class="spek-body spek-centered text-lg text-text-secondary mb-8" set:html={sub} />
       ) : null}
       {Astro.slots.has("install") && (
         <div class="flex justify-center mb-8">
@@ -47,11 +47,11 @@ const hasSubSlot = Astro.slots.has("sub");
         set:html={heading}
       />
       {hasSubSlot ? (
-        <div class="spek-body text-[1.0625rem] text-text-secondary max-w-[60ch] m-0">
+        <div class="spek-body text-[1.0625rem] text-text-secondary m-0">
           <slot name="sub" />
         </div>
       ) : sub ? (
-        <p class="spek-body text-[1.0625rem] text-text-secondary max-w-[60ch] m-0" set:html={sub} />
+        <p class="spek-body text-[1.0625rem] text-text-secondary m-0" set:html={sub} />
       ) : null}
       <slot />
     </div>

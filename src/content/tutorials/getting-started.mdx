@@ -3,7 +3,7 @@ title: "How to use Spektacular"
 summary: "Take a feature from a rough idea to working code using a Spektacular spec, the project knowledge base, and a plan-and-implement loop driven by your coding agent of choice."
 order: 10
 ---
-import TutorialStep from "../../components/tutorial/TutorialStep.astro"; import
+import Step from "../../components/sections/Step.astro"; import
 AgentBlock from "../../components/tutorial/AgentBlock.astro"; import ZoomImage
 from "../../components/tutorial/ZoomImage.astro"; import YouTubeVideo from
 "../../components/tutorial/YouTubeVideo.astro";
@@ -92,7 +92,7 @@ you can check your work against it at any time.
 
 <YouTubeVideo url="https://youtu.be/ZRVa9gml_Bg" start={0} end={107} fullscreen={true} />
 
-<TutorialStep number="1" heading="Cloning the example repository">
+<Step spaced number="1" heading="Cloning the example repository">
 
   First, clone the example repository and check out the `tutorial` branch:
 
@@ -102,9 +102,9 @@ you can check your work against it at any time.
   git checkout tutorial
   ```
 
-</TutorialStep>
+</Step>
 
-<TutorialStep number="2" heading="Install Spektacular">
+<Step spaced number="2" heading="Install Spektacular">
 
   Spektacular is a Go binary. Install it from GitHub releases, Homebrew, or your
   distribution's package manager. Pick whichever method fits your workflow from
@@ -116,9 +116,9 @@ you can check your work against it at any time.
   spektacular --version
   ```
 
-</TutorialStep>
+</Step>
 
-<TutorialStep number="3" heading="Install and configure your coding agent">
+<Step spaced number="3" heading="Install and configure your coding agent">
 
   Spektacular drives an external coding agent. Install the one you picked at the
   top of the page. The rest of the tutorial assumes it is on your `PATH`.
@@ -157,9 +157,9 @@ you can check your work against it at any time.
 
   </AgentBlock>
 
-</TutorialStep>
+</Step>
 
-<TutorialStep number="4" heading="Initialise your project">
+<Step spaced number="4" heading="Initialise your project">
 
   Every repository you want to use Spektacular with needs to be initialised.
   This installs the skills into your coding agent and configures the local
@@ -209,7 +209,7 @@ you can check your work against it at any time.
   planning and implementation work can span all of them together. See
   [Multi-Repo Projects](/projects/) to learn how.
 
-</TutorialStep>
+</Step>
 
 Let's now look a little deeper at the specification.
 
@@ -604,14 +604,14 @@ As a developer, before you start coding, you assemble all of this information.
 It is often the difference between success and failure. So if the agent is going
 to act on your behalf, it needs the same context you do.
 
-Spektacular gives you several places to put that context:
-* Project-level knowledge
-* Team-level knowledge
+Spektacular gives you two tiers to put that context in:
+* A repository's own knowledge, about that repository's code
+* The project's shared knowledge, for anything that spans repositories
 
-The locations of these knowledge sources are defined in the Spektacular
-configuration file. By default, only the project-level knowledge base is
-configured on initialisation. You can add team-level knowledge sources to the
-configuration.
+A repository's store is declared in its own `repo.yaml` and travels with it, so
+initialisation gives you one without any extra configuration. Shared stores are
+declared by the project, in `.spektacular/config.yaml`, and you add as many as
+you want.
 
 Let's look at the project knowledge base and how to populate it with the
 information the agent needs to generate a good plan.
@@ -692,7 +692,7 @@ git show main:.spektacular/knowledge/conventions/dependency-injection.md > .spek
 These files contain the coding conventions and code snippets that the agent will
 use when generating the plan.
 
-<TutorialStep number="1" heading="Context Cancellation">
+<Step spaced number="1" heading="Context Cancellation">
 
 ```markdown
 # .spektacular/knowledge/conventions/context-cancellation.md
@@ -704,9 +704,9 @@ parameter and thread it through to the underlying call.
 
 # ...
 ```
-</TutorialStep>
+</Step>
 
-<TutorialStep number="2" heading="Dependency Injection">
+<Step spaced number="2" heading="Dependency Injection">
 
 ```markdown
 # .spektacular/knowledge/conventions/dependency-injection.md
@@ -718,7 +718,7 @@ package-level globals or expose it through accessor functions.
 
 # ...
 ```
-</TutorialStep>
+</Step>
 
 The end result is that when the agent generates the plan, it will use these conventions and produce code that looks like the following:
 
@@ -743,33 +743,44 @@ your team have a different approach, you can of course capture that in the knowl
 Let's now look at the concept of a team knowledge base and learn how Spektacular
 supports multiple knowledge sources.
 
-### Multi-source knowledge
+### Knowledge that spans repositories
 
 The conventions we have just covered could realistically be team- or
-language-based rather than project-specific. Spektacular lets you define multiple
-knowledge sources, so you can manage them in whatever way works best for you.
+language-based rather than specific to this repository. That kind of knowledge
+belongs to the project rather than to any one repository, so you declare it in
+the project's own configuration, giving each store a name:
 
 ```yaml
 # .spektacular/config.yaml
 knowledge:
   sources:
-    - scope: project
-      provider: file
-      config:
-        location: .spektacular/knowledge
-    - scope: team
+    - name: team
       provider: file
       config:
         location: ~/work/team-knowledge
-    - scope: global
+    - name: global
       provider: file
       config:
         location: ~/spektacular-global
 ```
 
-When the agent searches for context, Spektacular queries each source in order
-and aggregates the results. These results are passed back to the agent, which
-can use them or request further clarification from the user.
+The repository's own store does not appear here. It is declared in its
+`repo.yaml`, which is what lets it travel with the repository into any project
+that registers it:
+
+```yaml
+# repo.yaml
+knowledge:
+  provider: file
+  config:
+    location: knowledge
+```
+
+When the agent searches for context, Spektacular queries every store the request
+covers and aggregates the results, tagging each one with the tier and store it
+came from. Narrow a request with `--tier` and `--filter` when you only want
+particular stores. These results are passed back to the agent, which can use
+them or request further clarification from the user.
 
 Let's see all of this in action by generating the plan for our feature.
 
