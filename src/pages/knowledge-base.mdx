@@ -70,7 +70,7 @@ import Button from "../components/Button.astro";
   | --- | --- | --- | --- |
   | `conventions` | always-applied | The rules the team always wants honoured: coding standards, naming, formatting, required patterns, house style. Stated as an imperative rule to follow. | The *reasoning* behind a rule (a decision); a one-off lesson (a learning). |
   | `glossary` | always-applied | The shared vocabulary: domain and project terms, each a term plus a one- or two-sentence gloss. | How a thing works (architecture); why a choice was made (a decision). |
-  | `architecture` | looked-up | How the system is built and fits together: components, responsibilities, boundaries, and data/control flow. | Why a structure was chosen (a decision); a defined term (glossary). |
+  | `architecture` | looked-up | How the system is built and how new work must be built into it: components, responsibilities, boundaries, and data/control flow. Binding on the work being planned, not a survey of today's code. | Why a structure was chosen (a decision); a defined term (glossary). |
   | `gotchas` | looked-up | Sharp edges and non-obvious traps: surprising behaviours and easy mistakes, with what to do instead. | A standing rule (a convention); the system's structure (architecture). |
   | `learnings` | looked-up | Empirical findings from doing the work: what was tried, what worked, what didn't. | A decision with its rationale (a decision); a rule to follow (a convention). |
   | `decisions` | looked-up | The reasoning behind choices (ADR-style): options considered, trade-offs weighed, why one path won. | The resulting structure (architecture); a rule to follow (a convention). |
@@ -79,6 +79,13 @@ import Button from "../components/Button.astro";
   assistant, tell two similar-looking categories apart at the edges, so a
   rule lands in `conventions`, the reasoning behind it lands in `decisions`, and
   the structure it shapes lands in `architecture`.
+
+  **Every category is binding, whatever its tier.** The tiers describe *when*
+  knowledge reaches the planning agent, not how much authority it carries. An
+  entry states how the project works and how work in it must be done, so where
+  an entry and the current code disagree, the entry states the target and the
+  code is what has yet to meet it. A codebase that does something else is work
+  to do, not evidence that the entry has gone stale.
 
   </Prose>
 
