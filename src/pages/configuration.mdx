@@ -59,7 +59,8 @@ import Button from "../components/Button.astro";
       - name: team                  # repository declares its own in repo.yaml
         provider: file
         config:
-          location: ${HOME}/work/team-knowledge
+          location: ${HOME}/work/team-knowledge   # or ../../team-knowledge,
+                                                  # relative to this file
 
   repos:
     - name: docs
@@ -173,7 +174,8 @@ import Button from "../components/Button.astro";
     - `knowledge.sources[].provider`: storage backend; only `file` ships
       today.
     - `knowledge.sources[].config.location`: where the file provider reads
-      knowledge from. Relative paths resolve against the project root.
+      knowledge from. Relative paths resolve from the folder holding
+      `config.yaml`, the same base a `repos` entry uses.
 
   </ConfigKey>
 

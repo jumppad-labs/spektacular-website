@@ -192,7 +192,9 @@ import Button from "../components/Button.astro";
   **The project declares its shared stores.** These are the ones no single
   repository owns, and they live under the `knowledge` key of
   `.spektacular/config.yaml`, each with its own name. Relative locations resolve
-  against the project root; absolute paths and `~` work too:
+  from the folder holding `config.yaml`, the same base a `repos` entry uses, so
+  `..` is the project's own root and `../team-knowledge` a folder beside it.
+  Absolute paths and `~` work too:
 
   ```yaml
   # .spektacular/config.yaml
