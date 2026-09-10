@@ -313,9 +313,33 @@ import Button from "../components/Button.astro";
 
   **You rarely write this block yourself.** The `spek-knowledge` skill proposes
   tags when it captures an entry, and shows them alongside the destination for
-  you to confirm or edit before anything is written. It can also audit the
-  entries you already have, reporting tags an entry's content does not bear out
-  and proposing ones it is missing, one entry at a time.
+  you to confirm or edit before anything is written.
+
+  **Auditing the tags you already have.** Entries written before tags existed, or
+  tagged carelessly, can be reviewed the same way. There is no separate command:
+  invoke the `spek-knowledge` skill and ask it to audit the knowledge base tags.
+  The skill works out the intent from the wording of the request, the same way it
+  tells a lookup from a contribution.
+
+  Nothing is read-write until you approve it. The audit lists the entries in
+  scope, loads the vocabulary in use, reads each entry, and reports two things per
+  entry:
+
+  - **Unsupported tags**, a tag the entry's content does not bear out, reported
+    for removal.
+  - **Missing tags**, a subject the entry is clearly about but carries no tag for,
+    proposed from the vocabulary already in use where something fits.
+
+  Changes are proposed and confirmed **one entry at a time**. Accepting one
+  entry's changes never applies another's, and declining one does not carry to the
+  next, so a suggestion you disagree with costs a "no" rather than a cleanup.
+  Narrow what gets reviewed with `--tier` and `--filter`.
+
+  The audit is deliberately careful in two opposite directions. It will not tell
+  an entry tagged `https` to use `http` instead, because those are different
+  subjects and prefix matching already relates them at reduced strength. It will
+  report `apples` sitting beside `apple` as removable, because prefix matching
+  already reaches it and a redundant tag is how a vocabulary silently doubles.
 
   </Prose>
 
