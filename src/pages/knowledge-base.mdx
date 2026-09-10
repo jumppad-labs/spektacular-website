@@ -113,17 +113,23 @@ import Button from "../components/Button.astro";
     --file ./db-timeouts.md
   ```
 
+  You rarely run this by hand. The `spek-knowledge` skill proposes the tier, the
+  store, the path, the tags and the body together, and waits for you to confirm
+  all of it before anything is written.
+
   The first segment of the path picks the category (`gotchas/db-timeouts.md`
   lands in `gotchas`) and the entry is stored as raw markdown at
   `<location>/<category>/<name>.md`, with any missing parent directories created
   for you. There is no required frontmatter; an entry's title is taken from its
-  first heading, falling back to its path.
+  first heading, falling back to its path. An entry may open with an optional
+  frontmatter block declaring its tags, covered under Tagging an entry below.
 
   **Searching and retrieving.** `knowledge search` runs a keyword query across
   the stores the request covers and returns ranked, one-per-document hits, each
-  with a few short excerpts so an agent can scan many results cheaply. Results
-  are scored by how often the query terms appear, with ties broken by store order
-  and then path, so the ordering is stable. Every hit reports the tier and store
+  with a few short excerpts so an agent can scan many results cheaply. An entry
+  does not have to contain every word of your query: it is returned if it carries
+  evidence for any of them, and ranked on how good a match it is. How that
+  ranking works is set out in full below. Every hit reports the tier and store
   it came from, which is exactly what `knowledge read` needs, so a result can be
   pulled back in full without a second lookup and with no risk of fetching a
   same-named entry from somewhere else. Add `--tier` and `--filter` to narrow
@@ -144,6 +150,172 @@ import Button from "../components/Button.astro";
   Because entries are identified by the exact bytes of their content, rewriting
   the same text changes nothing, while genuinely edited text supersedes the
   previous version.
+
+  </Prose>
+
+</Section>
+
+<Section heading="How a search is ranked" surface>
+
+  <Fragment slot="sub">
+
+    Matching is no longer all or nothing. An entry is returned if it carries
+    evidence for any of your query terms, and ranked on how good a match it is.
+
+  </Fragment>
+
+  <Prose nested>
+
+  **How a query becomes terms.** Your query is lower-cased and split on
+  whitespace into terms. There is no stemming, no synonyms and no plural
+  handling, so `router` and `routers` are different terms.
+
+  **What counts as evidence.** For each term, an entry offers at most two kinds:
+
+  - a **tag match**: full strength when the term equals one of the entry's tags,
+    and reduced when the two are prefix-related, described under partial credit
+    below.
+  - **body occurrences**: the number of case-insensitive substring matches in the
+    entry's text. The frontmatter block is not part of the text, so a tag is
+    never also counted as a mention of itself.
+
+  **The formula.**
+
+  ```text
+  damp(n)        = 0                         if n = 0
+                 = 1 + log2(n)               otherwise
+
+  tagAffinity(t) = 1                         if t equals one of the tags
+                 = len(shorter)/len(longer)  if t and a tag are prefix-related
+                                             and the shorter is >= MIN_PREFIX
+                 = 0                         otherwise
+
+  termScore(t)   = TAG_WEIGHT * tagAffinity(t) + damp(bodyCount(t))
+
+  coverage       = (terms with any evidence) / (total terms)
+
+  score          = sum(termScore(t) for t in terms) * coverage ^ COVERAGE_EXPONENT
+  ```
+
+  with `TAG_WEIGHT = 8`, `COVERAGE_EXPONENT = 2` and `MIN_PREFIX = 4`. Where a
+  term is prefix-related to more than one tag, the strongest match wins;
+  affinities do not add up.
+
+  These values live in `internal/knowledge/ranking.go` as `tagWeight`,
+  `coverageExponent`, `minPrefixLen` and `cutoffFraction`, which is the single
+  source of truth for all of them. They are quoted here and in the project's own
+  maintainer documentation, so changing one means changing the code and every
+  document that repeats it.
+
+  **A worked example.** Searching `http routing` against two entries:
+
+  | | Entry A, tagged `http, routing` | Entry B, untagged, mentions "http" 8 times |
+  | --- | --- | --- |
+  | `http` | tag match, 0 in body: 8 + 0 = 8 | no tag, 8 in body: 0 + (1 + log2 8) = 4 |
+  | `routing` | tag match, 2 in body: 8 + 2 = 10 | no evidence: 0 |
+  | coverage | 2 of 2 = 1.0 | 1 of 2 = 0.5 |
+  | **score** | (8 + 10) * 1.0² = **18** | 4 * 0.5² = **1** |
+
+  Entry B mentions the word far more often and still ranks well below Entry A,
+  because Entry A is *about* both terms and Entry B is about neither.
+
+  **The cutoff.** Once every store has been searched and the results merged, any
+  hit scoring below `CUTOFF_FRACTION` of the best hit is dropped, with
+  `CUTOFF_FRACTION = 0.25`. The threshold is relative rather than fixed, so a
+  loosely related entry surfaces when nothing better exists and falls away once
+  something genuinely relevant is present, and it keeps its meaning as a
+  knowledge base grows. In the example above, Entry B is dropped: 1 is below
+  0.25 * 18.
+
+  **Ordering, and what never appears.** Ties break by configured store order and
+  then by path, so repeated searches return the same order. The always-applied
+  categories, `conventions` and `glossary`, never appear in search results,
+  because they are already loaded in full.
+
+  </Prose>
+
+</Section>
+
+<Section heading="Tagging an entry">
+
+  <Fragment slot="sub">
+
+    Tags say what an entry is about, independently of the words it happens to
+    use. They are proposed for you when an entry is captured, drawn from the tags
+    already in use, so the vocabulary converges without anyone maintaining a
+    taxonomy.
+
+  </Fragment>
+
+  <Prose nested>
+
+  **The frontmatter block.** An entry may open with a YAML frontmatter block. It
+  must be the very first thing in the file, opened and closed by a line
+  containing only `---`:
+
+  ```markdown
+  ---
+  tags: [go, http, routing]
+  ---
+
+  # HTTP routing standard
+
+  All Go services route HTTP endpoints through chi.
+  ```
+
+  The block form of a YAML list works too:
+
+  ```markdown
+  ---
+  tags:
+    - go
+    - http
+    - routing
+  ---
+  ```
+
+  **The rules.**
+
+  - **Tags are optional.** An entry without a block is perfectly valid and fully
+    searchable. There is nothing to migrate and no command to run.
+  - **Tags are lower-cased and de-duplicated** when read, so `HTTP` and `http`
+    cannot both exist as separate tags.
+  - **`tags` is the only key read.** Any other key in the block is ignored, so
+    the block is safe to use for your own metadata.
+  - **A malformed or unclosed block is treated as no frontmatter**, not as an
+    error. An entry that happens to open with a horizontal rule keeps working,
+    and one bad entry can never fail a search across a whole store.
+
+  **Partial credit.** A tag does not have to be typed exactly to be found. When a
+  search term and a tag are prefix-related, the tag still counts, at a strength
+  equal to the shorter string divided by the longer:
+
+  | search | tag | counts as |
+  | --- | --- | --- |
+  | `https` | `https` | 100% |
+  | `http` | `https` | 80% |
+  | `apples` | `apple` | 83% |
+  | `https` | `https-security` | 36% |
+  | `go` | `golang` | nothing |
+
+  This is why plurals and word forms mostly look after themselves: `apple` and
+  `apples` find each other without either being written down twice. It works in
+  both directions, so it does not matter which form the tag uses.
+
+  Two limits are deliberate. The match must start at the beginning of the word,
+  so `test` does not find `latest`. And the shorter of the two must be at least
+  four characters, so very short terms like `go` or `id` match only exactly,
+  rather than matching every tag that happens to start with them.
+
+  What it does not do is understand words. `route` does not find `routing`,
+  because `route` is not a prefix of `routing`. Where a form is genuinely
+  different rather than merely longer, carry both tags.
+
+  **You rarely write this block yourself.** The `spek-knowledge` skill proposes
+  tags when it captures an entry, and shows them alongside the destination for
+  you to confirm or edit before anything is written. It can also audit the
+  entries you already have, reporting tags an entry's content does not bear out
+  and proposing ones it is missing, one entry at a time.
 
   </Prose>
 
@@ -233,6 +405,23 @@ import Button from "../components/Button.astro";
   spektacular knowledge search "database timeout" --tier repo --filter docs
   ```
 
+  Search takes one more, a repeatable `--tag`, which narrows to entries carrying
+  a given tag:
+
+  ```bash
+  spektacular knowledge search "routing" --tag http
+  ```
+
+  An entry without that tag is never returned, however well it would otherwise
+  score, and it is excluded before ranking rather than filtered out of the
+  results. Repeating `--tag` narrows further: an entry must carry every tag
+  listed. Note the asymmetry with `--filter`, which names alternative stores and
+  so widens. Tag matching here is exact, unlike the partial credit used for
+  ranking, because a filter should give you what you asked for and nothing
+  adjacent to it. `spektacular knowledge tags` lists the vocabulary in use, and a
+  `--tag` naming a tag no entry carries is refused rather than silently returning
+  nothing.
+
   Omitting the narrowing covers every store the tier reaches, and naming stores
   covers exactly those. No store is ever included or excluded implicitly, which
   is what lets planning work on one repository skip the standing rules of every
@@ -279,7 +468,14 @@ import Button from "../components/Button.astro";
   stops returning it at the same moment, so the two behaviours cannot drift
   apart.
 
-  **De-duplication is exact, not fuzzy.** When the same knowledge is written more
+  **De-duplication is exact, not fuzzy.** This is a different question from
+  ranking, and it gets a different tool. De-duplication asks whether two entries
+  are *the same*, which is a yes-or-no fact. Ranking asks which entry is a better
+  *answer*, which is a matter of degree, so it is scored rather than decided. The
+  argument that follows is about the first question only, and is not an argument
+  against inexact ranking.
+
+  When the same knowledge is written more
   than once, the mechanical check for "this is already here" matches on exact
   byte-identity rather than a similarity score. That is deliberate, because
   lexical similarity does not track meaning: *"always retry"* and *"never retry"*

@@ -42,13 +42,14 @@ type Store interface {
     List(path string) ([]DirEntry, error)
     // Exists reports whether a file or directory exists at path.
     Exists(path string) bool
-    // Search returns hits for a free-form keyword query, scanning only this
-    // store. Hits are left unattributed for the caller to tag.
-    Search(query string) ([]Hit, error)
+    // Search returns hits for a pre-tokenized keyword query, scanning only
+    // this store. Terms arrive lower-cased, in the order the caller indexes
+    // evidence by. Hits are left unattributed and unscored for the caller.
+    Search(terms []string, opts SearchOptions) ([]Hit, error)
 }
 ```
 
-Two helper types travel with `Store`:
+Three helper types travel with `Store`:
 
 ```go
 type DirEntry struct {
@@ -56,14 +57,35 @@ type DirEntry struct {
     IsDir bool   // true for a subdirectory, recurse into it via List
 }
 
+type SearchOptions struct {
+    // Tags restricts results to entries carrying every listed tag, matched
+    // exactly. Empty means no restriction. Applying it is an optimisation,
+    // not a guarantee: the knowledge layer enforces it regardless, so a
+    // store that ignores this field is slower, never wrong.
+    Tags []string
+}
+
 type Hit struct {
-    Tier    string  `json:"tier"`    // addressing tier, stamped by the caller
-    Name    string  `json:"name"`    // originating store's name, stamped by the caller
-    Path    string  `json:"path"`    // locator, relative to the store root
-    Excerpt string  `json:"excerpt"` // compact excerpt, capped at the budget
-    Score   float64 `json:"score"`   // optional relevance score; 0 if absent
+    // Filled in by the store
+    Path       string   `json:"path"`     // locator, relative to the store root
+    Title      string   `json:"title"`    // the document's first heading, or the locator
+    Excerpts   []string `json:"excerpts"` // compact excerpts, each capped at the budget
+    Checksum   string   `json:"checksum"` // hex SHA-256 over the entry's exact raw bytes
+    Tags       []string `json:"tags"`     // the entry's declared tags, empty rather than absent
+    BodyCounts []int    `json:"-"`        // occurrences per query term, in term order
+
+    // Left zero by the store, stamped by the knowledge layer
+    Tier     string  `json:"tier"`
+    Name     string  `json:"name"`
+    Category string  `json:"category"`
+    Score    float64 `json:"score"`
 }
 ```
+
+The two groups are the whole contract in miniature. A store fills in what it
+observed while reading a document. It leaves the second group alone, because
+every field in it is a statement about the *whole result set*, which a single
+store cannot see.
 
 Method contracts in brief:
 
@@ -80,6 +102,23 @@ Method contracts in brief:
   `Name` empty, because it has no notion of the caller's addressing scheme;
   the knowledge layer stamps them after merging so every result says which
   store it came from.
+- **For the same reason, a store leaves `Score` at zero.** A store cannot see
+  the other stores its results will be merged and ranked against, so it cannot
+  put a score on a scale those results share. Report what you found, per term,
+  and the knowledge layer scores it. A backend that computed its own score
+  would rank on a scale unrelated to every other backend's, and the merged
+  ordering would be quietly wrong rather than visibly broken. Matching is a
+  ranked OR: return a document that carries evidence for *any* term, not only
+  one that carries evidence for all of them, and let the ranking decide what
+  is worth showing.
+- **This means a backend has to be able to report how often each query term
+  occurs**, in `BodyCounts`, indexed like the `terms` it was given. A purely
+  semantic backend that can only return its own opaque relevance score cannot
+  take part in this ranking, and is out of scope for the current design. Meet
+  that limit in the design rather than in a debugging session.
+- `SearchOptions.Tags` may be applied while walking, to avoid reporting
+  documents that would be discarded anyway. Correctness does not depend on it:
+  the knowledge layer applies the same filter after the merge.
 
 ## The Agent interface
 
